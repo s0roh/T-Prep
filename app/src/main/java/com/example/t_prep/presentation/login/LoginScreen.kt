@@ -23,7 +23,10 @@ import com.example.t_prep.presentation.ui.theme.TPrepTheme
 
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(
+    onSuccessLoginListener: (String) -> Unit = {}
+) {
+    val viewModel: LoginViewModel = viewModel()
     val screenState by viewModel.screenState.collectAsState()
 
     val context = LocalContext.current
@@ -31,7 +34,7 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
     var password by rememberSaveable { mutableStateOf("") }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
-    Surface{
+    Surface {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -101,6 +104,7 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
                         color = Color.Green,
                         modifier = Modifier.padding(top = 8.dp)
                     )
+                    onSuccessLoginListener(state.token)
                 }
 
                 is LoginScreenState.Initial -> {}

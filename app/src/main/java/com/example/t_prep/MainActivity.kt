@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.t_prep.presentation.login.LoginScreen
+import androidx.compose.material3.Scaffold
+import com.example.t_prep.presentation.publicDecks.PublicDecksScreen
 import com.example.t_prep.presentation.ui.theme.TPrepTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +14,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TPrepTheme {
-                LoginScreen()
+                Scaffold {innerPadding ->
+                    PublicDecksScreen(innerPadding)
+                    //LoginScreen()
+                }
             }
         }
     }
