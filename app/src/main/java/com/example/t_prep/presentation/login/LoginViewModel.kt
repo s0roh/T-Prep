@@ -18,22 +18,21 @@ class LoginViewModel : ViewModel() {
         screenState.tryEmit(LoginScreenState.Error("Ошибка авторизации: ${exception.message}"))
     }
 
-    fun onLoginClick(email: String, password: String) {
+    fun onLoginClick(login: String, password: String) {
         viewModelScope.launch(exceptionHandler) {
-            if (email.isNotBlank() && password.isNotBlank()) {
+            if (login.isNotBlank() && password.isNotBlank()) {
                 screenState.emit(LoginScreenState.Loading)
-                val token = apiService.loginUser(
-                    userName = email,
+                val response = apiService.loginUser(
+                    userName = login,
                     password = password
                 )
-                if (token.isSuccessful) {
-                    screenState.emit(LoginScreenState.Success(token.body().toString()))
+                if (response.isSuccessful) {
+                    screenState.emit(LoginScreenState.Success(response.body().toString()))
                 } else {
-                    screenState.emit(LoginScreenState.Error("Ошибка авторизации: неверный логин или параль"))
+                    throw Exception("Неверный логин или параль")
                 }
-
             } else {
-                screenState.emit(LoginScreenState.Error("Ошибка авторизации: поля логин и пароль должны быть заполнены"))
+                throw Exception("Поля логин и пароль должны быть заполнены")
             }
         }
     }

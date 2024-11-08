@@ -6,10 +6,12 @@ import com.example.t_prep.domain.entity.Deck
 import com.example.t_prep.domain.repository.PrepRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.stateIn
 
 class PrepRepositoryImpl : PrepRepository {
@@ -34,15 +36,23 @@ class PrepRepositoryImpl : PrepRepository {
             _decks.addAll(currentDecks)
             emit(decks)
         }
-    }
-
-    override fun getPublicDecksFlow(): StateFlow<List<Deck>> = loadedListFlow.stateIn(
+    }.retry {
+        delay(RETRY_TIMEOUT_MILLIS)
+        true
+    }.stateIn(
         coroutineScope,
         started = SharingStarted.Lazily,
         initialValue = decks
     )
 
+    override fun getPublicDecksFlow(): StateFlow<List<Deck>> = loadedListFlow
+
     override suspend fun loadNextPublicDecks() {
         nextDataNeededEvents.emit(Unit)
+    }
+
+    companion object {
+
+        private const val RETRY_TIMEOUT_MILLIS = 3000L
     }
 }
