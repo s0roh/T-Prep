@@ -1,6 +1,5 @@
 package com.example.t_prep.presentation.publicDecks
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -23,21 +21,21 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.t_prep.domain.entity.Deck
-import com.example.t_prep.presentation.ui.theme.TPrepTheme
 
 @Composable
 fun PublicDecksScreen(
     paddingValues: PaddingValues,
-    onDeckClickListener: (Long) -> Unit = {}
+    token: String,
+    onDeckClickListener: (Long) -> Unit
 ) {
     val viewModel: PublicDecksViewModel = viewModel()
     val screenState = viewModel.screenState.collectAsState(PublicDecksScreenState.Initial)
 
     PublicDecksScreenContent(
+        token = token,
         paddingValues = paddingValues,
         screenState = screenState,
         onDeckClickListener = onDeckClickListener,
@@ -47,6 +45,7 @@ fun PublicDecksScreen(
 
 @Composable
 private fun PublicDecksScreenContent(
+    token: String,
     paddingValues: PaddingValues,
     screenState: State<PublicDecksScreenState>,
     onDeckClickListener: (Long) -> Unit,
@@ -55,6 +54,7 @@ private fun PublicDecksScreenContent(
     when (val currentState = screenState.value) {
         is PublicDecksScreenState.Decks -> {
             PublicDecks(
+                token = token,
                 paddingValues = paddingValues,
                 decks = currentState.decks,
                 nextDataIsLoading = currentState.nextDataIsLoading,
@@ -77,6 +77,7 @@ private fun PublicDecksScreenContent(
 
 @Composable
 private fun PublicDecks(
+    token: String,
     paddingValues: PaddingValues,
     decks: List<Deck>,
     nextDataIsLoading: Boolean,
@@ -93,6 +94,9 @@ private fun PublicDecks(
             vertical = 16.dp
         )
     ) {
+        item {
+            Text(text = token)
+        }
         items(
             items = decks,
             key = { it.id }
@@ -154,42 +158,6 @@ private fun DeckCard(
                 text = "Количество карточек: ${deck.cards.size}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewDeckCard() {
-    TPrepTheme {
-        Surface {
-            DeckCard(
-                deck = Deck(
-                    id = 1,
-                    name = "Название карточки",
-                    isPublic = true,
-                    cards = listOf()
-                ),
-                onDeckClickListener = {},
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewDeckCardDarkTheme() {
-    TPrepTheme {
-        Surface {
-            DeckCard(
-                deck = Deck(
-                    id = 1,
-                    name = "Название карточки",
-                    isPublic = true,
-                    cards = listOf()
-                ),
-                onDeckClickListener = {},
             )
         }
     }
