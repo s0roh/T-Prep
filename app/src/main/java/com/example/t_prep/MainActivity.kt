@@ -6,10 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Scaffold
 import androidx.navigation.compose.rememberNavController
+import com.example.feature_auth.presentation.LoginScreen
 import com.example.t_prep.presentation.navigation.AppNavGraph
 import com.example.t_prep.presentation.navigation.Screen
-import com.example.t_prep.presentation.login.LoginScreen
-import com.example.t_prep.presentation.publicDecks.PublicDecksScreen
+import com.example.feature_decks.presentation.PublicDecksScreen
 import com.example.t_prep.presentation.ui.theme.TPrepTheme
 
 class MainActivity : ComponentActivity() {

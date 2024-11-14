@@ -21,3 +21,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "T-Prep"
 include(":app")
+include(":core-network")
+include(":feature-decks")
+include(":feature-auth")
+include(":data-decks")
+include(":core-preferences")
