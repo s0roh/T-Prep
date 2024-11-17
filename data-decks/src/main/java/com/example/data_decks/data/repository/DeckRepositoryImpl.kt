@@ -47,11 +47,15 @@ class DeckRepositoryImpl @Inject internal constructor(
         true
     }
 
-   override  fun getPublicDecksFlow(): SharedFlow<List<Deck>> = loadedListFlow.shareIn(
-       coroutineScope,
-       started = SharingStarted.Lazily,
-       replay = 1
-   )
+    override fun getPublicDecksFlow(): SharedFlow<List<Deck>> = loadedListFlow.shareIn(
+        coroutineScope,
+        started = SharingStarted.Lazily,
+        replay = 1
+    )
+
+    override suspend fun getDeckById(id: Long): Deck {
+        return apiService.getDeckById(id).toEntity()
+    }
 
     override suspend fun loadNextPublicDecks() {
         nextDataNeededEvents.emit(Unit)

@@ -7,5 +7,7 @@ interface DeckRepository {
 
     fun getPublicDecksFlow(): SharedFlow<List<Deck>>
 
+    suspend fun getDeckById(id: Long): Deck
+
     suspend fun loadNextPublicDecks()
 }

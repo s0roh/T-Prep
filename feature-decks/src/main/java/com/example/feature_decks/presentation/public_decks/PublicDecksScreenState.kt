@@ -1,4 +1,4 @@
-package com.example.feature_decks.presentation
+package com.example.feature_decks.presentation.public_decks
 
 import com.example.data_decks.domain.entity.Deck
 

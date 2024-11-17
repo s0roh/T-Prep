@@ -3,4 +3,8 @@
     <string name="count_of_decks">Количество карточек: %1$s</string>
     <string name="decks_public">Public</string>
     <string name="decks_private">Private</string>
+    <string name="error_loading_deck">Не удалось загрузить колоду</string>
+    <string name="card_question">Вопрос: %1$s</string>
+    <string name="card_answer">Ответ: %1$s</string>
+    <string name="cards_title">Карточки</string>
 </resources>

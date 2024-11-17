@@ -43,9 +43,9 @@ class AuthPreferencesImpl @Inject constructor(
 
     companion object {
 
-        private const val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
         private const val PREFS_NAME = "auth_prefs"
         private const val TOKEN_KEY = "auth_token"
         private const val EXPIRATION_KEY = "token_expiration"
+        private const val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
     }
 }
