@@ -1,12 +1,16 @@
 package com.example.core_preferences
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import javax.inject.Inject
 
-class AuthPreferencesImpl(context: Context) : AuthPreferences {
+class AuthPreferencesImpl @Inject constructor(
+    @ApplicationContext context: Context
+) : AuthPreferences {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -26,15 +30,20 @@ class AuthPreferencesImpl(context: Context) : AuthPreferences {
         prefs.edit().remove(TOKEN_KEY).remove(EXPIRATION_KEY).apply()
     }
 
-    @SuppressLint("NewApi")
     override fun isTokenValid(): Boolean {
         val expiration = getExpirationDate() ?: return false
-        val expirationDate =
-            OffsetDateTime.parse(expiration, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-        return OffsetDateTime.now().isBefore(expirationDate)
+        return try {
+            val format = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
+            val expirationDate = format.parse(expiration)
+            expirationDate != null && Date().before(expirationDate)
+        } catch (_: Exception) {
+            false
+        }
     }
 
     companion object {
+
+        private const val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
         private const val PREFS_NAME = "auth_prefs"
         private const val TOKEN_KEY = "auth_token"
         private const val EXPIRATION_KEY = "token_expiration"

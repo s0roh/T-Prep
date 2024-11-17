@@ -2,8 +2,6 @@ package com.example.feature_auth.presentation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -13,26 +11,28 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.feature_auth.R
+import com.example.feature_auth.presentation.components.AuthTextField
 
 @Composable
 fun LoginScreen(
-    onSuccessLoginListener: (String) -> Unit
+    onSuccessLoginListener: () -> Unit
 ) {
-    val context = LocalContext.current
-    val viewModel = remember { LoginViewModel(context) }
-    // val viewModel: LoginViewModel = viewModel()
+    val viewModel: LoginViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
+
+    var isButtonEnabled by rememberSaveable { mutableStateOf(true) }
 
     LaunchedEffect(screenState) {
         if (screenState is LoginScreenState.Success) {
-            onSuccessLoginListener((screenState as LoginScreenState.Success).token)
+            onSuccessLoginListener()
         }
     }
 
@@ -40,24 +40,29 @@ fun LoginScreen(
         var login by rememberSaveable { mutableStateOf("") }
         var password by rememberSaveable { mutableStateOf("") }
         var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+        isButtonEnabled = screenState !is LoginScreenState.Loading
 
         val focusManager = LocalFocusManager.current
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(16.dp)
+                .imePadding(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Вход", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = stringResource(R.string.auth_entrance),
+                style = MaterialTheme.typography.headlineMedium
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             AuthTextField(
                 value = login,
                 onValueChange = { login = it },
-                label = "Email",
+                label = stringResource(R.string.auth_login),
                 imeAction = ImeAction.Next,
                 onImeAction = { focusManager.moveFocus(FocusDirection.Down) }
             )
@@ -67,7 +72,7 @@ fun LoginScreen(
             AuthTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = "Password",
+                label = stringResource(R.string.auth_password),
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
@@ -88,10 +93,14 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { viewModel.onLoginClick(login, password) },
-                modifier = Modifier.fillMaxWidth()
+                onClick = {
+                    focusManager.clearFocus()
+                    viewModel.onLoginClick(login, password)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isButtonEnabled
             ) {
-                Text(text = "Вход")
+                Text( text = stringResource(R.string.auth_entrance))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -108,32 +117,9 @@ fun LoginScreen(
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
+
                 else -> {}
             }
         }
     }
-}
-
-@Composable
-private fun AuthTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    modifier: Modifier = Modifier,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    imeAction: ImeAction,
-    onImeAction: () -> Unit
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        singleLine = true,
-        label = { Text(label) },
-        modifier = modifier.fillMaxWidth(),
-        visualTransformation = visualTransformation,
-        trailingIcon = trailingIcon,
-        keyboardOptions = KeyboardOptions(imeAction = imeAction),
-        keyboardActions = KeyboardActions(onAny = { onImeAction() })
-    )
 }

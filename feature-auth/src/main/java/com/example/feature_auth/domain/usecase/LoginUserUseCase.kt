@@ -2,8 +2,9 @@ package com.example.feature_auth.domain.usecase
 
 import com.example.feature_auth.domain.entity.AuthState
 import com.example.feature_auth.domain.repository.AuthRepository
+import javax.inject.Inject
 
-internal class LoginUserUseCase(
+internal class LoginUserUseCase @Inject constructor(
     private val repository: AuthRepository
 ) {
 

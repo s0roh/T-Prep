@@ -1,23 +1,23 @@
 package com.example.feature_auth.presentation
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.feature_auth.data.repository.AuthRepositoryImpl
 import com.example.feature_auth.domain.entity.AuthState
 import com.example.feature_auth.domain.usecase.GetAuthStateFlowUseCase
 import com.example.feature_auth.domain.usecase.LoginUserUseCase
 import com.example.feature_auth.domain.usecase.RefreshAuthStateUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-internal class LoginViewModel(context: Context) : ViewModel() {
-
-    private val repository = AuthRepositoryImpl(context)
-    private val getAuthStateFlowUseCase = GetAuthStateFlowUseCase(repository)
-    private val loginUserUseCase = LoginUserUseCase(repository)
-    private val refreshAuthStateUseCase = RefreshAuthStateUseCase(repository)
+@HiltViewModel
+internal class LoginViewModel @Inject constructor(
+    private val getAuthStateFlowUseCase: GetAuthStateFlowUseCase,
+    private val loginUserUseCase: LoginUserUseCase,
+    private val refreshAuthStateUseCase: RefreshAuthStateUseCase,
+) : ViewModel() {
 
     var screenState = MutableStateFlow<LoginScreenState>(LoginScreenState.Initial)
         private set

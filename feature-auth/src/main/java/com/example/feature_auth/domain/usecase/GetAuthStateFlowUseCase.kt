@@ -3,8 +3,9 @@ package com.example.feature_auth.domain.usecase
 import com.example.feature_auth.domain.entity.AuthState
 import com.example.feature_auth.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.StateFlow
+import javax.inject.Inject
 
-internal class GetAuthStateFlowUseCase(
+internal class GetAuthStateFlowUseCase @Inject constructor(
     private val repository: AuthRepository
 ) {
 

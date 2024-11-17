@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="count_of_decks">Количество карточек: %1$s</string>
+    <string name="decks_public">Public</string>
+    <string name="decks_private">Private</string>
+</resources>

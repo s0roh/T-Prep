@@ -10,6 +10,7 @@ internal sealed interface PublicDecksScreenState {
 
     data class Decks(
         val decks: List<Deck>,
-        val nextDataIsLoading: Boolean = false
+        val nextDataIsLoading: Boolean = false,
+        val hasMoreData: Boolean = true
     ): PublicDecksScreenState
 }

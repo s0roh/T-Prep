@@ -21,21 +21,21 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.data_decks.domain.entity.Deck
+import com.example.feature_decks.R
 
 @Composable
 fun PublicDecksScreen(
     paddingValues: PaddingValues,
-    token: String,
     onDeckClickListener: (Long) -> Unit
 ) {
-    val viewModel: PublicDecksViewModel = viewModel()
-    val screenState = viewModel.screenState.collectAsState(PublicDecksScreenState.Initial)
+    val viewModel: PublicDecksViewModel = hiltViewModel()
+    val screenState = viewModel.screenState.collectAsState()
 
     PublicDecksScreenContent(
-        token = token,
         paddingValues = paddingValues,
         screenState = screenState,
         onDeckClickListener = onDeckClickListener,
@@ -45,7 +45,6 @@ fun PublicDecksScreen(
 
 @Composable
 private fun PublicDecksScreenContent(
-    token: String,
     paddingValues: PaddingValues,
     screenState: State<PublicDecksScreenState>,
     onDeckClickListener: (Long) -> Unit,
@@ -54,10 +53,10 @@ private fun PublicDecksScreenContent(
     when (val currentState = screenState.value) {
         is PublicDecksScreenState.Decks -> {
             PublicDecks(
-                token = token,
                 paddingValues = paddingValues,
                 decks = currentState.decks,
                 nextDataIsLoading = currentState.nextDataIsLoading,
+                hasMoreData = currentState.hasMoreData,
                 onDeckClickListener = onDeckClickListener,
                 loadNextPublicDecks = { viewModel.loadNextPublicDecks() }
             )
@@ -77,10 +76,10 @@ private fun PublicDecksScreenContent(
 
 @Composable
 private fun PublicDecks(
-    token: String,
     paddingValues: PaddingValues,
     decks: List<Deck>,
     nextDataIsLoading: Boolean,
+    hasMoreData: Boolean,
     onDeckClickListener: (Long) -> Unit,
     loadNextPublicDecks: () -> Unit,
     modifier: Modifier = Modifier
@@ -93,9 +92,6 @@ private fun PublicDecks(
             vertical = 16.dp
         )
     ) {
-        item {
-            Text(text = token)
-        }
         items(
             items = decks,
             key = { it.id }
@@ -106,20 +102,22 @@ private fun PublicDecks(
                 modifier = Modifier
             )
         }
-        item {
-            if (nextDataIsLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            } else {
-                SideEffect {
-                    loadNextPublicDecks()
+        if (hasMoreData) {
+            item {
+                if (nextDataIsLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    SideEffect {
+                        loadNextPublicDecks()
+                    }
                 }
             }
         }
@@ -139,22 +137,23 @@ private fun DeckCard(
         onClick = { onDeckClickListener(deck.id) },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-       Column(
+        Column(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
                 text = deck.name,
-                style =MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             Text(
-                text = if (deck.isPublic) "Public" else "Private",
+                text = if (deck.isPublic) stringResource(R.string.decks_public)
+                else stringResource(R.string.decks_private),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             Text(
-                text = "Количество карточек: ${deck.cards.size}",
+                text = stringResource(R.string.count_of_decks, deck.cards.size),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

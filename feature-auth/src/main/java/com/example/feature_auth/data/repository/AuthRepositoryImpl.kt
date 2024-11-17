@@ -1,8 +1,6 @@
 package com.example.feature_auth.data.repository
 
-import android.content.Context
-import com.example.core_network.api.ApiFactory
-import com.example.core_preferences.AuthPreferencesImpl
+import com.example.core_network.api.ApiService
 import com.example.feature_auth.domain.entity.AuthState
 import com.example.feature_auth.domain.repository.AuthRepository
 import com.example.feature_auth.domain.usecase.GetTokenUseCase
@@ -15,15 +13,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-internal class AuthRepositoryImpl(context: Context) : AuthRepository {
-
-    private val prefs = AuthPreferencesImpl(context)
-    private val getTokenUseCase = GetTokenUseCase(prefs)
-    private val isTokenValidUseCase = IsTokenValidUseCase(prefs)
-    private val saveTokenUseCase = SaveTokenUseCase(prefs)
-
-    private val apiService = ApiFactory.apiService
+class AuthRepositoryImpl @Inject internal constructor(
+    private val apiService: ApiService,
+    private val getTokenUseCase: GetTokenUseCase,
+    private val isTokenValidUseCase: IsTokenValidUseCase,
+    private val saveTokenUseCase: SaveTokenUseCase
+) : AuthRepository {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private val checkAuthStateEvents = MutableSharedFlow<Unit>(replay = 1)
@@ -53,7 +50,7 @@ internal class AuthRepositoryImpl(context: Context) : AuthRepository {
         val response = apiService.loginUser(userName, password)
         return if (response.isSuccessful) {
             val token = response.body()
-            val expiration = response.headers()["X-Expires-After"]
+            val expiration = response.headers()[HEADER_EXPIRES_AFTER]
             if (token != null && expiration != null) {
                 saveTokenUseCase(token, expiration)
                 AuthState.Authorized(token)
@@ -61,7 +58,11 @@ internal class AuthRepositoryImpl(context: Context) : AuthRepository {
                 AuthState.NotAuthorized
             }
         } else {
-            throw Exception("Неверный логин или пароль")
+            throw IllegalStateException("Неверный логин или пароль")
         }
+    }
+
+    companion object {
+        const val HEADER_EXPIRES_AFTER = "X-Expires-After"
     }
 }

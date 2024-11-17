@@ -1,11 +1,11 @@
 package com.example.data_decks.domain.repository
 
 import com.example.data_decks.domain.entity.Deck
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 interface DeckRepository {
 
-    fun getPublicDecksFlow(): StateFlow<List<Deck>>
+    fun getPublicDecksFlow(): SharedFlow<List<Deck>>
 
     suspend fun loadNextPublicDecks()
 }
