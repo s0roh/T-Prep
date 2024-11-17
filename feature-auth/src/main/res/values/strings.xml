@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auth_entrance">Вход</string>
+    <string name="auth_login">Login</string>
+    <string name="auth_password">Password</string>
+</resources>
