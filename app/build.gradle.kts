@@ -8,18 +8,22 @@ plugins {
 }
 
 android {
-    namespace = "com.example.t_prep"
-    compileSdk = 35
+    namespace = "com.example.tprep"
+    compileSdk = libs.versions.androidSdk.compile.get().toInt()
 
     defaultConfig {
-        applicationId = "com.example.t_prep"
-        minSdk = 24
-        targetSdk = 35
+        applicationId = "com.example.tprep"
+        minSdk = libs.versions.androidSdk.min.get().toInt()
+        targetSdk = libs.versions.androidSdk.target.get().toInt()
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_BASE_URL", "\"http://192.168.0.147:3001/\"")
     }
+
+
 
     buildTypes {
         release {
@@ -39,15 +43,16 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
 dependencies {
-    implementation(project(":feature-decks"))
-    implementation(project(":feature-auth"))
-    implementation(project(":core-network"))
-    implementation(project(":core-preferences"))
-    implementation(project(":data-decks"))
+    implementation(project(":feature:decks"))
+    implementation(project(":feature:auth"))
+    implementation(project(":core:network"))
+    implementation(project(":core:preferences"))
+    implementation(project(":data:decks"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -75,7 +80,7 @@ dependencies {
 
     // Retrofit
     implementation(libs.retrofit.core)
-    implementation(libs.retrofit.gsonConverter)
+    implementation(libs.kotlinx.serialization.json)
 
     // OkHttp
     implementation(libs.logging.interceptor)
