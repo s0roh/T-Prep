@@ -1,8 +1,7 @@
 package com.example.decks.data.repository
 
 import com.example.decks.data.mapper.toEntity
-import com.example.decks.domain.entity.Deck
-import com.example.decks.domain.repository.DeckRepository
+import com.example.decks.domain.repository.PublicDeckRepository
 import com.example.network.api.ApiService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,10 +13,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.shareIn
 import javax.inject.Inject
+import com.example.common.domain.entity.Deck
 
-class DeckRepositoryImpl @Inject internal constructor(
+class PublicDeckRepositoryImpl @Inject internal constructor(
     private val apiService: ApiService
-) : DeckRepository {
+) : PublicDeckRepository {
 
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
 

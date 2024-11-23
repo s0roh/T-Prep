@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.auth.presentation.login.LoginScreen
 import com.example.decks.presentation.details.DeckDetailScreen
-import com.example.decks.presentation.public_decks.PublicDecksScreen
+import com.example.decks.presentation.publicdecks.PublicDecksScreen
 import com.example.tprep.navigation.AppNavGraph
 import com.example.tprep.navigation.Screen
 import com.example.tprep.navigation.rememberNavigationState

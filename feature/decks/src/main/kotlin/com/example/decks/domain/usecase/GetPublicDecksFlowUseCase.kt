@@ -1,7 +1,7 @@
 package com.example.decks.domain.usecase
 
 import com.example.decks.domain.entity.Deck
-import com.example.decks.domain.repository.DeckRepository
+import com.example.decks.domain.repository.PublicDeckRepository
 import kotlinx.coroutines.flow.SharedFlow
 import javax.inject.Inject
 
@@ -13,7 +13,7 @@ import javax.inject.Inject
  * @param repository The repository that provides deck data.
  */
 internal class GetPublicDecksFlowUseCase @Inject constructor(
-    private val repository: DeckRepository
+    private val repository: PublicDeckRepository
 ) {
 
     operator fun invoke(): SharedFlow<List<Deck>> {

@@ -1,7 +1,7 @@
 package com.example.decks.data.mapper
 
-import com.example.decks.domain.entity.Card
-import com.example.decks.domain.entity.Deck
+import com.example.common.domain.entity.Card
+import com.example.common.domain.entity.Deck
 import com.example.network.dto.global.CardDto
 import com.example.network.dto.global.DeckDto
 
@@ -15,7 +15,9 @@ internal fun DeckDto.toEntity(): Deck =
 
 internal fun CardDto.toEntity(): Card =
     Card(
-        id = this.id,
-        question = this.question,
-        answer = this.answer
+        id = id,
+        question = question,
+        answer = answer
     )
+
+

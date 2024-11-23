@@ -19,6 +19,8 @@ hiltNavigationCompose= "1.2.0"
 androidSdk-target = "35"
 androidSdk-min = "24"
 androidSdk-compile = "35"
+ksp = "2.0.21-1.0.25"
+room = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +49,8 @@ material = { group = "com.google.android.material", name = "material", version.r
 dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
 dagger-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger" }
 hilt-navigation-compose = {module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose"}
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -56,4 +60,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 android-library = { id = "com.android.library", version.ref = "agp" }
 dagger-hilt-android = {id = "com.google.dagger.hilt.android", version.ref = "dagger"}
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
-
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

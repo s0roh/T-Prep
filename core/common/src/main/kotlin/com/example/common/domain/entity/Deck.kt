@@ -1,4 +1,4 @@
-package com.example.decks.domain.entity
+package com.example.common.domain.entity
 
 /**
  * Represents a deck of flashcards used in the spaced repetition system.

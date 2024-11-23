@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.decks"
+    namespace = "com.example.training"
     compileSdk = libs.versions.androidSdk.compile.get().toInt()
 
     defaultConfig {
@@ -33,7 +33,6 @@ android {
 
 dependencies {
 
-    implementation(project(":core:network"))
     implementation(project(":core:database"))
     implementation(project(":core:common"))
 

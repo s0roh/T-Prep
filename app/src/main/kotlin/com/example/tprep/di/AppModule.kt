@@ -3,8 +3,9 @@ package com.example.tprep.di
 import android.content.Context
 import com.example.auth.data.repository.AuthRepositoryImpl
 import com.example.auth.domain.repository.AuthRepository
-import com.example.decks.data.repository.DeckRepositoryImpl
-import com.example.decks.domain.repository.DeckRepository
+import com.example.database.TPrepDatabase
+import com.example.decks.data.repository.PublicDeckRepositoryImpl
+import com.example.decks.domain.repository.PublicDeckRepository
 import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthPreferencesImpl
@@ -25,13 +26,21 @@ interface AppModule {
 
     @Binds
     @Singleton
-    fun bindDeckRepository(deckRepositoryImpl: DeckRepositoryImpl): DeckRepository
+    fun bindPublicDeckRepository(publicDeckRepositoryImpl: PublicDeckRepositoryImpl): PublicDeckRepository
 
     @Binds
     @Singleton
     fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
 
     companion object {
+
+        @Provides
+        @Singleton
+        fun provideTPrepDatabase(
+            @ApplicationContext context: Context
+        ): TPrepDatabase {
+            return TPrepDatabase(context)
+        }
 
         @Provides
         @Singleton

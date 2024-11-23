@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.decks"
+    namespace = "com.example.history"
     compileSdk = libs.versions.androidSdk.compile.get().toInt()
 
     defaultConfig {
@@ -33,9 +33,7 @@ android {
 
 dependencies {
 
-    implementation(project(":core:network"))
     implementation(project(":core:database"))
-    implementation(project(":core:common"))
 
     implementation(libs.dagger.hilt.android)
     kapt(libs.dagger.hilt.compiler)

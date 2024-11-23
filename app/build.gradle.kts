@@ -51,8 +51,10 @@ dependencies {
     implementation(project(":feature:decks"))
     implementation(project(":feature:auth"))
     implementation(project(":core:network"))
+    implementation(project(":core:database"))
     implementation(project(":core:preferences"))
     implementation(project(":data:decks"))
+    implementation(project(":data:history"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

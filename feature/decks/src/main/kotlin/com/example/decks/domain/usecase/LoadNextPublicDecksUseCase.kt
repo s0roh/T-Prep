@@ -1,6 +1,6 @@
 package com.example.decks.domain.usecase
 
-import com.example.decks.domain.repository.DeckRepository
+import com.example.decks.domain.repository.PublicDeckRepository
 import javax.inject.Inject
 
 /**
@@ -11,7 +11,7 @@ import javax.inject.Inject
  * @param repository The repository that provides deck data.
  */
 internal class LoadNextPublicDecksUseCase @Inject constructor(
-    private val repository: DeckRepository
+    private val repository: PublicDeckRepository
 ) {
 
     suspend operator fun invoke() {

@@ -1,12 +1,10 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.dagger.hilt.android)
-    alias(libs.plugins.kapt)
 }
 
 android {
-    namespace = "com.example.decks"
+    namespace = "com.example.common"
     compileSdk = libs.versions.androidSdk.compile.get().toInt()
 
     defaultConfig {
@@ -32,13 +30,6 @@ android {
 }
 
 dependencies {
-
-    implementation(project(":core:network"))
-    implementation(project(":core:database"))
-    implementation(project(":core:common"))
-
-    implementation(libs.dagger.hilt.android)
-    kapt(libs.dagger.hilt.compiler)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
