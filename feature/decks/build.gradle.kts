@@ -40,6 +40,9 @@ dependencies {
     implementation(project(":data:decks"))
     implementation(project(":core:common"))
 
+    implementation(libs.paging.runtime)
+    implementation(libs.paging.compose)
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.ui)

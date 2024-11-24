@@ -24,12 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.training.R
 
 @Composable
-fun FinishTrainingScreen(
+internal fun FinishTrainingScreen(
     paddingValues: PaddingValues,
     totalCardsCompleted: Int,
     correctAnswers: Int,
@@ -51,7 +53,7 @@ fun FinishTrainingScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Тренировка завершена!",
+            text = stringResource(R.string.training_is_over),
             style = TextStyle(fontSize = 24.sp)
         )
 
@@ -74,11 +76,11 @@ fun FinishTrainingScreen(
 
             Column {
                 Text(
-                    text = "Всего пройдено карточек: $totalCardsCompleted",
+                    text = stringResource(R.string.total_cards_passed, totalCardsCompleted),
                     style = TextStyle(fontSize = 18.sp)
                 )
                 Text(
-                    text = "Правильных ответов: $correctAnswers",
+                    text = stringResource(R.string.correct_answers, correctAnswers),
                     style = TextStyle(fontSize = 18.sp)
                 )
             }
@@ -95,13 +97,13 @@ fun FinishTrainingScreen(
             },
             enabled = !isClicked
         ) {
-            Text(text = "Закрыть")
+            Text(text = stringResource(R.string.close))
         }
     }
 }
 
 @Composable
-fun DonutChart(
+internal fun DonutChart(
     modifier: Modifier = Modifier,
     correctPercentage: Float,
     incorrectPercentage: Float,

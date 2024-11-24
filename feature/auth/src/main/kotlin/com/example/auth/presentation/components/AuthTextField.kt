@@ -11,7 +11,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
-fun AuthTextField(
+internal fun AuthTextField(
     value: String,
     label: String,
     imeAction: ImeAction,

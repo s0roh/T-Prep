@@ -3,7 +3,7 @@ package com.example.training.domain
 import com.example.database.models.Source
 import javax.inject.Inject
 
-class RecordAnswerUseCase @Inject constructor(
+internal class RecordAnswerUseCase @Inject constructor(
     private val repository: TrainingRepository
 ) {
 

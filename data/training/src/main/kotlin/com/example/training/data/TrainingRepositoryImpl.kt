@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class TrainingRepositoryImpl @Inject constructor(
+class TrainingRepositoryImpl @Inject internal constructor(
     private val database: TPrepDatabase
 ) : TrainingRepository {
 
@@ -20,11 +20,11 @@ class TrainingRepositoryImpl @Inject constructor(
     ): List<Card> {
         return withContext(Dispatchers.IO) {
             val cardsWithSortingData = cards.map { card ->
-                val isNew = database.historyDao.isCardNew(
+                val isNew = database.historyDao.getTotalAnswersCount(
                     cardId = card.id,
                     deckId = deckId,
                     source = source
-                )
+                ) == 0
                 val coefficient = calculateCoefficient(
                     deckId = deckId,
                     cardId = card.id,
@@ -33,13 +33,12 @@ class TrainingRepositoryImpl @Inject constructor(
                 card to Pair(isNew, coefficient)
             }
 
-            // Сортируем по предварительно вычисленным данным
             val sortedCards = cardsWithSortingData
                 .sortedWith(compareBy(
-                    { if (it.second.first) 0 else 1 }, // Сначала новые карточки
-                    { it.second.second }              // Затем по коэффициенту
+                    { if (it.second.first) NEW_CARD_PRIORITY else EXISTING_CARD_PRIORITY },
+                    { it.second.second }
                 ))
-                .map { it.first } // Возвращаем только сами карточки
+                .map { it.first }
 
             sortedCards.map { card ->
                 val wrongAnswers = generateWrongAnswers(card, sortedCards)
@@ -52,14 +51,12 @@ class TrainingRepositoryImpl @Inject constructor(
         currentCard: Card,
         allCards: List<Card>
     ): List<String> {
-        // Исключаем текущую карточку и фильтруем уникальные ответы
         val otherAnswers = allCards
             .filter { it.id != currentCard.id }
             .map { it.answer }
             .distinct()
 
-        // Перемешиваем и берем максимум 3 неправильных ответа
-        return otherAnswers.shuffled().take(3)
+        return otherAnswers.shuffled().take(WRONG_ANSWERS_COUNT)
     }
 
     override suspend fun recordAnswer(
@@ -92,9 +89,23 @@ class TrainingRepositoryImpl @Inject constructor(
             source = source
         )
 
-        if (totalCount == 0) return 2.5
+        if (totalCount == 0) return DEFAULT_COEFFICIENT
 
         val accuracy = correctCount.toDouble() / totalCount
-        return (1.3 + accuracy * 1.2).coerceIn(1.3, 2.5)
+        return (MIN_COEFFICIENT + accuracy * COEFFICIENT_MULTIPLIER).coerceIn(
+            MIN_COEFFICIENT,
+            MAX_COEFFICIENT
+        )
+    }
+
+    companion object {
+
+        const val NEW_CARD_PRIORITY = 0
+        const val EXISTING_CARD_PRIORITY = 1
+        const val DEFAULT_COEFFICIENT = 2.5
+        const val MIN_COEFFICIENT = 1.3
+        const val MAX_COEFFICIENT = 2.5
+        const val COEFFICIENT_MULTIPLIER = 1.2
+        const val WRONG_ANSWERS_COUNT = 3
     }
 }

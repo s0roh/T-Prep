@@ -8,4 +8,6 @@
     <string name="card_answer">Ответ: %1$s</string>
     <string name="cards_title">Карточки</string>
     <string name="start_training">Тренироваться</string>
+    <string name="error_occurred">Произошла ошибка</string>
+    <string name="retry">Повторить</string>
 </resources>

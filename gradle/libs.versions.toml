@@ -21,6 +21,7 @@ androidSdk-min = "24"
 androidSdk-compile = "35"
 ksp = "2.0.21-1.0.25"
 room = "2.6.1"
+paging = "3.3.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,6 +52,8 @@ dagger-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref
 hilt-navigation-compose = {module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose"}
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+paging-runtime = {module = "androidx.paging:paging-runtime", version.ref = "paging"}
+paging-compose = {module = "androidx.paging:paging-compose", version.ref = "paging"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

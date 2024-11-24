@@ -1,13 +1,12 @@
 package com.example.decks.domain.repository
 
+import androidx.paging.PagingData
 import com.example.common.domain.entity.Deck
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.Flow
 
 interface PublicDeckRepository {
 
-    fun getPublicDecksFlow(): SharedFlow<List<Deck>>
+    fun getPublicDecks(): Flow<PagingData<Deck>>
 
     suspend fun getDeckById(id: Long): Deck
-
-    suspend fun loadNextPublicDecks()
 }

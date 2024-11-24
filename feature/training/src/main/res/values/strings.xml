@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="next">Далее</string>
+    <string name="skip">Пропустить</string>
+    <string name="back">Назад</string>
+    <string name="training_is_over">Тренировка завершена!</string>
+    <string name="total_cards_passed">Всего пройдено карточек: %1$s</string>
+    <string name="correct_answers">Правильных ответов: %1$s</string>
+    <string name="close">Закрыть</string>
+</resources>

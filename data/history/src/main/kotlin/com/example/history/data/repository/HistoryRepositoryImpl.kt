@@ -5,11 +5,12 @@ import com.example.database.models.Source
 import com.example.history.data.mapper.toDBO
 import com.example.history.data.mapper.toEntity
 import com.example.history.domain.entity.TrainingHistory
+import com.example.history.domain.repository.HistoryRepository
 import javax.inject.Inject
 
-class HistoryRepositoryImpl @Inject constructor(
+class HistoryRepositoryImpl @Inject internal constructor(
     private val database: TPrepDatabase
-) : com.example.history.domain.repository.HistoryRepository {
+) : HistoryRepository {
 
     override suspend fun getAllHistory(): List<TrainingHistory> {
         return database.historyDao.getAllHistory().map { it.toEntity() }

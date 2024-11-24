@@ -4,11 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
@@ -50,16 +45,9 @@ fun MainScreen() {
 
     Scaffold(
         bottomBar = {
-//            AnimatedVisibility(
-//                visible = shouldShowBottomNavigation(currentRoute),
-//                enter = slideInVertically { it } + fadeIn(),
-//                exit =  slideOutVertically { it } + fadeOut()
-//            ) {
             if (shouldShowBottomNavigation(currentRoute)) {
                 AppBottomNavigation(navigationState = navigationState)
             }
-
-            //}
         }
     ) { paddingValues ->
         AppNavGraph(

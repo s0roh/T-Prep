@@ -4,7 +4,7 @@ import com.example.common.domain.entity.Card
 import com.example.database.models.Source
 import javax.inject.Inject
 
-class PrepareTrainingCardsUseCase @Inject constructor(
+internal class PrepareTrainingCardsUseCase @Inject constructor(
     private val repository: TrainingRepository
 ) {
 

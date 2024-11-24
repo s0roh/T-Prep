@@ -10,7 +10,6 @@ import androidx.room.PrimaryKey
     indices = [
         Index(value = ["cardId"]),
         Index(value = ["deckId"]),
-        Index(value = ["timestamp"]),
         Index(value = ["source"])
     ]
 )

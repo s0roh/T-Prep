@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.ErrorState
 import com.example.common.ui.LoadingState
 import com.example.database.models.Source
+import com.example.training.R
 import com.example.training.presentation.components.FinishTrainingScreen
 
 @Composable
@@ -90,7 +92,7 @@ fun TrainingScreen(
 }
 
 @Composable
-fun TrainingCardsContent(
+private fun TrainingCardsContent(
     paddingValues: PaddingValues,
     currentState: TrainingScreenState.Success,
     onAnswer: (Boolean, String?) -> Unit,
@@ -158,7 +160,7 @@ fun TrainingCardsContent(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Далее")
+                Text(text = stringResource(R.string.next))
             }
         } else {
             Button(
@@ -169,7 +171,7 @@ fun TrainingCardsContent(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Пропустить")
+                Text(text = stringResource(R.string.skip))
             }
         }
     }
@@ -177,7 +179,7 @@ fun TrainingCardsContent(
 
 
 @Composable
-fun TopBarWithBackIcon(onBackClick: () -> Unit) {
+private fun TopBarWithBackIcon(onBackClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -188,7 +190,7 @@ fun TopBarWithBackIcon(onBackClick: () -> Unit) {
         IconButton(onClick = onBackClick) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Назад",
+                contentDescription = stringResource(R.string.back),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -196,7 +198,7 @@ fun TopBarWithBackIcon(onBackClick: () -> Unit) {
 }
 
 @Composable
-fun AnswerOptions(
+private fun AnswerOptions(
     shuffledAnswers: List<String>,
     selectedAnswer: String?,
     isAnswered: Boolean,
@@ -223,7 +225,7 @@ fun AnswerOptions(
 
 
 @Composable
-fun AnswerButton(answer: String, color: Color, isEnabled: Boolean, onClick: () -> Unit) {
+private fun AnswerButton(answer: String, color: Color, isEnabled: Boolean, onClick: () -> Unit) {
     Card(
         shape = CircleShape,
         modifier = Modifier
