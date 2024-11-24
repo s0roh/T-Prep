@@ -51,6 +51,7 @@ dependencies {
     implementation(project(":feature:decks"))
     implementation(project(":feature:auth"))
     implementation(project(":feature:training"))
+    implementation(project(":feature:history"))
     implementation(project(":core:network"))
     implementation(project(":core:database"))
     implementation(project(":core:preferences"))

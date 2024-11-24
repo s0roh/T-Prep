@@ -1,7 +1,6 @@
 package com.example.history.data.mapper
 
 import com.example.database.models.HistoryDBO
-import com.example.database.models.Source
 import com.example.history.domain.entity.TrainingHistory
 
 internal fun HistoryDBO.toEntity(): TrainingHistory =
@@ -10,10 +9,11 @@ internal fun HistoryDBO.toEntity(): TrainingHistory =
         deckId = deckId,
         cardId = cardId,
         timestamp = timestamp,
-        isCorrect = isCorrect
+        isCorrect = isCorrect,
+        source = source
     )
 
-internal fun TrainingHistory.toDBO(source: Source): HistoryDBO =
+internal fun TrainingHistory.toDBO(): HistoryDBO =
     HistoryDBO(
         id = id,
         deckId = deckId,

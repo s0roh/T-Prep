@@ -18,7 +18,7 @@ import com.example.tprep.navigation.NavigationState
 @Composable
 fun AppBottomNavigation(navigationState: NavigationState) {
     val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
-    val navigationItems = listOf(NavigationItem.PublicDecks, NavigationItem.Profile)
+    val navigationItems = listOf(NavigationItem.PublicDecks, NavigationItem.History, NavigationItem.Profile)
 
     NavigationBar {
         navigationItems.forEach { item ->

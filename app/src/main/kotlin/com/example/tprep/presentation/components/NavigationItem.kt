@@ -11,6 +11,11 @@ sealed class NavigationItem<T>(val name: String, val icon: Int, val route: T) {
         icon = R.drawable.ic_public_decks,
         route = Screen.PublicDecks
     )
+    data object History: NavigationItem<Screen.History>(
+        name = "History",
+        icon = R.drawable.ic_history,
+        route = Screen.History
+    )
     data object Profile: NavigationItem<Screen.Profile>(
         name = "Profile",
         icon = R.drawable.ic_profile,

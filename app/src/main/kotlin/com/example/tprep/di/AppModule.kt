@@ -6,6 +6,8 @@ import com.example.auth.domain.repository.AuthRepository
 import com.example.database.TPrepDatabase
 import com.example.decks.data.repository.PublicDeckRepositoryImpl
 import com.example.decks.domain.repository.PublicDeckRepository
+import com.example.history.data.repository.HistoryRepositoryImpl
+import com.example.history.domain.repository.HistoryRepository
 import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthPreferencesImpl
@@ -40,6 +42,11 @@ interface AppModule {
     @Singleton
     @Suppress("unused")
     fun bindTrainingRepository(trainingRepositoryImpl: TrainingRepositoryImpl): TrainingRepository
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
+    fun bindHistoryRepository(historyRepositoryImpl: HistoryRepositoryImpl): HistoryRepository
 
     companion object {
 

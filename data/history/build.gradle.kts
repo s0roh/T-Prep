@@ -34,6 +34,7 @@ android {
 dependencies {
 
     implementation(project(":core:database"))
+    implementation(project(":core:network"))
 
     implementation(libs.dagger.hilt.android)
     kapt(libs.dagger.hilt.compiler)

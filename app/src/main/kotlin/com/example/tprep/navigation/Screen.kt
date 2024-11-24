@@ -16,6 +16,9 @@ sealed interface Screen {
     data object PublicDecks : Screen
 
     @Serializable
+    data object History : Screen
+
+    @Serializable
     data class DeckDetails(
         val deckId: Long
     )

@@ -14,6 +14,7 @@ import com.example.auth.presentation.login.LoginScreen
 import com.example.database.models.Source
 import com.example.decks.presentation.details.DeckDetailScreen
 import com.example.decks.presentation.publicdecks.PublicDecksScreen
+import com.example.history.presentation.history.HistoryScreen
 import com.example.tprep.navigation.AppNavGraph
 import com.example.tprep.navigation.Screen
 import com.example.tprep.navigation.rememberNavigationState
@@ -67,6 +68,14 @@ fun MainScreen() {
                     }
                 )
             },
+            historyScreenContent = {
+                HistoryScreen(
+                    paddingValues = paddingValues,
+                    onHistoryClick = { deckId ->
+                        navigationState.navigateToTraining(Screen.DeckDetails(deckId))
+                    }
+                )
+            },
             profileScreenContent = {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -78,10 +87,13 @@ fun MainScreen() {
             deckDetailsScreenContent = { deckId ->
                 // TODO Заменить временное значение deckId = 2 на реальный идентификатор,
                 // получаемый из параметра deckId. Сейчас используется константа для тестирования.
+                var temporaryDeckId: Long = deckId
+                if (deckId > 2) temporaryDeckId = 2
+
                 DeckDetailScreen(
-                    deckId = 2,
+                    deckId = temporaryDeckId,
                     paddingValues = paddingValues,
-                    onStartTraining = {deckId ->
+                    onStartTraining = { deckId ->
                         navigationState.navigateToTraining(
                             Screen.Training(
                                 deckId = deckId,

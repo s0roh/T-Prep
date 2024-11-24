@@ -10,7 +10,8 @@ import androidx.room.PrimaryKey
     indices = [
         Index(value = ["cardId"]),
         Index(value = ["deckId"]),
-        Index(value = ["source"])
+        Index(value = ["source"]),
+        Index(value = ["timestamp"])
     ]
 )
 data class HistoryDBO(

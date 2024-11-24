@@ -9,8 +9,19 @@ import com.example.database.models.Source
 @Dao
 interface HistoryDao {
 
-    @Query("SELECT * FROM history ORDER BY timestamp DESC")
-    suspend fun getAllHistory(): List<HistoryDBO>
+    @Query("""
+         SELECT * 
+    FROM history h
+    WHERE h.timestamp = (
+    -- Находим максимальное время тренировки для текущей колоды
+        SELECT MAX(h2.timestamp) 
+        FROM history h2 
+        WHERE h2.deckId = h.deckId
+    )
+    -- Сортируем результат по времени тренировки
+    ORDER BY h.timestamp DESC
+    """)
+    suspend fun getLastTrainingPerDeck(): List<HistoryDBO>
 
     @Insert
     suspend fun insertHistory(history: HistoryDBO)

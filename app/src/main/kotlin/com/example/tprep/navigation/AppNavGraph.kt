@@ -14,7 +14,8 @@ fun AppNavGraph(
     publicDecksScreenContent: @Composable () -> Unit,
     profileScreenContent: @Composable () -> Unit,
     deckDetailsScreenContent: @Composable (Long) -> Unit,
-    trainingScreenContent: @Composable (Long, Source) -> Unit
+    trainingScreenContent: @Composable (Long, Source) -> Unit,
+    historyScreenContent: @Composable () -> Unit
 ) {
     NavHost(
         navController = navHostController,
@@ -36,6 +37,9 @@ fun AppNavGraph(
         composable<Screen.Training> { backStackEntry ->
             val training: Screen.Training = backStackEntry.toRoute()
             trainingScreenContent(training.deckId, training.source)
+        }
+        composable<Screen.History> {
+            historyScreenContent()
         }
     }
 }
