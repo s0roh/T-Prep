@@ -13,5 +13,6 @@ package com.example.common.domain.entity
 data class Card(
     val id: Long,
     val question: String,
-    val answer: String
+    val answer: String,
+    val wrongAnswers: List<String> = emptyList()
 )

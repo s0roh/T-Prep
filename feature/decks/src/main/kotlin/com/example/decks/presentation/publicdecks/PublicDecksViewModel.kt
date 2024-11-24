@@ -2,7 +2,7 @@ package com.example.decks.presentation.publicdecks
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.decks.domain.entity.Deck
+import com.example.common.domain.entity.Deck
 import com.example.decks.domain.usecase.GetPublicDecksFlowUseCase
 import com.example.decks.domain.usecase.LoadNextPublicDecksUseCase
 import com.example.decks.util.mergeWith

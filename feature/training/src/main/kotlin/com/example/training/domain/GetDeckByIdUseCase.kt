@@ -1,4 +1,4 @@
-package com.example.decks.domain.usecase
+package com.example.training.domain
 
 import com.example.common.domain.entity.Deck
 import com.example.decks.domain.repository.PublicDeckRepository

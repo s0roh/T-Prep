@@ -1,6 +1,7 @@
 package com.example.decks.presentation.publicdecks
 
-import com.example.decks.domain.entity.Deck
+import com.example.common.domain.entity.Deck
+
 
 internal sealed interface PublicDecksScreenState {
 

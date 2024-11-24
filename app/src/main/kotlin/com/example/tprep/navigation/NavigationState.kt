@@ -19,6 +19,17 @@ class NavigationState(
 
         }
     }
+    fun <T : Any> navigateToTraining(route: T) {
+        navHostController.navigate(route) {
+            popUpTo(navHostController.graph.startDestinationId) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+
+        }
+    }
+
 
     fun <T : Any> navigateFromLogin(route: T) {
         navHostController.navigate(route) {

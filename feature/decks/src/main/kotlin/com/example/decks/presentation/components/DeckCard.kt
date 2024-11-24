@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.decks.domain.entity.Deck
+import com.example.common.domain.entity.Deck
 import com.example.decks.R
 
 @Composable

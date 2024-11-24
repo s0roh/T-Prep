@@ -10,6 +10,8 @@ import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthPreferencesImpl
 import com.example.tprep.BuildConfig
+import com.example.training.data.TrainingRepositoryImpl
+import com.example.training.domain.TrainingRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -26,11 +28,18 @@ interface AppModule {
 
     @Binds
     @Singleton
+    @Suppress("unused")
     fun bindPublicDeckRepository(publicDeckRepositoryImpl: PublicDeckRepositoryImpl): PublicDeckRepository
 
     @Binds
     @Singleton
+    @Suppress("unused")
     fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
+    fun bindTrainingRepository(trainingRepositoryImpl: TrainingRepositoryImpl): TrainingRepository
 
     companion object {
 

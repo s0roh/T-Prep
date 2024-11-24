@@ -1,6 +1,7 @@
 package com.example.decks.presentation.details
 
-import com.example.decks.domain.entity.Deck
+import com.example.common.domain.entity.Deck
+
 
 internal sealed interface DeckDetailScreenState {
     object Loading : DeckDetailScreenState

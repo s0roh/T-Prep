@@ -8,7 +8,8 @@ import com.example.tprep.navigation.Screen
 
 fun shouldShowBottomNavigation(currentRoute: String?): Boolean {
     return currentRoute != Screen.Login::class.qualifiedName &&
-            currentRoute?.startsWith(Screen.DeckDetails::class.qualifiedName!!) == false
+            currentRoute?.startsWith(Screen.DeckDetails::class.qualifiedName!!) == false &&
+            currentRoute.startsWith(Screen.Training::class.qualifiedName!!) == false
 }
 
 @Composable

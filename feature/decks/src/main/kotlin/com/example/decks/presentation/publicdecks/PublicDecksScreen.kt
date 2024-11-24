@@ -17,9 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.decks.domain.entity.Deck
+import com.example.common.domain.entity.Deck
 import com.example.decks.presentation.components.DeckCard
-import com.example.decks.presentation.components.LoadingState
+import com.example.common.ui.LoadingState
 
 @Composable
 fun PublicDecksScreen(

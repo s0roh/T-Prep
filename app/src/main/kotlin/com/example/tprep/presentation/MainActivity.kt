@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.auth.presentation.login.LoginScreen
+import com.example.database.models.Source
 import com.example.decks.presentation.details.DeckDetailScreen
 import com.example.decks.presentation.publicdecks.PublicDecksScreen
 import com.example.tprep.navigation.AppNavGraph
@@ -26,6 +27,7 @@ import com.example.tprep.presentation.components.CenteredPlaceholderTextScreen
 import com.example.tprep.presentation.ui.theme.TPrepTheme
 import com.example.tprep.presentation.utils.currentRoute
 import com.example.tprep.presentation.utils.shouldShowBottomNavigation
+import com.example.training.presentation.training.TrainingScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -48,13 +50,16 @@ fun MainScreen() {
 
     Scaffold(
         bottomBar = {
-            AnimatedVisibility(
-                visible = shouldShowBottomNavigation(currentRoute),
-                enter = slideInVertically { it } + fadeIn(),
-                exit = slideOutVertically { it } + fadeOut()
-            ) {
+//            AnimatedVisibility(
+//                visible = shouldShowBottomNavigation(currentRoute),
+//                enter = slideInVertically { it } + fadeIn(),
+//                exit =  slideOutVertically { it } + fadeOut()
+//            ) {
+            if (shouldShowBottomNavigation(currentRoute)) {
                 AppBottomNavigation(navigationState = navigationState)
             }
+
+            //}
         }
     ) { paddingValues ->
         AppNavGraph(
@@ -88,6 +93,22 @@ fun MainScreen() {
                 DeckDetailScreen(
                     deckId = 2,
                     paddingValues = paddingValues,
+                    onStartTraining = {deckId ->
+                        navigationState.navigateToTraining(
+                            Screen.Training(
+                                deckId = deckId,
+                                source = Source.NETWORK
+                            )
+                        )
+                    }
+                )
+            },
+            trainingScreenContent = { deckId, source ->
+                TrainingScreen(
+                    paddingValues = paddingValues,
+                    deckId = deckId,
+                    source = source,
+                    onFinishClick = { navigationState.navHostController.popBackStack() }
                 )
             }
         )

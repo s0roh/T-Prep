@@ -7,5 +7,5 @@ interface TrainingRepository {
 
     suspend fun prepareTrainingCards(deckId: Long, cards: List<Card>, source: Source): List<Card>
 
-    suspend fun recordAnswer(cardId: Long, deckId: Long, isCorrect: Boolean, source: Source)
+    suspend fun recordAnswer(deckId: Long,cardId: Long, isCorrect: Boolean, source: Source)
 }

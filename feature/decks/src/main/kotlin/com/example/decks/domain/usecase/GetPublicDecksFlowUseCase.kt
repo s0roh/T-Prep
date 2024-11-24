@@ -1,6 +1,6 @@
 package com.example.decks.domain.usecase
 
-import com.example.decks.domain.entity.Deck
+import com.example.common.domain.entity.Deck
 import com.example.decks.domain.repository.PublicDeckRepository
 import kotlinx.coroutines.flow.SharedFlow
 import javax.inject.Inject

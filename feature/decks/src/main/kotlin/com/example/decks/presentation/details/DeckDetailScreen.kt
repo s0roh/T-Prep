@@ -1,6 +1,7 @@
 package com.example.decks.presentation.details
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -18,21 +20,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.decks.domain.entity.Card
-import com.example.decks.domain.entity.Deck
+import com.example.common.domain.entity.Card
+import com.example.common.domain.entity.Deck
 import com.example.decks.presentation.components.DeckCard
-import com.example.decks.presentation.components.ErrorState
-import com.example.decks.presentation.components.LoadingState
+import com.example.common.ui.ErrorState
+import com.example.common.ui.LoadingState
 import com.example.decks.R
 
 @Composable
 fun DeckDetailScreen(
     deckId: Long,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    onStartTraining: (deckId: Long) -> Unit
 ) {
     val viewModel: DeckDetailViewModel = hiltViewModel()
     val screenState = viewModel.screenState.collectAsState()
@@ -53,7 +57,8 @@ fun DeckDetailScreen(
         is DeckDetailScreenState.Success -> {
             DeckDetailContent(
                 deck = currentState.deck,
-                paddingValues = paddingValues
+                paddingValues = paddingValues,
+                onStartTraining = onStartTraining
             )
         }
     }
@@ -62,41 +67,58 @@ fun DeckDetailScreen(
 @Composable
 private fun DeckDetailContent(
     deck: Deck,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    onStartTraining: (deckId: Long) -> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
-            .padding(horizontal = 16.dp)
-
     ) {
-        DeckCard(
-            deck = deck,
-            onDeckClickListener = {},
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = stringResource(R.string.cards_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-            thickness = 1.dp
-        )
         LazyColumn(
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(bottom = 16.dp)
+            contentPadding = PaddingValues(bottom = 80.dp)
         ) {
+            item {
+                DeckCard(
+                    deck = deck,
+                    onDeckClickListener = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.cards_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
             items(
                 items = deck.cards,
                 key = { it.id }
             ) { card ->
                 CardItem(card = card)
             }
+        }
+        Button(
+            onClick = { onStartTraining(deck.id) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.BottomCenter)
+        ) {
+            Text(text = stringResource(R.string.start_training))
         }
     }
 }
