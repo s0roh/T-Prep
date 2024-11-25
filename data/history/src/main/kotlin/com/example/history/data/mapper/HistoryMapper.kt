@@ -7,18 +7,24 @@ internal fun HistoryDBO.toEntity(): TrainingHistory =
     TrainingHistory(
         id = id,
         deckId = deckId,
+        deckName = deckName,
+        cardsCount = cardsCount,
         cardId = cardId,
         timestamp = timestamp,
         isCorrect = isCorrect,
-        source = source
+        source = source,
+        coefficient = coefficient
     )
 
 internal fun TrainingHistory.toDBO(): HistoryDBO =
     HistoryDBO(
         id = id,
         deckId = deckId,
+        deckName = deckName,
+        cardsCount = cardsCount,
         cardId = cardId,
         timestamp = timestamp,
         isCorrect = isCorrect,
-        source = source
+        source = source,
+        coefficient = coefficient
     )

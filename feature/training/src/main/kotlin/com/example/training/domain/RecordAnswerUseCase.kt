@@ -7,9 +7,18 @@ internal class RecordAnswerUseCase @Inject constructor(
     private val repository: TrainingRepository
 ) {
 
-    suspend operator fun invoke(deckId: Long, cardId: Long, isCorrect: Boolean, source: Source) =
+    suspend operator fun invoke(
+        deckId: Long,
+        deckName: String,
+        cardsCount: Int,
+        cardId: Long,
+        isCorrect: Boolean,
+        source: Source
+    ) =
         repository.recordAnswer(
             deckId = deckId,
+            deckName = deckName,
+            cardsCount = cardsCount,
             cardId = cardId,
             isCorrect = isCorrect,
             source = source

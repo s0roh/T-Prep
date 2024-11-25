@@ -1,5 +1,10 @@
 package com.example.history.domain.entity
 
+data class HistoryWithTimePeriod(
+    val timePeriod: TimePeriod,
+    val trainingHistories: List<TrainingHistory>
+)
+
 enum class TimePeriod {
     TODAY,
     YESTERDAY,

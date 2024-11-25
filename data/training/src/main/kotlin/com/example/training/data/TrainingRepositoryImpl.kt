@@ -20,16 +20,13 @@ class TrainingRepositoryImpl @Inject internal constructor(
     ): List<Card> {
         return withContext(Dispatchers.IO) {
             val cardsWithSortingData = cards.map { card ->
-                val isNew = database.historyDao.getTotalAnswersCount(
+                val history = database.historyDao.getHistoryForCard(
                     cardId = card.id,
                     deckId = deckId,
-                    source = source
-                ) == 0
-                val coefficient = calculateCoefficient(
-                    deckId = deckId,
-                    cardId = card.id,
                     source = source
                 )
+                val isNew = history == null
+                val coefficient = history?.coefficient ?: DEFAULT_COEFFICIENT
                 card to Pair(isNew, coefficient)
             }
 
@@ -61,41 +58,44 @@ class TrainingRepositoryImpl @Inject internal constructor(
 
     override suspend fun recordAnswer(
         deckId: Long,
+        deckName: String,
+        cardsCount: Int,
         cardId: Long,
         isCorrect: Boolean,
         source: Source
     ) {
-        val historyEntry = HistoryDBO(
-            id = 0,
+        val history = database.historyDao.getHistoryForCard(
+            cardId = cardId,
             deckId = deckId,
+            source = source
+        )
+
+        val newCoefficient = calculateUpdatedCoefficient(
+            currentCoefficient = history?.coefficient ?: DEFAULT_COEFFICIENT,
+            isCorrect = isCorrect
+        )
+
+        val updatedHistory = HistoryDBO(
+            id = history?.id ?: 0,
+            deckId = deckId,
+            deckName = deckName,
+            cardsCount = cardsCount,
             cardId = cardId,
             timestamp = System.currentTimeMillis(),
             isCorrect = isCorrect,
-            source = source
+            source = source,
+            coefficient = newCoefficient
         )
-        database.historyDao.insertHistory(historyEntry)
+
+        database.historyDao.insertOrUpdateHistory(updatedHistory)
     }
 
-    private suspend fun calculateCoefficient(deckId: Long, cardId: Long, source: Source): Double {
-        val correctCount =
-            database.historyDao.getCorrectAnswersCountForCard(
-                cardId = cardId,
-                deckId = deckId,
-                source = source
-            )
-        val totalCount = database.historyDao.getTotalAnswersCount(
-            cardId = cardId,
-            deckId = deckId,
-            source = source
-        )
-
-        if (totalCount == 0) return DEFAULT_COEFFICIENT
-
-        val accuracy = correctCount.toDouble() / totalCount
-        return (MIN_COEFFICIENT + accuracy * COEFFICIENT_MULTIPLIER).coerceIn(
-            MIN_COEFFICIENT,
-            MAX_COEFFICIENT
-        )
+    private fun calculateUpdatedCoefficient(
+        currentCoefficient: Double,
+        isCorrect: Boolean
+    ): Double {
+        val adjustment = if (isCorrect) COEFFICIENT_INCREMENT else COEFFICIENT_DECREMENT
+        return (currentCoefficient + adjustment).coerceIn(MIN_COEFFICIENT, MAX_COEFFICIENT)
     }
 
     companion object {
@@ -105,7 +105,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
         const val DEFAULT_COEFFICIENT = 2.5
         const val MIN_COEFFICIENT = 1.3
         const val MAX_COEFFICIENT = 2.5
-        const val COEFFICIENT_MULTIPLIER = 1.2
+        const val COEFFICIENT_INCREMENT = 0.1
+        const val COEFFICIENT_DECREMENT = -0.2
         const val WRONG_ANSWERS_COUNT = 3
     }
 }

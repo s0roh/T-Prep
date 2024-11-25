@@ -24,9 +24,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.history.domain.entity.HistoryGroup
-import com.example.history.domain.entity.HistoryGroup.DeckHistory
+import com.example.history.domain.entity.HistoryWithTimePeriod
 import com.example.history.domain.entity.TimePeriod
+import com.example.history.domain.entity.TrainingHistory
 import com.example.history.util.toLocalizedString
 
 @Composable
@@ -45,7 +45,7 @@ fun HistoryScreen(
         EmptyHistoryMessage(modifier = Modifier.padding(paddingValues))
     } else {
         HistoryList(
-            historyGroups = historyGroups,
+            historyWithTimePeriods = historyGroups,
             onHistoryClick = onHistoryClick,
             modifier = Modifier.padding(paddingValues)
         )
@@ -70,7 +70,7 @@ private fun EmptyHistoryMessage(modifier: Modifier = Modifier) {
 
 @Composable
 private fun HistoryList(
-    historyGroups: List<HistoryGroup>,
+    historyWithTimePeriods: List<HistoryWithTimePeriod>,
     onHistoryClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -79,13 +79,13 @@ private fun HistoryList(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        historyGroups.forEach { group ->
+        historyWithTimePeriods.forEach { group ->
             item {
                 TimePeriodHeader(group.timePeriod)
             }
-            items(items = group.decks) { deckHistory ->
+            items(items = group.trainingHistories) { trainingHistory ->
                 DeckHistoryItem(
-                    deckHistory,
+                    trainingHistory = trainingHistory,
                     onHistoryClick = onHistoryClick
                 )
             }
@@ -106,12 +106,12 @@ private fun TimePeriodHeader(timePeriod: TimePeriod) {
 }
 
 @Composable
-private fun DeckHistoryItem(deckHistory: DeckHistory, onHistoryClick: (Long) -> Unit) {
+private fun DeckHistoryItem(trainingHistory: TrainingHistory, onHistoryClick: (Long) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onHistoryClick(deckHistory.deckId) }
+            .clickable { onHistoryClick(trainingHistory.deckId) }
     ) {
         Row(
             modifier = Modifier
@@ -122,12 +122,12 @@ private fun DeckHistoryItem(deckHistory: DeckHistory, onHistoryClick: (Long) -> 
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = deckHistory.deckName,
+                    text = trainingHistory.deckName,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "Количество карточек: ${deckHistory.cardsCount}",
+                    text = "Количество карточек: ${trainingHistory.cardsCount}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )

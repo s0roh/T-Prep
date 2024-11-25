@@ -3,6 +3,7 @@ package com.example.training.presentation.training
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.domain.entity.Card
+import com.example.common.domain.entity.Deck
 import com.example.database.models.Source
 import com.example.training.domain.GetDeckByIdUseCase
 import com.example.training.domain.PrepareTrainingCardsUseCase
@@ -29,6 +30,7 @@ internal class TrainingViewModel @Inject constructor(
 
     private var currentDeckId: Long = -1L
     private lateinit var currentSource: Source
+    private lateinit var currentDeck: Deck
     private var correctAnswersCount = 0
     private var cardsCompleted = 0
 
@@ -46,6 +48,8 @@ internal class TrainingViewModel @Inject constructor(
     }
 
     private suspend fun loadCardsForTraining(source: Source): List<Card> {
+        currentDeck = getDeckByIdUseCase(currentDeckId)
+
         return when (source) {
             Source.LOCAL -> {
                 // TODO сделать загрузку локальных карточек
@@ -54,8 +58,8 @@ internal class TrainingViewModel @Inject constructor(
 
             Source.NETWORK -> {
                 prepareTrainingCardsUseCase(
-                    deckId = currentDeckId,
-                    cards = getDeckByIdUseCase(currentDeckId).cards,
+                    deckId = currentDeck.id,
+                    cards = currentDeck.cards,
                     source = currentSource
                 )
             }
@@ -71,7 +75,9 @@ internal class TrainingViewModel @Inject constructor(
 
         viewModelScope.launch {
             recordAnswerUseCase(
-                deckId = currentDeckId,
+                deckId = currentDeck.id,
+                deckName = currentDeck.name,
+                cardsCount = currentDeck.cards.size,
                 cardId = currentCard.id,
                 isCorrect = isCorrect,
                 source = currentSource
