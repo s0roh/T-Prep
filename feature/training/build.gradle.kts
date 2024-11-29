@@ -38,6 +38,7 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":data:training"))
     implementation(project(":data:decks"))
+    implementation(project(":data:local-decks"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.lifecycle.viewmodel.compose)

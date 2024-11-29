@@ -10,4 +10,10 @@
     <string name="start_training">Тренироваться</string>
     <string name="error_occurred">Произошла ошибка</string>
     <string name="retry">Повторить</string>
+    <string name="no_cards_placeholder">Здесь пока нет карточек</string>
+    <string name="confirm_delete_title">Подтверждение удаления</string>
+    <string name="confirm">Удалить</string>
+    <string name="cancel">Отмена</string>
+    <string name="confirm_delete_deck">Вы уверены, что хотите удалить эту колоду?</string>
+    <string name="confirm_delete_card">Вы уверены, что хотите удалить эту карточку?</string>
 </resources>

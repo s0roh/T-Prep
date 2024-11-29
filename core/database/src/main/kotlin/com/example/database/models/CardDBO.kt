@@ -7,16 +7,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "cards")
 data class CardDBO(
     @PrimaryKey(autoGenerate = true) val id: Long,
-    @ColumnInfo("serverId") val serverId: Long?,
+    @ColumnInfo("serverCardId") val serverCardId: Long?,
     @ColumnInfo("deckId") val deckId: Long,
     @ColumnInfo("question") val question: String,
-    @ColumnInfo("answer") val answer: String,
-    @ColumnInfo("status") val status: CardStatus,
+    @ColumnInfo("answer") val answer: String
 )
-
-enum class CardStatus {
-    NEW,       // Новая карточка, еще не синхронизирована
-    UPDATED,   // Карточка изменена
-    DELETED,   // Карточка удалена
-    SYNCED     // Карточка синхронизирована
-}

@@ -30,8 +30,8 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.common.domain.entity.Deck
+import com.example.common.ui.DeckCard
 import com.example.decks.R
-import com.example.decks.presentation.components.DeckCard
 
 @Composable
 fun PublicDecksScreen(

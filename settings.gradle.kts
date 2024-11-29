@@ -19,6 +19,11 @@ dependencyResolutionManagement {
     }
 }
 
+private fun includeNested(lib: String, libRootDir: String) {
+    include(":$lib")
+    project(":$lib").projectDir = file("$libRootDir/$lib")
+}
+
 rootProject.name = "T-Prep"
 include(":app")
 include(":core:network")
@@ -32,3 +37,23 @@ include(":data:training")
 include(":core:common")
 include(":feature:training")
 include(":feature:history")
+include(":data:local-decks")
+include(":feature:local-decks")
+
+
+
+//includeNested("network", "core")
+//includeNested("preferences", "core")
+//includeNested("database", "core")
+//includeNested("common", "core")
+//
+//includeNested("decks", "data")
+//includeNested("history", "data")
+//includeNested("training", "data")
+//includeNested("local-decks", "data")
+//
+//includeNested("auth", "feature")
+//includeNested("decks", "feature")
+//includeNested("training", "feature")
+//includeNested("history", "feature")
+//includeNested("local-decks", "feature")

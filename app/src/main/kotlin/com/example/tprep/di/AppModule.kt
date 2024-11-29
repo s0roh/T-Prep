@@ -8,6 +8,10 @@ import com.example.decks.data.repository.PublicDeckRepositoryImpl
 import com.example.decks.domain.repository.PublicDeckRepository
 import com.example.history.data.repository.HistoryRepositoryImpl
 import com.example.history.domain.repository.HistoryRepository
+import com.example.localdecks.data.repository.LocalDeckRepositoryImpl
+import com.example.localdecks.domain.repository.LocalDeckRepository
+import com.example.localdecks.sync.SyncHelper
+import com.example.localdecks.sync.SyncHelperImpl
 import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthPreferencesImpl
@@ -47,6 +51,16 @@ interface AppModule {
     @Singleton
     @Suppress("unused")
     fun bindHistoryRepository(historyRepositoryImpl: HistoryRepositoryImpl): HistoryRepository
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
+    fun bindLocalDeckRepository(localDeckRepositoryImpl: LocalDeckRepositoryImpl): LocalDeckRepository
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
+    fun bindSyncHelper(syncHelperImpl: SyncHelperImpl): SyncHelper
 
     companion object {
 

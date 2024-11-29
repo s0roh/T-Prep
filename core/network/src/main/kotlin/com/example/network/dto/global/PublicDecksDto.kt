@@ -14,5 +14,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PublicDecksDto(
     @SerialName("count") val count: Int,
-    @SerialName("items") val decks: List<DeckDto>  //TODO   ?
+    @SerialName("items") val decks: List<DeckDto>
 )

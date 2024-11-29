@@ -11,7 +11,7 @@ import javax.inject.Inject
  *
  * @param repository The repository that provides deck data.
  */
-internal class GetDeckByIdUseCase @Inject constructor(
+internal class GetDeckByIdNetworkUseCase @Inject constructor(
     private val repository: PublicDeckRepository
 ) {
 

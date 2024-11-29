@@ -37,6 +37,7 @@ dependencies {
     implementation(project(":data:history"))
     implementation(project(":data:decks"))
     implementation(project(":core:common"))
+    implementation(project(":core:database"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.lifecycle.viewmodel.compose)

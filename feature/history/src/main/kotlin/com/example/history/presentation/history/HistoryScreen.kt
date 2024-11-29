@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.database.models.Source
 import com.example.history.domain.entity.HistoryWithTimePeriod
 import com.example.history.domain.entity.TimePeriod
 import com.example.history.domain.entity.TrainingHistory
@@ -32,7 +33,7 @@ import com.example.history.util.toLocalizedString
 @Composable
 fun HistoryScreen(
     paddingValues: PaddingValues,
-    onHistoryClick: (deckId: Long) -> Unit
+    onHistoryClick: (deckId: Long, source: Source) -> Unit
 ) {
     val viewModel: HistoryViewModel = hiltViewModel()
     val historyGroups by viewModel.historyGroups.collectAsState()
@@ -71,7 +72,7 @@ private fun EmptyHistoryMessage(modifier: Modifier = Modifier) {
 @Composable
 private fun HistoryList(
     historyWithTimePeriods: List<HistoryWithTimePeriod>,
-    onHistoryClick: (Long) -> Unit,
+    onHistoryClick: (Long, Source) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -106,12 +107,15 @@ private fun TimePeriodHeader(timePeriod: TimePeriod) {
 }
 
 @Composable
-private fun DeckHistoryItem(trainingHistory: TrainingHistory, onHistoryClick: (Long) -> Unit) {
+private fun DeckHistoryItem(
+    trainingHistory: TrainingHistory,
+    onHistoryClick: (Long, Source) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onHistoryClick(trainingHistory.deckId) }
+            .clickable { onHistoryClick(trainingHistory.deckId, trainingHistory.source) }
     ) {
         Row(
             modifier = Modifier

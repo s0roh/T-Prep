@@ -5,7 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
 import com.example.database.models.Source
-import com.example.training.domain.GetDeckByIdUseCase
+import com.example.training.domain.GetDeckByIdLocalUseCase
+import com.example.training.domain.GetDeckByIdNetworkUseCase
 import com.example.training.domain.PrepareTrainingCardsUseCase
 import com.example.training.domain.RecordAnswerUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class TrainingViewModel @Inject constructor(
-    private val getDeckByIdUseCase: GetDeckByIdUseCase,
+    private val getDeckByIdNetworkUseCase: GetDeckByIdNetworkUseCase,
+    private val getDeckByIdLocalUseCase: GetDeckByIdLocalUseCase,
     private val prepareTrainingCardsUseCase: PrepareTrainingCardsUseCase,
     private val recordAnswerUseCase: RecordAnswerUseCase
 ) : ViewModel() {
@@ -48,22 +50,21 @@ internal class TrainingViewModel @Inject constructor(
     }
 
     private suspend fun loadCardsForTraining(source: Source): List<Card> {
-        currentDeck = getDeckByIdUseCase(currentDeckId)
-
-        return when (source) {
+        currentDeck = when (source) {
             Source.LOCAL -> {
-                // TODO сделать загрузку локальных карточек
-                throw NotImplementedError("Загрузка локальных карточек еще не реализована")
+                getDeckByIdLocalUseCase(currentDeckId)
             }
 
             Source.NETWORK -> {
-                prepareTrainingCardsUseCase(
-                    deckId = currentDeck.id,
-                    cards = currentDeck.cards,
-                    source = currentSource
-                )
+                getDeckByIdNetworkUseCase(currentDeckId)
             }
         }
+
+        return prepareTrainingCardsUseCase(
+            deckId = currentDeck.id,
+            cards = currentDeck.cards,
+            source = currentSource
+        )
     }
 
     fun recordAnswer(isCorrect: Boolean, selectedAnswer: String? = null) {

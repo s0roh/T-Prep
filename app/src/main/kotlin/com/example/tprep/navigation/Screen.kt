@@ -19,8 +19,23 @@ sealed interface Screen {
     data object History : Screen
 
     @Serializable
+    data object LocalDecks : Screen
+
+    @Serializable
+    data class AddEditDeck(
+        val deckId: Long?
+    )
+
+    @Serializable
+    data class AddEditCard(
+        val deckId: Long,
+        val cardId: Long?
+    )
+
+    @Serializable
     data class DeckDetails(
-        val deckId: Long
+        val deckId: Long,
+        val source: Source
     )
 
     @Serializable

@@ -17,7 +17,7 @@ interface HistoryDao {
     WHERE timestamp = (
         SELECT MAX(h2.timestamp)
         FROM history h2
-        WHERE h2.deckId = history.deckId
+        WHERE h2.deckId = history.deckId AND h2.source = history.source
     )
     ORDER BY timestamp DESC
     """
@@ -35,4 +35,6 @@ interface HistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdateHistory(history: HistoryDBO)
 
+    @Query("DELETE FROM history WHERE deckId = :deckId")
+    suspend fun deleteHistoryForDeck(deckId: Long)
 }

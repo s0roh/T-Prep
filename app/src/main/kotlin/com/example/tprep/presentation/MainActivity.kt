@@ -15,6 +15,9 @@ import com.example.database.models.Source
 import com.example.decks.presentation.details.DeckDetailScreen
 import com.example.decks.presentation.publicdecks.PublicDecksScreen
 import com.example.history.presentation.history.HistoryScreen
+import com.example.localdecks.presentation.add_edit_card.AddEditCardScreen
+import com.example.localdecks.presentation.add_edit_deck.AddEditDeckScreen
+import com.example.localdecks.presentation.local_decks.LocalDecksScreen
 import com.example.tprep.navigation.AppNavGraph
 import com.example.tprep.navigation.Screen
 import com.example.tprep.navigation.rememberNavigationState
@@ -64,15 +67,15 @@ fun MainScreen() {
                 PublicDecksScreen(
                     paddingValues = paddingValues,
                     onDeckClickListener = {
-                        navigationState.navigateTo(Screen.DeckDetails(it))
+                        navigationState.navigateTo(Screen.DeckDetails(it, Source.NETWORK))
                     }
                 )
             },
             historyScreenContent = {
                 HistoryScreen(
                     paddingValues = paddingValues,
-                    onHistoryClick = { deckId ->
-                        navigationState.navigateToTraining(Screen.DeckDetails(deckId))
+                    onHistoryClick = { deckId, source ->
+                        navigationState.navigateWithSaveState(Screen.DeckDetails(deckId, source))
                     }
                 )
             },
@@ -84,20 +87,43 @@ fun MainScreen() {
                     CenteredPlaceholderTextScreen("Profile")
                 }
             },
-            deckDetailsScreenContent = { deckId ->
+            deckDetailsScreenContent = { deckId, source ->
                 // TODO Заменить временное значение deckId = 2 на реальный идентификатор,
                 // получаемый из параметра deckId. Сейчас используется константа для тестирования.
                 var temporaryDeckId: Long = deckId
-                if (deckId > 2) temporaryDeckId = 2
+                //if (deckId > 2) temporaryDeckId = 2
 
                 DeckDetailScreen(
                     deckId = temporaryDeckId,
+                    source = source,
                     paddingValues = paddingValues,
                     onStartTraining = { deckId ->
-                        navigationState.navigateToTraining(
+                        navigationState.navigateWithSaveState(
                             Screen.Training(
                                 deckId = deckId,
-                                source = Source.NETWORK
+                                source = source
+                            )
+                        )
+                    },
+                    onDeleteDeck = {
+                        navigationState.navHostController.popBackStack()
+                    },
+                    onEditDeck = { deckId ->
+                        navigationState.navigateWithSaveState(Screen.AddEditDeck(deckId = deckId))
+                    },
+                    onEditCard = { deckId, cardId ->
+                        navigationState.navigateWithSaveState(
+                            Screen.AddEditCard(
+                                deckId = deckId,
+                                cardId = cardId
+                            )
+                        )
+                    },
+                    onAddCardClick = {
+                        navigationState.navigateWithSaveState(
+                            Screen.AddEditCard(
+                                deckId = deckId,
+                                cardId = null
                             )
                         )
                     }
@@ -109,6 +135,38 @@ fun MainScreen() {
                     deckId = deckId,
                     source = source,
                     onFinishClick = { navigationState.navHostController.popBackStack() }
+                )
+            },
+            localDecksScreenContent = {
+                LocalDecksScreen(
+                    paddingValues = paddingValues,
+                    onDeckClick = { deckId ->
+                        navigationState.navigateWithLocalDecksRefresh(
+                            Screen.DeckDetails(
+                                deckId,
+                                Source.LOCAL
+                            )
+                        )
+                    },
+                    onAddClick = {
+                        navigationState.navigateWithSaveState(Screen.AddEditDeck(deckId = null))
+                    })
+            },
+            addEditDeckScreenContent = { deckId ->
+                AddEditDeckScreen(
+                    deckId = deckId,
+                    paddingValues = paddingValues,
+                    onBackClick = { navigationState.navHostController.popBackStack() },
+                    onSaveClick = { navigationState.navHostController.popBackStack() }
+                )
+            },
+            addEditCardScreenContent = { deckId, cardId ->
+                AddEditCardScreen(
+                    cardId = cardId,
+                    deckId = deckId,
+                    paddingValues = paddingValues,
+                    onBackClick = { navigationState.navHostController.popBackStack() },
+                    onSaveClick = { navigationState.navHostController.popBackStack() }
                 )
             }
         )

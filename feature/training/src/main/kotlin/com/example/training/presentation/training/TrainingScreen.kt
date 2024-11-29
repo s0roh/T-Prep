@@ -223,7 +223,6 @@ private fun AnswerOptions(
     }
 }
 
-
 @Composable
 private fun AnswerButton(answer: String, color: Color, isEnabled: Boolean, onClick: () -> Unit) {
     Card(

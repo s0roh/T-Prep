@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "sync_metadata")
 data class SyncMetadataDBO(
     @PrimaryKey(autoGenerate = true) val id: Long,
-    @ColumnInfo("entityId") val entityId: Long,
+    @ColumnInfo("deckId") val deckId: Long,
+    @ColumnInfo("cardId") val cardId : Long?,
     @ColumnInfo("entityType") val entityType: EntityType,
     @ColumnInfo("status") val status: SyncStatus,
     @ColumnInfo("lastSynced") val lastSynced: Long
@@ -23,4 +24,3 @@ enum class SyncStatus {
     UPDATED,
     DELETED
 }
-

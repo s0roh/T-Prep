@@ -103,7 +103,7 @@ internal fun FinishTrainingScreen(
 }
 
 @Composable
-internal fun DonutChart(
+private fun DonutChart(
     modifier: Modifier = Modifier,
     correctPercentage: Float,
     incorrectPercentage: Float,
