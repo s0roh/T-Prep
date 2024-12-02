@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -25,35 +26,23 @@ private fun includeNested(lib: String, libRootDir: String) {
 }
 
 rootProject.name = "T-Prep"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 include(":app")
-include(":core:network")
-include(":core:preferences")
-include(":feature:auth")
-include(":feature:decks")
-include(":data:decks")
-include(":core:database")
-include(":data:history")
-include(":data:training")
-include(":core:common")
-include(":feature:training")
-include(":feature:history")
-include(":data:local-decks")
-include(":feature:local-decks")
 
+includeNested("core-network", "core")
+includeNested("core-preferences", "core")
+includeNested("core-database", "core")
+includeNested("core-common", "core")
 
+includeNested("data-decks", "data")
+includeNested("data-history", "data")
+includeNested("data-training", "data")
+includeNested("data-local-decks", "data")
 
-//includeNested("network", "core")
-//includeNested("preferences", "core")
-//includeNested("database", "core")
-//includeNested("common", "core")
-//
-//includeNested("decks", "data")
-//includeNested("history", "data")
-//includeNested("training", "data")
-//includeNested("local-decks", "data")
-//
-//includeNested("auth", "feature")
-//includeNested("decks", "feature")
-//includeNested("training", "feature")
-//includeNested("history", "feature")
-//includeNested("local-decks", "feature")
+includeNested("feature-auth", "feature")
+includeNested("feature-decks", "feature")
+includeNested("feature-training", "feature")
+includeNested("feature-history", "feature")
+includeNested("feature-local-decks", "feature")

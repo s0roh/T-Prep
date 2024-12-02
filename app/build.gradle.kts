@@ -1,65 +1,35 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    id("android-app-convention")
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.dagger.hilt.android)
-    alias(libs.plugins.kapt)
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.example.tprep"
-    compileSdk = libs.versions.androidSdk.compile.get().toInt()
-
     defaultConfig {
         applicationId = "com.example.tprep"
-        minSdk = libs.versions.androidSdk.min.get().toInt()
-        targetSdk = libs.versions.androidSdk.target.get().toInt()
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
         buildConfigField("String", "API_BASE_URL", "\"http://192.168.0.147:3001/\"")
-    }
-
-
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
-        buildConfig = true
     }
 }
 
 dependencies {
-    implementation(project(":feature:decks"))
-    implementation(project(":feature:auth"))
-    implementation(project(":feature:training"))
-    implementation(project(":feature:history"))
-    implementation(project(":feature:local-decks"))
-    implementation(project(":core:network"))
-    implementation(project(":core:database"))
-    implementation(project(":core:preferences"))
-    implementation(project(":data:decks"))
-    implementation(project(":data:history"))
-    implementation(project(":data:training"))
-    implementation(project(":data:local-decks"))
+    implementation(projects.featureDecks)
+    implementation(projects.featureAuth)
+    implementation(projects.featureTraining)
+    implementation(projects.featureHistory)
+    implementation(projects.featureLocalDecks)
+    implementation(projects.coreNetwork)
+    implementation(projects.coreDatabase)
+    implementation(projects.corePreferences)
+    implementation(projects.dataDecks)
+    implementation(projects.dataHistory)
+    implementation(projects.dataTraining)
+    implementation(projects.dataLocalDecks)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -94,5 +64,5 @@ dependencies {
 
     // Hilt
     implementation(libs.dagger.hilt.android)
-    kapt(libs.dagger.hilt.compiler)
+    ksp(libs.dagger.hilt.compiler)
 }
