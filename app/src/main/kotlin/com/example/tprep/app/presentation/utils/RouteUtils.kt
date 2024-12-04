@@ -1,10 +1,10 @@
-package com.example.tprep.presentation.utils
+package com.example.tprep.app.presentation.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.tprep.navigation.NavigationState
-import com.example.tprep.navigation.Screen
+import com.example.tprep.app.navigation.NavigationState
+import com.example.tprep.app.navigation.Screen
 
 fun shouldShowBottomNavigation(currentRoute: String?): Boolean {
     return currentRoute != Screen.Login::class.qualifiedName &&

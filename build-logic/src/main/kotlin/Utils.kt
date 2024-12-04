@@ -5,7 +5,6 @@ fun BaseExtension.baseModuleConfig() {
     defaultConfig {
         minSdk = AndroidConst.MIN_SKD
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
     }
     buildTypes {
         getByName("release") {
@@ -25,7 +24,6 @@ fun BaseExtension.baseAndroidConfig() {
         minSdk = AndroidConst.MIN_SKD
         targetSdk = AndroidConst.TARGET_SDK
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
     }
     buildTypes {
         getByName("release") {

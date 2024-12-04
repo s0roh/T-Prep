@@ -1,4 +1,4 @@
-package com.example.tprep.navigation
+package com.example.tprep.app.navigation
 
 import com.example.database.models.Source
 import kotlinx.serialization.Serializable

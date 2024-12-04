@@ -7,13 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tprep"
+    namespace = "com.example.tprep.app"
     defaultConfig {
         applicationId = "com.example.tprep"
         versionCode = 1
         versionName = "1.0"
-
-        buildConfigField("String", "API_BASE_URL", "\"http://192.168.0.147:3001/\"")
     }
 }
 

@@ -1,7 +1,7 @@
-package com.example.tprep.presentation.components
+package com.example.tprep.app.presentation.components
 
-import com.example.tprep.R
-import com.example.tprep.navigation.Screen
+import com.example.tprep.app.R
+import com.example.tprep.app.navigation.Screen
 import kotlinx.serialization.Serializable
 
 @Serializable

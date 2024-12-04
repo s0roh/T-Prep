@@ -1,4 +1,4 @@
-package com.example.tprep.presentation
+package com.example.tprep.app.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -18,14 +18,14 @@ import com.example.history.presentation.history.HistoryScreen
 import com.example.localdecks.presentation.add_edit_card.AddEditCardScreen
 import com.example.localdecks.presentation.add_edit_deck.AddEditDeckScreen
 import com.example.localdecks.presentation.local_decks.LocalDecksScreen
-import com.example.tprep.navigation.AppNavGraph
-import com.example.tprep.navigation.Screen
-import com.example.tprep.navigation.rememberNavigationState
-import com.example.tprep.presentation.components.AppBottomNavigation
-import com.example.tprep.presentation.components.CenteredPlaceholderTextScreen
-import com.example.tprep.presentation.ui.theme.TPrepTheme
-import com.example.tprep.presentation.utils.currentRoute
-import com.example.tprep.presentation.utils.shouldShowBottomNavigation
+import com.example.tprep.app.navigation.AppNavGraph
+import com.example.tprep.app.navigation.Screen
+import com.example.tprep.app.navigation.rememberNavigationState
+import com.example.tprep.app.presentation.components.AppBottomNavigation
+import com.example.tprep.app.presentation.components.CenteredPlaceholderTextScreen
+import com.example.tprep.app.presentation.ui.theme.TPrepTheme
+import com.example.tprep.app.presentation.utils.currentRoute
+import com.example.tprep.app.presentation.utils.shouldShowBottomNavigation
 import com.example.training.presentation.training.TrainingScreen
 import dagger.hilt.android.AndroidEntryPoint
 

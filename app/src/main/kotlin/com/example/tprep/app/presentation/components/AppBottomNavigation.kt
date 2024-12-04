@@ -1,4 +1,4 @@
-package com.example.tprep.presentation.components
+package com.example.tprep.app.presentation.components
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -13,7 +13,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.tprep.navigation.NavigationState
+import com.example.tprep.app.navigation.NavigationState
 
 @Composable
 fun AppBottomNavigation(navigationState: NavigationState) {

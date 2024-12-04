@@ -1,4 +1,4 @@
-package com.example.tprep.di
+package com.example.tprep.app.di
 
 import android.content.Context
 import com.example.auth.data.repository.AuthRepositoryImpl
@@ -15,7 +15,7 @@ import com.example.localdecks.sync.SyncHelperImpl
 import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthPreferencesImpl
-import com.example.tprep.BuildConfig
+import com.example.tprep.app.utils.getApiBaseUrl
 import com.example.training.data.TrainingRepositoryImpl
 import com.example.training.domain.TrainingRepository
 import dagger.Binds
@@ -84,9 +84,13 @@ interface AppModule {
 
         @Provides
         @Singleton
-        fun provideApiService(okHttpClient: OkHttpClient): ApiService {
+        fun provideApiService(
+            @ApplicationContext context: Context,
+            okHttpClient: OkHttpClient
+        ): ApiService {
+            val apiBaseUrl = getApiBaseUrl(context)
             return ApiService(
-                baseUrl = BuildConfig.API_BASE_URL,
+                baseUrl = apiBaseUrl,
                 okHttpClient = okHttpClient
             )
         }
