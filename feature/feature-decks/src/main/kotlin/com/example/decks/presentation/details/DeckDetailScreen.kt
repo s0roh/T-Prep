@@ -172,12 +172,10 @@ private fun DeckDetailContent(
                 )
             }
             if (deck.cards.isEmpty()) {
-                // Если нет карточек, отображаем сообщение с иконкой
                 item {
                     NoCardsPlaceholder()
                 }
             } else {
-                // Если карточки есть, отображаем их
                 items(
                     items = deck.cards,
                     key = { it.id }
@@ -191,7 +189,6 @@ private fun DeckDetailContent(
                 }
             }
         }
-        // Кнопки внизу
         Column(
             modifier = Modifier
                 .fillMaxWidth()

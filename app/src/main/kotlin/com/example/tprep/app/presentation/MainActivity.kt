@@ -155,7 +155,6 @@ fun MainScreen() {
             addEditDeckScreenContent = { deckId ->
                 AddEditDeckScreen(
                     deckId = deckId,
-                    paddingValues = paddingValues,
                     onBackClick = { navigationState.navHostController.popBackStack() },
                     onSaveClick = { navigationState.navHostController.popBackStack() }
                 )
@@ -164,7 +163,6 @@ fun MainScreen() {
                 AddEditCardScreen(
                     cardId = cardId,
                     deckId = deckId,
-                    paddingValues = paddingValues,
                     onBackClick = { navigationState.navHostController.popBackStack() },
                     onSaveClick = { navigationState.navHostController.popBackStack() }
                 )
