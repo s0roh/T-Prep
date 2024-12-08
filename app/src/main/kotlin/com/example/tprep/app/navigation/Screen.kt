@@ -24,23 +24,43 @@ sealed interface Screen {
     @Serializable
     data class AddEditDeck(
         val deckId: Long?
-    )
+    ) : Screen
 
     @Serializable
     data class AddEditCard(
         val deckId: Long,
         val cardId: Long?
-    )
+    ) : Screen
 
     @Serializable
     data class DeckDetails(
         val deckId: Long,
         val source: Source
-    )
+    ) : Screen {
+        fun toRoute(): String {
+            return "deckDetails/$deckId/${source.name}"
+        }
+
+        companion object {
+            fun fromRoute(route: String): Screen? {
+                val parts = route.split("/")
+                val deckId = parts.getOrNull(1)?.toLongOrNull() ?: return null
+                val source = parts.getOrNull(2)?.let { Source.valueOf(it) } ?: return null
+                return DeckDetails(deckId, source)
+            }
+        }
+    }
 
     @Serializable
     data class Training(
         val deckId: Long,
         val source: Source
-    )
+    ) : Screen
+
+    @Serializable
+    data class Reminder(
+        val deckId: Long,
+        val source: Source,
+        val deckName: String
+    ) : Screen
 }

@@ -1,11 +1,15 @@
 package com.example.tprep.app.di
 
 import android.content.Context
+import androidx.work.WorkManager
 import com.example.auth.data.repository.AuthRepositoryImpl
 import com.example.auth.domain.repository.AuthRepository
 import com.example.database.TPrepDatabase
 import com.example.decks.data.repository.PublicDeckRepositoryImpl
 import com.example.decks.domain.repository.PublicDeckRepository
+import com.example.data.reminder.domain.repository.ReminderScheduler
+import com.example.data.reminder.data.repository.ReminderSchedulerImpl
+import com.example.data.reminder.data.util.RouteNavigator
 import com.example.history.data.repository.HistoryRepositoryImpl
 import com.example.history.domain.repository.HistoryRepository
 import com.example.localdecks.data.repository.LocalDeckRepositoryImpl
@@ -15,6 +19,7 @@ import com.example.localdecks.sync.SyncHelperImpl
 import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthPreferencesImpl
+import com.example.tprep.app.reminder.AppRouteNavigator
 import com.example.tprep.app.utils.getApiBaseUrl
 import com.example.training.data.TrainingRepositoryImpl
 import com.example.training.domain.TrainingRepository
@@ -99,6 +104,21 @@ interface AppModule {
         @Singleton
         fun provideAuthPreferences(@ApplicationContext context: Context): AuthPreferences {
             return AuthPreferencesImpl(context)
+        }
+
+        @Provides
+        @Singleton
+        fun provideScreenNavigator(@ApplicationContext context: Context): RouteNavigator {
+            return AppRouteNavigator(context)
+        }
+
+        @Provides
+        @Singleton
+        fun provideReminderScheduler(
+            @ApplicationContext context: Context,
+            database: TPrepDatabase
+        ): ReminderScheduler {
+            return ReminderSchedulerImpl(WorkManager.getInstance(context), database)
         }
     }
 }

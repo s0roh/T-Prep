@@ -1,6 +1,9 @@
 package com.example.tprep.app.presentation
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -8,18 +11,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.auth.presentation.login.LoginScreen
 import com.example.database.models.Source
 import com.example.decks.presentation.details.DeckDetailScreen
 import com.example.decks.presentation.publicdecks.PublicDecksScreen
+import com.example.feature.reminder.presentation.reminder.ReminderScreen
 import com.example.history.presentation.history.HistoryScreen
 import com.example.localdecks.presentation.add_edit_card.AddEditCardScreen
 import com.example.localdecks.presentation.add_edit_deck.AddEditDeckScreen
 import com.example.localdecks.presentation.local_decks.LocalDecksScreen
 import com.example.tprep.app.navigation.AppNavGraph
 import com.example.tprep.app.navigation.Screen
+import com.example.tprep.app.navigation.navigateToRoute
 import com.example.tprep.app.navigation.rememberNavigationState
 import com.example.tprep.app.presentation.components.AppBottomNavigation
 import com.example.tprep.app.presentation.components.CenteredPlaceholderTextScreen
@@ -31,20 +40,35 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private lateinit var navController: NavHostController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             TPrepTheme {
-                MainScreen()
+                navController = rememberNavController()
+                MainScreen(navController = navController)
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (::navController.isInitialized) {
+            intent.getStringExtra("route")?.let { route ->
+                navigateToRoute(route, navController)
+            }
+        } else {
+            Log.e("Navigation", "NavController is not initialized")
         }
     }
 }
 
 @Composable
-fun MainScreen() {
-    val navigationState = rememberNavigationState()
+fun MainScreen(navController: NavHostController) {
+    val navigationState = rememberNavigationState(navHostController = navController)
     val currentRoute = currentRoute(navigationState)
 
     Scaffold(
@@ -54,6 +78,14 @@ fun MainScreen() {
             }
         }
     ) { paddingValues ->
+
+        val context = LocalContext.current
+        LaunchedEffect(Unit) {
+            (context as? Activity)?.intent?.getStringExtra("route")?.let { route ->
+                navigateToRoute(route, navController)
+            }
+        }
+
         AppNavGraph(
             navHostController = navigationState.navHostController,
             loginScreenContent = {
@@ -91,7 +123,7 @@ fun MainScreen() {
                 // TODO Заменить временное значение deckId = 2 на реальный идентификатор,
                 // получаемый из параметра deckId. Сейчас используется константа для тестирования.
                 var temporaryDeckId: Long = deckId
-                //if (deckId > 2) temporaryDeckId = 2
+                //if (deckId > 2) temporaryDeckId = 1
 
                 DeckDetailScreen(
                     deckId = temporaryDeckId,
@@ -105,9 +137,7 @@ fun MainScreen() {
                             )
                         )
                     },
-                    onDeleteDeck = {
-                        navigationState.navHostController.popBackStack()
-                    },
+                    onDeleteDeck = { navigationState.navHostController.popBackStack() },
                     onEditDeck = { deckId ->
                         navigationState.navigateWithSaveState(Screen.AddEditDeck(deckId = deckId))
                     },
@@ -124,6 +154,16 @@ fun MainScreen() {
                             Screen.AddEditCard(
                                 deckId = deckId,
                                 cardId = null
+                            )
+                        )
+                    },
+                    // TODO поменять temporaryDeckId на deckId
+                    onRemindClick = { deckName ->
+                        navigationState.navigateWithSaveState(
+                            Screen.Reminder(
+                                deckId = temporaryDeckId,
+                                source = source,
+                                deckName = deckName
                             )
                         )
                     }
@@ -150,12 +190,12 @@ fun MainScreen() {
                     },
                     onAddClick = {
                         navigationState.navigateWithSaveState(Screen.AddEditDeck(deckId = null))
-                    })
+                    }
+                )
             },
             addEditDeckScreenContent = { deckId ->
                 AddEditDeckScreen(
                     deckId = deckId,
-                    paddingValues = paddingValues,
                     onBackClick = { navigationState.navHostController.popBackStack() },
                     onSaveClick = { navigationState.navHostController.popBackStack() }
                 )
@@ -164,9 +204,16 @@ fun MainScreen() {
                 AddEditCardScreen(
                     cardId = cardId,
                     deckId = deckId,
-                    paddingValues = paddingValues,
                     onBackClick = { navigationState.navHostController.popBackStack() },
                     onSaveClick = { navigationState.navHostController.popBackStack() }
+                )
+            },
+            reminderScreenContent = { deckId, source, deckName ->
+                ReminderScreen(
+                    deckId = deckId,
+                    deckName = deckName,
+                    source = source,
+                    onBackClick = { navigationState.navHostController.popBackStack() }
                 )
             }
         )

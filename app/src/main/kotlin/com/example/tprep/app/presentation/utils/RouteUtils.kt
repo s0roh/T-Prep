@@ -7,11 +7,13 @@ import com.example.tprep.app.navigation.NavigationState
 import com.example.tprep.app.navigation.Screen
 
 fun shouldShowBottomNavigation(currentRoute: String?): Boolean {
-    return currentRoute != Screen.Login::class.qualifiedName &&
-            currentRoute?.startsWith(Screen.DeckDetails::class.qualifiedName!!) == false &&
-            currentRoute.startsWith(Screen.Training::class.qualifiedName!!) == false &&
-            currentRoute.startsWith(Screen.AddEditCard::class.qualifiedName!!) == false &&
-            currentRoute.startsWith(Screen.AddEditDeck::class.qualifiedName!!) == false
+    val shouldShowList = listOf(
+        Screen.PublicDecks::class.qualifiedName,
+        Screen.LocalDecks::class.qualifiedName,
+        Screen.History::class.qualifiedName,
+        Screen.Profile::class.qualifiedName
+    )
+    return currentRoute in shouldShowList
 }
 
 @Composable
