@@ -9,10 +9,12 @@ import com.example.database.dao.CardDao
 import com.example.database.dao.DeckDao
 import com.example.database.dao.HistoryDao
 import com.example.database.dao.SyncMetadataDao
+import com.example.database.dao.TrainingReminderDao
 import com.example.database.models.CardDBO
 import com.example.database.models.DeckDBO
 import com.example.database.models.HistoryDBO
 import com.example.database.models.SyncMetadataDBO
+import com.example.database.models.TrainingReminderDBO
 import com.example.database.utils.Converters
 
 class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase) {
@@ -27,6 +29,9 @@ class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase
 
     val syncMetadataDao: SyncMetadataDao
         get() = database.syncMetadataDao()
+
+    val trainingReminderDao: TrainingReminderDao
+        get() = database.trainingReminderDao()
 }
 
 @Database(
@@ -34,7 +39,8 @@ class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase
         CardDBO::class,
         DeckDBO::class,
         HistoryDBO::class,
-        SyncMetadataDBO::class
+        SyncMetadataDBO::class,
+        TrainingReminderDBO::class
     ],
     version = 1,
     exportSchema = false
@@ -45,6 +51,7 @@ internal abstract class TPrepRoomDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
     abstract fun syncMetadataDao(): SyncMetadataDao
+    abstract fun trainingReminderDao(): TrainingReminderDao
 }
 
 fun TPrepDatabase(applicationContext: Context): TPrepDatabase {

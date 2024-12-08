@@ -58,7 +58,8 @@ fun DeckDetailScreen(
     onAddCardClick: () -> Unit,
     onDeleteDeck: () -> Unit,
     onEditDeck: (deckId: Long) -> Unit = {},
-    onEditCard: (deckId: Long, cardId: Long?) -> Unit
+    onEditCard: (deckId: Long, cardId: Long?) -> Unit,
+    onRemindClick: (deckName: String) -> Unit
 ) {
     val viewModel: DeckDetailViewModel = hiltViewModel()
     val screenState = viewModel.screenState.collectAsState()
@@ -92,6 +93,7 @@ fun DeckDetailScreen(
                 onDeleteCard = { card ->
                     viewModel.deleteCard(card)
                 },
+                onRemindClick = onRemindClick
             )
         }
     }
@@ -107,7 +109,8 @@ private fun DeckDetailContent(
     onEditDeck: (deckId: Long) -> Unit,
     onDeleteDeck: (Deck) -> Unit,
     onEditCard: (deckId: Long, cardId: Long?) -> Unit,
-    onDeleteCard: (Card) -> Unit
+    onDeleteCard: (Card) -> Unit,
+    onRemindClick: (deckName: String) -> Unit
 ) {
     var showDeleteDeckDialog by remember { mutableStateOf(false) }
     var showDeleteCardDialog by remember { mutableStateOf<Card?>(null) }
@@ -213,6 +216,16 @@ private fun DeckDetailContent(
                 ) {
                     Text(text = stringResource(R.string.start_training))
                 }
+            }
+
+
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                onClick = { onRemindClick(deck.name) },
+            ) {
+                Text("Запланировать")
             }
         }
     }
