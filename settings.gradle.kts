@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -19,16 +20,29 @@ dependencyResolutionManagement {
     }
 }
 
+private fun includeNested(lib: String, libRootDir: String) {
+    include(":$lib")
+    project(":$lib").projectDir = file("$libRootDir/$lib")
+}
+
 rootProject.name = "T-Prep"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 include(":app")
-include(":core:network")
-include(":core:preferences")
-include(":feature:auth")
-include(":feature:decks")
-include(":data:decks")
-include(":core:database")
-include(":data:history")
-include(":data:training")
-include(":core:common")
-include(":feature:training")
-include(":feature:history")
+
+includeNested("core-network", "core")
+includeNested("core-preferences", "core")
+includeNested("core-database", "core")
+includeNested("core-common", "core")
+
+includeNested("data-decks", "data")
+includeNested("data-history", "data")
+includeNested("data-training", "data")
+includeNested("data-local-decks", "data")
+
+includeNested("feature-auth", "feature")
+includeNested("feature-decks", "feature")
+includeNested("feature-training", "feature")
+includeNested("feature-history", "feature")
+includeNested("feature-local-decks", "feature")
