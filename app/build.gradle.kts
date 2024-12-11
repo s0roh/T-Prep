@@ -21,6 +21,7 @@ dependencies {
     implementation(projects.featureTraining)
     implementation(projects.featureHistory)
     implementation(projects.featureLocalDecks)
+    implementation(projects.featureReminder)
     implementation(projects.coreNetwork)
     implementation(projects.coreDatabase)
     implementation(projects.corePreferences)
@@ -28,6 +29,7 @@ dependencies {
     implementation(projects.dataHistory)
     implementation(projects.dataTraining)
     implementation(projects.dataLocalDecks)
+    implementation(projects.dataReminder)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -63,4 +65,9 @@ dependencies {
     // Hilt
     implementation(libs.dagger.hilt.android)
     ksp(libs.dagger.hilt.compiler)
+
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.work.compiler)
+
+    implementation(libs.work.runtime.ktx)
 }
