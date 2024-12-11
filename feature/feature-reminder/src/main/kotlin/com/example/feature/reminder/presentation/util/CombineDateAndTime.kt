@@ -20,5 +20,7 @@ internal fun combineDateAndTime(dateInMillis: Long?, timeInMillis: Long?): Long?
             timeCalendar.get(Calendar.HOUR_OF_DAY),
             timeCalendar.get(Calendar.MINUTE)
         )
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
     }.timeInMillis
 }

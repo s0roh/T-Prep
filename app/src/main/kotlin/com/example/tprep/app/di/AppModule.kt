@@ -1,15 +1,14 @@
 package com.example.tprep.app.di
 
 import android.content.Context
-import androidx.work.WorkManager
 import com.example.auth.data.repository.AuthRepositoryImpl
 import com.example.auth.domain.repository.AuthRepository
+import com.example.data.reminder.data.repository.ReminderSchedulerImpl
+import com.example.data.reminder.data.util.RouteNavigator
+import com.example.data.reminder.domain.repository.ReminderScheduler
 import com.example.database.TPrepDatabase
 import com.example.decks.data.repository.PublicDeckRepositoryImpl
 import com.example.decks.domain.repository.PublicDeckRepository
-import com.example.data.reminder.domain.repository.ReminderScheduler
-import com.example.data.reminder.data.repository.ReminderSchedulerImpl
-import com.example.data.reminder.data.util.RouteNavigator
 import com.example.history.data.repository.HistoryRepositoryImpl
 import com.example.history.domain.repository.HistoryRepository
 import com.example.localdecks.data.repository.LocalDeckRepositoryImpl
@@ -118,7 +117,7 @@ interface AppModule {
             @ApplicationContext context: Context,
             database: TPrepDatabase
         ): ReminderScheduler {
-            return ReminderSchedulerImpl(WorkManager.getInstance(context), database)
+            return ReminderSchedulerImpl(context, database)
         }
     }
 }

@@ -1,44 +1,54 @@
 package com.example.data.reminder.data.repository
 
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
-import androidx.work.workDataOf
-import com.example.data.reminder.data.worker.TrainingReminderWorker
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import com.example.data.reminder.data.mapper.toDBO
 import com.example.data.reminder.data.mapper.toEntity
+import com.example.data.reminder.data.worker.AlarmReceiver
 import com.example.data.reminder.domain.entity.Reminder
 import com.example.data.reminder.domain.repository.ReminderScheduler
 import com.example.database.TPrepDatabase
 import com.example.database.models.Source
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ReminderSchedulerImpl @Inject constructor(
-    private val workManager: WorkManager,
+    private val context: Context,
     private val database: TPrepDatabase
 ) : ReminderScheduler {
 
     override fun scheduleReminder(reminderId: Long, timeMillis: Long) {
-        val delay = timeMillis - System.currentTimeMillis()
-        if (delay <= 0 ) throw IllegalStateException("Запланировать нужно на будущее")
+        //TODO val delay = max(timeMillis - System.currentTimeMillis(), 0)
+        //if (delay <= 0) throw IllegalStateException("Запланировать нужно на будущее")
 
-        val workRequest = OneTimeWorkRequest.Builder(TrainingReminderWorker::class.java)
-            .setInputData(workDataOf("reminderId" to reminderId))
-            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-            .build()
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val pendingIntent = createPendingIntent(reminderId)
 
-        val uniqueWorkName = "reminder_$reminderId"
-        workManager.enqueueUniqueWork(
-            uniqueWorkName,
-            ExistingWorkPolicy.REPLACE,
-            workRequest
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            timeMillis,
+            pendingIntent
         )
     }
 
+    private fun createPendingIntent(reminderId: Long): PendingIntent {
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            putExtra("reminderId", reminderId)
+        }
+        return PendingIntent.getBroadcast(
+            context,
+            reminderId.toInt(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+
     override fun cancelReminder(reminderId: Long) {
-        val uniqueWorkName = "reminder_$reminderId"
-        workManager.cancelUniqueWork(uniqueWorkName)
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val pendingIntent = createPendingIntent(reminderId)
+        alarmManager.cancel(pendingIntent)
     }
 
     override suspend fun getReminder(
@@ -49,8 +59,8 @@ class ReminderSchedulerImpl @Inject constructor(
             ?.toEntity()
     }
 
-    override suspend fun insertReminder(reminder: Reminder) {
-        database.trainingReminderDao.insertReminder(reminder.toDBO())
+    override suspend fun insertReminder(reminder: Reminder): Long {
+       return database.trainingReminderDao.insertReminder(reminder.toDBO())
     }
 
     override suspend fun deleteReminder(
