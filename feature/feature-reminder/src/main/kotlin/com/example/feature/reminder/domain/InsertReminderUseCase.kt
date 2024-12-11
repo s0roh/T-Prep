@@ -8,6 +8,6 @@ class InsertReminderUseCase @Inject constructor(
     private val reminderScheduler: ReminderScheduler
 ) {
 
-    suspend operator fun invoke(reminder: Reminder) =
+    suspend operator fun invoke(reminder: Reminder): Long =
         reminderScheduler.insertReminder(reminder)
 }

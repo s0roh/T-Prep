@@ -114,6 +114,7 @@ fun ReminderScreen(
                 onCancelClick = {
                     viewModel.cancelReminder(deckId)
                     viewModel.deleteReminder(deckId, source)
+                    showToast(context =context, message = "Напоминание отменено")
                 },
                 onBackClick = onBackClick
             )
@@ -211,39 +212,50 @@ private fun handleScheduleReminder(
     }
 
     val dateTimeInMillis = combineDateAndTime(selectedDate, selectedTime)
-    if (dateTimeInMillis != null) {
-        coroutineScope.launch {
-            val reminder = viewModel.getReminder(deckId, source)
-                ?: Reminder(
-                    id = 0,
-                    reminderTime = dateTimeInMillis,
-                    source = source,
-                    deckId = deckId,
-                    name = deckName
-                )
-
-            try {
-                viewModel.insertReminder(reminder)
-                viewModel.scheduleReminder(reminder.id, dateTimeInMillis)
-
-                Toast.makeText(
-                    context,
-                    "Тренировка успешно запланирована!",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(
-                    context,
-                    "Ошибка при планировании тренировки: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    } else {
-        Toast.makeText(
-            context,
-            "Пожалуйста, выберите дату и время.",
-            Toast.LENGTH_SHORT
-        ).show()
+    if (dateTimeInMillis == null) {
+        showToast(context, "Пожалуйста, выберите дату и время.")
+        return
     }
+
+    coroutineScope.launch {
+        try {
+            val reminder = getOrUpdateReminder(viewModel, deckId, source, dateTimeInMillis, deckName)
+            if (reminder == null) {
+                showToast(context, "Напоминание с таким временем уже установлено.")
+                return@launch
+            }
+
+            val reminderId = viewModel.insertReminder(reminder)
+            viewModel.scheduleReminder(reminderId, dateTimeInMillis)
+            showToast(context, "Тренировка успешно запланирована!")
+        } catch (e: Exception) {
+            showToast(context, "Ошибка при планировании тренировки: ${e.message}")
+        }
+    }
+}
+
+private suspend fun getOrUpdateReminder(
+    viewModel: ReminderViewModel,
+    deckId: Long,
+    source: Source,
+    dateTimeInMillis: Long,
+    deckName: String
+): Reminder? {
+    val existingReminder = viewModel.getReminder(deckId, source)
+    return if (existingReminder != null && existingReminder.reminderTime == dateTimeInMillis) {
+        null
+    } else {
+        existingReminder?.copy(reminderTime = dateTimeInMillis)
+            ?: Reminder(
+                id = 0,
+                reminderTime = dateTimeInMillis,
+                source = source,
+                deckId = deckId,
+                name = deckName
+            )
+    }
+}
+
+private fun showToast(context: Context, message: String) {
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
