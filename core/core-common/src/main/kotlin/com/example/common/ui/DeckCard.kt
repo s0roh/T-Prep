@@ -24,7 +24,7 @@ import com.example.common.domain.entity.Deck
 @Composable
 fun DeckCard(
     deck: Deck,
-    onDeckClickListener: (Long) -> Unit,
+    onDeckClickListener: (String) -> Unit,
     modifier: Modifier = Modifier,
     showActions: Boolean = false,
     onEdit: () -> Unit = {},

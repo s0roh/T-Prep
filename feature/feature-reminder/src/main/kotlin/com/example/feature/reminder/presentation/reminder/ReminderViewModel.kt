@@ -30,7 +30,7 @@ class ReminderViewModel @Inject constructor(
         cancelReminderUseCase(reminderId)
     }
 
-    suspend fun getReminder(deckId: Long, source: Source): Reminder? {
+    suspend fun getReminder(deckId: String, source: Source): Reminder? {
         return getReminderUseCase(deckId = deckId, source = source)
     }
 
@@ -38,7 +38,7 @@ class ReminderViewModel @Inject constructor(
         return insertReminderUseCase(reminder = reminder)
     }
 
-    fun deleteReminder(deckId: Long, source: Source) {
+    fun deleteReminder(deckId: String, source: Source) {
         viewModelScope.launch {
             deleteReminderUseCase(deckId = deckId, source = source)
         }

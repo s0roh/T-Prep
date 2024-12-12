@@ -14,7 +14,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
 ) : TrainingRepository {
 
     override suspend fun prepareTrainingCards(
-        deckId: Long,
+        deckId: String,
         cards: List<Card>,
         source: Source
     ): List<Card> {
@@ -57,10 +57,10 @@ class TrainingRepositoryImpl @Inject internal constructor(
     }
 
     override suspend fun recordAnswer(
-        deckId: Long,
+        deckId: String,
         deckName: String,
         cardsCount: Int,
-        cardId: Long,
+        cardId: Int,
         isCorrect: Boolean,
         source: Source
     ) {

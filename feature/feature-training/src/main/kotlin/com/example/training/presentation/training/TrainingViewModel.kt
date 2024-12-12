@@ -30,13 +30,13 @@ internal class TrainingViewModel @Inject constructor(
         screenState.value = TrainingScreenState.Error(message.toString())
     }
 
-    private var currentDeckId: Long = -1L
+    private var currentDeckId: String = ""
     private lateinit var currentSource: Source
     private lateinit var currentDeck: Deck
     private var correctAnswersCount = 0
     private var cardsCompleted = 0
 
-    fun loadTraining(deckId: Long, source: Source) {
+    fun loadTraining(deckId: String, source: Source) {
         currentDeckId = deckId
         currentSource = source
 

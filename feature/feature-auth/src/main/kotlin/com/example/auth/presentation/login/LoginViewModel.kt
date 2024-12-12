@@ -34,24 +34,19 @@ internal class LoginViewModel @Inject constructor(
 
     private fun checkAuthState() {
         viewModelScope.launch(exceptionHandler) {
-            val isAccessTokenValid = isAccessTokenValidUseCase()
-            val isRefreshTokenValid = isRefreshTokenValidUseCase()
-
-            if (!isAccessTokenValid && isRefreshTokenValid) {
-                val refreshSuccess = refreshTokensUseCase()
-                if (refreshSuccess) {
+            when {
+                isAccessTokenValidUseCase() -> {
                     screenState.emit(LoginScreenState.Success("User is authenticated"))
-                } else {
+                }
+                isRefreshTokenValidUseCase() && refreshTokensUseCase() -> {
+                    screenState.emit(LoginScreenState.Success("User is authenticated"))
+                }
+                else -> {
                     screenState.emit(LoginScreenState.Initial)
                 }
-            } else if (isAccessTokenValid) {
-                screenState.emit(LoginScreenState.Success("User is authenticated"))
-            } else {
-                screenState.emit(LoginScreenState.Initial)
             }
         }
     }
-
 
     fun onLoginClick(email: String, password: String) {
         viewModelScope.launch(exceptionHandler) {

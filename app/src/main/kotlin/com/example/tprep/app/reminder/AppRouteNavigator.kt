@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class AppRouteNavigator @Inject constructor(private val context: Context) : RouteNavigator {
 
-    override fun getDeckDetailsRoute(deckId: Long, source: Source): String {
+    override fun getDeckDetailsRoute(deckId: String, source: Source): String {
         return Screen.DeckDetails(deckId, source).toRoute()
     }
 

@@ -18,7 +18,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.auth.presentation.login.LoginScreen
-import com.example.auth.presentation.signup.SignupScreen
 import com.example.database.models.Source
 import com.example.decks.presentation.details.DeckDetailScreen
 import com.example.decks.presentation.publicdecks.PublicDecksScreen
@@ -38,6 +37,7 @@ import com.example.tprep.app.presentation.utils.currentRoute
 import com.example.tprep.app.presentation.utils.shouldShowBottomNavigation
 import com.example.training.presentation.training.TrainingScreen
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -85,6 +85,8 @@ fun MainScreen(navController: NavHostController) {
         val context = LocalContext.current
         LaunchedEffect(Unit) {
             (context as? Activity)?.intent?.getStringExtra("route")?.let { route ->
+                //TODO временное решение. из-за специфичной навигации на данный момент необходима некоторая задержка
+                delay(100L)
                 navigateToRoute(route, navController)
             }
         }
@@ -125,7 +127,7 @@ fun MainScreen(navController: NavHostController) {
             deckDetailsScreenContent = { deckId, source ->
                 // TODO Заменить временное значение deckId = 2 на реальный идентификатор,
                 // получаемый из параметра deckId. Сейчас используется константа для тестирования.
-                var temporaryDeckId: Long = deckId
+                var temporaryDeckId: String = deckId
                 //if (deckId > 2) temporaryDeckId = 1
 
                 DeckDetailScreen(

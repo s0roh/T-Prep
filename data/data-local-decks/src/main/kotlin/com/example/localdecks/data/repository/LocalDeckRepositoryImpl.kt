@@ -29,7 +29,7 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun getDeckById(deckId: Long): Deck? {
+    override suspend fun getDeckById(deckId: String): Deck? {
         val cards = database.cardDao.getCardsForDeck(deckId).firstOrNull()?.map {
             it.toEntity()
         } ?: emptyList()
@@ -75,19 +75,19 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
         }
     }
 
-    override fun getCardsForDeck(deckId: Long): Flow<List<Card>> {
+    override fun getCardsForDeck(deckId: String): Flow<List<Card>> {
         return database.cardDao.getCardsForDeck(deckId).map { dboList ->
             dboList.map { it.toEntity() }
         }
     }
 
-    override suspend fun getCardById(cardId: Long): Card? {
+    override suspend fun getCardById(cardId: Int): Card? {
         return database.cardDao.getCardById(cardId)?.toEntity()
     }
 
-    override suspend fun insertCard(card: Card, deckId: Long) {
+    override suspend fun insertCard(card: Card, deckId: String) {
         val dbo = card.toDBO(deckId = deckId, serverCardId = null)
-        val generatedId = database.cardDao.insertCard(dbo)
+        val generatedId = database.cardDao.insertCard(dbo).toInt()
 
         syncHelper.markAsNew(deckId = deckId, entityType = EntityType.CARD, cardId = generatedId)
     }

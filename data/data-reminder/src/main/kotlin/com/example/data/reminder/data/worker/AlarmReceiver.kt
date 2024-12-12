@@ -75,7 +75,7 @@ private fun sendNotification(
 
     val pendingIntent = PendingIntent.getActivity(
         context,
-        reminder.deckId.toInt(),
+        reminder.id.toInt(),
         intent,
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )

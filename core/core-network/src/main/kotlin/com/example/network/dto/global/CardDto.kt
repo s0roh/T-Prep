@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class CardDto(
-    @SerialName("local_id") val id: Long,
+    @SerialName("local_id") val id: Int,
     @SerialName("question") val question: String,
     @SerialName("answer") val answer: String
 )

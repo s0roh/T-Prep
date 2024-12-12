@@ -1,7 +1,7 @@
 package com.example.network.api
 
 
-import com.example.network.dto.global.DeckDto
+import com.example.network.dto.collection.DeckDto
 import com.example.network.dto.global.PublicDecksDto
 import com.example.network.dto.user.RefreshRequestDto
 import com.example.network.dto.user.SignupRequestDto
@@ -43,9 +43,9 @@ interface ApiService {
         @Query("offset") nextFrom: Int = 0
     ): PublicDecksDto
 
-    @GET("getCollection/{id}")
+    @GET("collection/{id}")
     suspend fun getDeckById(
-        @Path("id") deckId: Long
+        @Path("id") deckId: String
     ): DeckDto
 }
 

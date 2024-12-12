@@ -9,6 +9,6 @@ class GetReminderUseCase @Inject constructor(
     private val reminderScheduler: ReminderScheduler
 ) {
 
-    suspend operator fun invoke(deckId: Long, source: Source): Reminder? =
+    suspend operator fun invoke(deckId: String, source: Source): Reminder? =
         reminderScheduler.getReminder(deckId = deckId, source = source)
 }

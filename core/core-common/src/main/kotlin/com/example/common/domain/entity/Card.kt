@@ -11,7 +11,7 @@ package com.example.common.domain.entity
  * @property answer The correct answer to the question.
  */
 data class Card(
-    val id: Long,
+    val id: Int,
     val question: String,
     val answer: String,
     val wrongAnswers: List<String> = emptyList()

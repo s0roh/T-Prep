@@ -14,24 +14,24 @@ interface SyncMetadataDao {
     suspend fun insert(syncMetadata: SyncMetadataDBO)
 
     @Query("DELETE FROM sync_metadata WHERE deckId = :deckId AND cardId IS NULL")
-    suspend fun deleteDeckSyncMetadata(deckId: Long)
+    suspend fun deleteDeckSyncMetadata(deckId: String)
 
     @Query("DELETE FROM sync_metadata WHERE deckId = :deckId AND cardId = :cardId")
-    suspend fun deleteCardSyncMetadata(deckId: Long, cardId: Long)
+    suspend fun deleteCardSyncMetadata(deckId: String, cardId: Int)
 
     @Query("DELETE FROM sync_metadata WHERE deckId = :deckId AND cardId IS NULL AND status = :status")
-    suspend fun deleteUpdatedDeckSyncMetadata(deckId: Long, status: SyncStatus = SyncStatus.UPDATED)
+    suspend fun deleteUpdatedDeckSyncMetadata(deckId: String, status: SyncStatus = SyncStatus.UPDATED)
 
     @Query("DELETE FROM sync_metadata WHERE deckId = :deckId AND cardId = :cardId AND status = :status")
     suspend fun deleteUpdatedCardSyncMetadata(
-        deckId: Long,
-        cardId: Long,
+        deckId: String,
+        cardId: Int,
         status: SyncStatus = SyncStatus.UPDATED
     )
 
     @Query("SELECT * FROM sync_metadata WHERE deckId = :deckId AND cardId IS NULL")
-    suspend fun getDeckSyncMetadata(deckId: Long): List<SyncMetadataDBO>
+    suspend fun getDeckSyncMetadata(deckId: String): List<SyncMetadataDBO>
 
     @Query("SELECT * FROM sync_metadata WHERE deckId = :deckId AND cardId = :cardId")
-    suspend fun getCardSyncMetadata(deckId: Long, cardId: Long): List<SyncMetadataDBO>
+    suspend fun getCardSyncMetadata(deckId: String, cardId: Int): List<SyncMetadataDBO>
 }

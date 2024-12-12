@@ -8,10 +8,10 @@ internal class RecordAnswerUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(
-        deckId: Long,
+        deckId: String,
         deckName: String,
         cardsCount: Int,
-        cardId: Long,
+        cardId: Int,
         isCorrect: Boolean,
         source: Source
     ) =

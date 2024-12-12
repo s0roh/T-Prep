@@ -17,11 +17,11 @@ interface TrainingReminderDao {
     suspend fun getReminderById(reminderId: Long): TrainingReminderDBO?
 
     @Query("SELECT * FROM training_reminders WHERE deckId = :deckId AND source = :source LIMIT 1")
-    suspend fun getReminder(deckId: Long, source: Source): TrainingReminderDBO?
+    suspend fun getReminder(deckId: String, source: Source): TrainingReminderDBO?
 
     @Query("SELECT * FROM training_reminders")
     suspend fun getAllReminders(): List<TrainingReminderDBO>
 
     @Query("DELETE FROM training_reminders WHERE deckId = :deckId AND source = :source")
-    suspend fun deleteReminder(deckId: Long, source: Source)
+    suspend fun deleteReminder(deckId: String, source: Source)
 }

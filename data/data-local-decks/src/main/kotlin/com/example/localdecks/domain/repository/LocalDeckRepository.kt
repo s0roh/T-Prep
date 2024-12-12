@@ -10,7 +10,7 @@ interface LocalDeckRepository {
 
     fun getDecks(): Flow<List<Deck>>
 
-    suspend fun getDeckById(deckId: Long): Deck?
+    suspend fun getDeckById(deckId: String): Deck?
 
     suspend fun insertDeck(deck: Deck)
 
@@ -20,11 +20,11 @@ interface LocalDeckRepository {
 
     // CardDao
 
-    fun getCardsForDeck(deckId: Long): Flow<List<Card>>
+    fun getCardsForDeck(deckId: String): Flow<List<Card>>
 
-    suspend fun getCardById(cardId: Long): Card?
+    suspend fun getCardById(cardId: Int): Card?
 
-    suspend fun insertCard(card: Card, deckId: Long)
+    suspend fun insertCard(card: Card, deckId: String)
 
     suspend fun updateCard(card: Card)
 

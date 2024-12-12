@@ -26,13 +26,13 @@ internal class DeckDetailViewModel @Inject constructor(
     var screenState = MutableStateFlow<DeckDetailScreenState>(DeckDetailScreenState.Loading)
         private set
 
-    private var currentDeckId: Long? = null
+    private var currentDeckId: String? = null
 
     private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
         screenState.value = DeckDetailScreenState.Error
     }
 
-    fun loadDeckById(deckId: Long, source: Source) {
+    fun loadDeckById(deckId: String, source: Source) {
         when (source) {
             Source.LOCAL -> {
                 currentDeckId = deckId

@@ -9,19 +9,20 @@ import com.example.localdecks.domain.usecase.UpdateDeckUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 internal class AddEditDeckViewModel @Inject constructor(
     private val getDeckByIdUseCase: GetDeckByIdUseCase,
     private val insertDeckUseCase: InsertDeckUseCase,
-    private val updateDeckUseCase: UpdateDeckUseCase
+    private val updateDeckUseCase: UpdateDeckUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<AddEditDeckScreenState>(AddEditDeckScreenState())
         private set
 
-    var currentDeckId: Long? = null
+    var currentDeckId: String? = null
     private var currentDeck: Deck? = null
 
     fun initDeck() {
@@ -59,7 +60,7 @@ internal class AddEditDeckViewModel @Inject constructor(
 
         viewModelScope.launch {
             val deck = Deck(
-                id = currentDeckId ?: 0,
+                id = currentDeckId ?: UUID.randomUUID().toString(),
                 name = currentState.name.trim(),
                 isPublic = currentState.isPublic,
                 cards = currentDeck?.cards ?: emptyList()

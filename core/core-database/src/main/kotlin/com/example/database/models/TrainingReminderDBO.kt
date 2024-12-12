@@ -11,5 +11,5 @@ data class TrainingReminderDBO(
     val reminderTime: Long,
     val name: String,
     val source: Source,
-    val deckId: Long
+    val deckId: String
 )

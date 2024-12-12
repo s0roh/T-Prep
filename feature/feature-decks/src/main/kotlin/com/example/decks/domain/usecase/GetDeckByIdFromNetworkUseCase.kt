@@ -15,7 +15,7 @@ internal class GetDeckByIdFromNetworkUseCase @Inject constructor(
     private val repository: PublicDeckRepository
 ) {
 
-    suspend operator fun invoke(id: Long): Deck {
+    suspend operator fun invoke(id: String): Deck {
         return repository.getDeckById(id)
     }
 }

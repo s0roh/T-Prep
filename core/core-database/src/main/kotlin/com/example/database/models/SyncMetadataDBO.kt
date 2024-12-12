@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "sync_metadata")
 data class SyncMetadataDBO(
     @PrimaryKey(autoGenerate = true) val id: Long,
-    @ColumnInfo("deckId") val deckId: Long,
-    @ColumnInfo("cardId") val cardId : Long?,
+    @ColumnInfo("deckId") val deckId: String,
+    @ColumnInfo("cardId") val cardId : Int?,
     @ColumnInfo("entityType") val entityType: EntityType,
     @ColumnInfo("status") val status: SyncStatus,
     @ColumnInfo("lastSynced") val lastSynced: Long
