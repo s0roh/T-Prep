@@ -2,5 +2,7 @@
 <resources>
     <string name="auth_entrance">Вход</string>
     <string name="auth_login">Login</string>
-    <string name="auth_password">Password</string>
+    <string name="auth_email">Электронная почта</string>
+    <string name="auth_user_name">Имя пользователя</string>
+    <string name="auth_password">Пароль</string>
 </resources>

@@ -4,7 +4,7 @@ import com.example.common.domain.entity.Card
 import com.example.localdecks.domain.repository.LocalDeckRepository
 import javax.inject.Inject
 
-class InsertCardUseCase @Inject constructor(
+internal class InsertCardUseCase @Inject constructor(
     private val repository: LocalDeckRepository
 ) {
 

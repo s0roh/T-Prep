@@ -8,7 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.tprep.app.navigation.Screen.DeckDetails.Companion.fromRoute
 
 class NavigationState(
-    val navHostController: NavHostController
+    val navHostController: NavHostController,
 ) {
 
     fun <T : Any> navigateTo(route: T) {
@@ -19,6 +19,15 @@ class NavigationState(
             launchSingleTop = true
             restoreState = true
 
+        }
+    }
+
+    fun <T : Any> navigateLogout(route: T) {
+        navHostController.navigate(route) {
+            popUpTo(Screen.PublicDecks) {
+                inclusive = true
+            }
+            launchSingleTop = true
         }
     }
 
@@ -47,11 +56,9 @@ class NavigationState(
 
     fun <T : Any> navigateFromLogin(route: T) {
         navHostController.navigate(route) {
-            popUpTo(Screen.Login) {
-                saveState = true
+            popUpTo(Screen.Auth) {
                 inclusive = true
             }
-            restoreState = true
         }
     }
 }
@@ -69,7 +76,7 @@ fun navigateToRoute(route: String?, navController: NavHostController) {
 
 @Composable
 fun rememberNavigationState(
-    navHostController: NavHostController = rememberNavController()
+    navHostController: NavHostController = rememberNavController(),
 ): NavigationState {
     return remember {
         NavigationState(navHostController)

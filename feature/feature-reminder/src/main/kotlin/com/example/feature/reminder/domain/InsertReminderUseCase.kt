@@ -4,7 +4,7 @@ import com.example.data.reminder.domain.entity.Reminder
 import com.example.data.reminder.domain.repository.ReminderScheduler
 import javax.inject.Inject
 
-class InsertReminderUseCase @Inject constructor(
+internal class InsertReminderUseCase @Inject constructor(
     private val reminderScheduler: ReminderScheduler
 ) {
 

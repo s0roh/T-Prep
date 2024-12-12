@@ -7,20 +7,17 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.auth.presentation.login.LoginScreen
+import com.example.auth.presentation.auth.AuthScreen
 import com.example.database.models.Source
 import com.example.decks.presentation.details.DeckDetailScreen
 import com.example.decks.presentation.publicdecks.PublicDecksScreen
+import com.example.feature.profile.presentation.ProfileScreen
 import com.example.feature.reminder.presentation.reminder.ReminderScreen
 import com.example.history.presentation.history.HistoryScreen
 import com.example.localdecks.presentation.add_edit_card.AddEditCardScreen
@@ -31,7 +28,6 @@ import com.example.tprep.app.navigation.Screen
 import com.example.tprep.app.navigation.navigateToRoute
 import com.example.tprep.app.navigation.rememberNavigationState
 import com.example.tprep.app.presentation.components.AppBottomNavigation
-import com.example.tprep.app.presentation.components.CenteredPlaceholderTextScreen
 import com.example.tprep.app.presentation.ui.theme.TPrepTheme
 import com.example.tprep.app.presentation.utils.currentRoute
 import com.example.tprep.app.presentation.utils.shouldShowBottomNavigation
@@ -49,6 +45,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TPrepTheme {
                 navController = rememberNavController()
+
 
                 //SignupScreen()
                 MainScreen(navController = navController)
@@ -93,9 +90,9 @@ fun MainScreen(navController: NavHostController) {
 
         AppNavGraph(
             navHostController = navigationState.navHostController,
-            loginScreenContent = {
-                LoginScreen(
-                    onSuccessLoginListener = {
+            authScreenContent = {
+                AuthScreen(
+                    onSuccessAuthListener = {
                         navigationState.navigateFromLogin(Screen.PublicDecks)
                     }
                 )
@@ -117,12 +114,11 @@ fun MainScreen(navController: NavHostController) {
                 )
             },
             profileScreenContent = {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CenteredPlaceholderTextScreen("Profile")
-                }
+                ProfileScreen(
+                    onLogoutClick = {
+                        navigationState.navigateLogout(Screen.Auth)
+                    }
+                )
             },
             deckDetailsScreenContent = { deckId, source ->
                 // TODO Заменить временное значение deckId = 2 на реальный идентификатор,

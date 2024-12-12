@@ -4,7 +4,7 @@ import com.example.common.domain.entity.Deck
 import com.example.localdecks.domain.repository.LocalDeckRepository
 import javax.inject.Inject
 
-class UpdateDeckUseCase @Inject constructor(
+internal class UpdateDeckUseCase @Inject constructor(
     private val repository: LocalDeckRepository
 ) {
 

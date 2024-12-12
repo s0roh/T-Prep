@@ -4,7 +4,7 @@ import com.example.database.models.Source
 import com.example.data.reminder.domain.repository.ReminderScheduler
 import javax.inject.Inject
 
-class DeleteReminderUseCase @Inject constructor(
+internal class DeleteReminderUseCase @Inject constructor(
     private val reminderScheduler: ReminderScheduler
 ) {
 

@@ -10,7 +10,7 @@ import com.example.database.models.Source
 @Composable
 fun AppNavGraph(
     navHostController: NavHostController,
-    loginScreenContent: @Composable () -> Unit,
+    authScreenContent: @Composable () -> Unit,
     publicDecksScreenContent: @Composable () -> Unit,
     profileScreenContent: @Composable () -> Unit,
     deckDetailsScreenContent: @Composable (String, Source) -> Unit,
@@ -23,10 +23,10 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = Screen.Login
+        startDestination = Screen.Auth
     ) {
-        composable<Screen.Login> {
-            loginScreenContent()
+        composable<Screen.Auth> {
+            authScreenContent()
         }
         composable<Screen.PublicDecks> {
             publicDecksScreenContent()
