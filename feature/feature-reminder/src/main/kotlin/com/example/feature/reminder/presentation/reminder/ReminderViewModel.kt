@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ReminderViewModel @Inject constructor(
+internal class ReminderViewModel @Inject constructor(
     private val scheduleReminderUseCase: ScheduleReminderUseCase,
     private val cancelReminderUseCase: CancelReminderUseCase,
     private val getReminderUseCase: GetReminderUseCase,

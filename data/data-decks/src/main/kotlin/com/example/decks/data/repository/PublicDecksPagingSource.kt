@@ -31,7 +31,7 @@ internal class PublicDecksPagingSource(
             LoadResult.Page(
                 data = decks,
                 prevKey = if (page == 0) null else page - 1,
-                nextKey = if (response.count == 0 || decks.isEmpty()) null else page + 1
+                nextKey = if (response.count < 10 || decks.isEmpty()) null else page + 1
             )
         } catch (e: Exception) {
             LoadResult.Error(e)

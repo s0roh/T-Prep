@@ -5,7 +5,7 @@ import com.example.localdecks.domain.repository.LocalDeckRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetDecksFlowUseCase @Inject constructor(
+internal class GetDecksFlowUseCase @Inject constructor(
     private val repository: LocalDeckRepository
 ) {
 

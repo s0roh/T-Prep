@@ -3,7 +3,7 @@ package com.example.feature.reminder.domain
 import com.example.data.reminder.domain.repository.ReminderScheduler
 import javax.inject.Inject
 
-class ScheduleReminderUseCase @Inject constructor(
+internal class ScheduleReminderUseCase @Inject constructor(
     private val reminderScheduler: ReminderScheduler
 ) {
 

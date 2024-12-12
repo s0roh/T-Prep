@@ -22,6 +22,7 @@ dependencies {
     implementation(projects.featureHistory)
     implementation(projects.featureLocalDecks)
     implementation(projects.featureReminder)
+    implementation(projects.featureProfile)
     implementation(projects.coreNetwork)
     implementation(projects.coreDatabase)
     implementation(projects.corePreferences)

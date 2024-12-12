@@ -4,7 +4,7 @@ import com.example.database.models.Source
 import javax.inject.Inject
 
 internal class RecordAnswerUseCase @Inject constructor(
-    private val repository: TrainingRepository
+    private val repository: TrainingRepository,
 ) {
 
     suspend operator fun invoke(
@@ -13,7 +13,7 @@ internal class RecordAnswerUseCase @Inject constructor(
         cardsCount: Int,
         cardId: Int,
         isCorrect: Boolean,
-        source: Source
+        source: Source,
     ) =
         repository.recordAnswer(
             deckId = deckId,
