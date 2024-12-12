@@ -24,7 +24,7 @@ import com.example.common.ui.DeckCard
 @Composable
 fun LocalDecksScreen(
     paddingValues: PaddingValues,
-    onDeckClick: (Long) -> Unit,
+    onDeckClick: (String) -> Unit,
     onAddClick: () -> Unit
 ) {
     val viewModel: LocalDecksViewModel = hiltViewModel()

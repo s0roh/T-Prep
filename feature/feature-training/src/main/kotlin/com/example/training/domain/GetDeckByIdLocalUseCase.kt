@@ -8,6 +8,6 @@ class GetDeckByIdLocalUseCase @Inject constructor(
     private val repository: LocalDeckRepository
 ) {
 
-    suspend operator fun invoke(deckId: Long): Deck = repository.getDeckById(deckId)
+    suspend operator fun invoke(deckId: String): Deck = repository.getDeckById(deckId)
         ?: throw IllegalStateException("Deck with id $deckId not found")
 }

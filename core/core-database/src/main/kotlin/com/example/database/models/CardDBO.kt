@@ -6,9 +6,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "cards")
 data class CardDBO(
-    @PrimaryKey(autoGenerate = true) val id: Long,
-    @ColumnInfo("serverCardId") val serverCardId: Long?,
-    @ColumnInfo("deckId") val deckId: Long,
+    @PrimaryKey(autoGenerate = true) val id: Int,
+    @ColumnInfo("serverCardId") val serverCardId: Int?,
+    @ColumnInfo("deckId") val deckId: String,
     @ColumnInfo("question") val question: String,
     @ColumnInfo("answer") val answer: String
 )

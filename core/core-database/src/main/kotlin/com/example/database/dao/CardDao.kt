@@ -13,10 +13,10 @@ import kotlinx.coroutines.flow.Flow
 interface CardDao {
 
     @Query("SELECT * FROM cards WHERE deckId = :deckId")
-    fun getCardsForDeck(deckId: Long): Flow<List<CardDBO>>
+    fun getCardsForDeck(deckId: String): Flow<List<CardDBO>>
 
     @Query("SELECT * FROM cards WHERE id = :cardID")
-    suspend fun getCardById(cardID: Long): CardDBO?
+    suspend fun getCardById(cardID: Int): CardDBO?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCard(cardDBO: CardDBO): Long

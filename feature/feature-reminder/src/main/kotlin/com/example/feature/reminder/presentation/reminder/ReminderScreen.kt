@@ -42,7 +42,7 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReminderScreen(
-    deckId: Long,
+    deckId: String,
     deckName: String,
     source: Source,
     onBackClick: () -> Unit,
@@ -112,9 +112,13 @@ fun ReminderScreen(
                     )
                 },
                 onCancelClick = {
-                    viewModel.cancelReminder(deckId)
-                    viewModel.deleteReminder(deckId, source)
-                    showToast(context =context, message = "Напоминание отменено")
+                    coroutineScope.launch {
+                        viewModel.getReminder(deckId = deckId, source = source)?.also {
+                            viewModel.cancelReminder(it.id)
+                        }
+                        viewModel.deleteReminder(deckId, source)
+                    }
+                    showToast(context = context, message = "Напоминание отменено")
                 },
                 onBackClick = onBackClick
             )
@@ -148,7 +152,7 @@ private fun DisplaySelectedDateTime(
     selectedDate: Long?,
     selectedTime: Long?,
     dateFormatter: DateFormat,
-    timeFormatter: DateFormat
+    timeFormatter: DateFormat,
 ) {
     Text(
         text = buildString {
@@ -174,7 +178,7 @@ private fun ReminderButtons(
     openTimePicker: () -> Unit,
     onScheduleClick: () -> Unit,
     onCancelClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     Column {
         Button(modifier = Modifier.fillMaxWidth(), onClick = openDatePicker) {
@@ -196,7 +200,7 @@ private fun ReminderButtons(
 }
 
 private fun handleScheduleReminder(
-    deckId: Long,
+    deckId: String,
     deckName: String,
     source: Source,
     selectedDate: Long?,
@@ -205,7 +209,7 @@ private fun handleScheduleReminder(
     viewModel: ReminderViewModel,
     coroutineScope: CoroutineScope,
     hasNotificationPermission: Boolean,
-    launcher: ActivityResultLauncher<String>
+    launcher: ActivityResultLauncher<String>,
 ) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission) {
         launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -219,7 +223,8 @@ private fun handleScheduleReminder(
 
     coroutineScope.launch {
         try {
-            val reminder = getOrUpdateReminder(viewModel, deckId, source, dateTimeInMillis, deckName)
+            val reminder =
+                getOrUpdateReminder(viewModel, deckId, source, dateTimeInMillis, deckName)
             if (reminder == null) {
                 showToast(context, "Напоминание с таким временем уже установлено.")
                 return@launch
@@ -236,10 +241,10 @@ private fun handleScheduleReminder(
 
 private suspend fun getOrUpdateReminder(
     viewModel: ReminderViewModel,
-    deckId: Long,
+    deckId: String,
     source: Source,
     dateTimeInMillis: Long,
-    deckName: String
+    deckName: String,
 ): Reminder? {
     val existingReminder = viewModel.getReminder(deckId, source)
     return if (existingReminder != null && existingReminder.reminderTime == dateTimeInMillis) {

@@ -14,7 +14,7 @@ class PublicDeckRepositoryImpl @Inject internal constructor(
     private val apiService: ApiService
 ) : PublicDeckRepository {
 
-    override suspend fun getDeckById(id: Long): Deck {
+    override suspend fun getDeckById(id: String): Deck {
         return apiService.getDeckById(id).toEntity()
     }
 

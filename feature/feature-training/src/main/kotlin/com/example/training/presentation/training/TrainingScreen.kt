@@ -39,7 +39,7 @@ import com.example.training.presentation.components.QuestionArea
 @Composable
 fun TrainingScreen(
     paddingValues: PaddingValues,
-    deckId: Long,
+    deckId: String,
     source: Source,
     onFinishClick: () -> Unit
 ) {

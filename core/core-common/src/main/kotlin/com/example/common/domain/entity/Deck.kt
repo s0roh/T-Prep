@@ -1,5 +1,7 @@
 package com.example.common.domain.entity
 
+import java.util.UUID
+
 /**
  * Represents a deck of flashcards used in the spaced repetition system.
  *
@@ -13,8 +15,8 @@ package com.example.common.domain.entity
  * @property cards List of [Card] objects that belong to this deck.
  */
 data class Deck(
-    val id: Long,
+    val id: String,
     val name: String,
     val isPublic: Boolean,
-    val cards: List<Card>
+    val cards: List<Card>,
 )

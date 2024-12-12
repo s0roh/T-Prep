@@ -1,7 +1,9 @@
-package com.example.network.dto.global
+package com.example.network.dto.collection
 
+import com.example.network.dto.global.CardDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.util.UUID
 
 /**
  * Represents a deck of flashcards used in the spaced repetition system, specifically for data transfer.
@@ -15,7 +17,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class DeckDto(
-    @SerialName("id") val id: Long,
+    @SerialName("id") val id: String = UUID.randomUUID().toString(),
     @SerialName("name") val name: String,
     @SerialName("is_public") val isPublic: Boolean,
     @SerialName("cards") val cards: List<CardDto>

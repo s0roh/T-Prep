@@ -8,5 +8,5 @@ interface PublicDeckRepository {
 
     fun getPublicDecks(): Flow<PagingData<Deck>>
 
-    suspend fun getDeckById(id: Long): Deck
+    suspend fun getDeckById(id: String): Deck
 }

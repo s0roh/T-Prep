@@ -8,6 +8,6 @@ class DeleteReminderUseCase @Inject constructor(
     private val reminderScheduler: ReminderScheduler
 ) {
 
-    suspend operator fun invoke(deckId: Long, source: Source) =
+    suspend operator fun invoke(deckId: String, source: Source) =
         reminderScheduler.deleteReminder(deckId = deckId, source = source)
 }

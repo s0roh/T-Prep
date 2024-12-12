@@ -13,13 +13,13 @@ fun AppNavGraph(
     loginScreenContent: @Composable () -> Unit,
     publicDecksScreenContent: @Composable () -> Unit,
     profileScreenContent: @Composable () -> Unit,
-    deckDetailsScreenContent: @Composable (Long, Source) -> Unit,
-    trainingScreenContent: @Composable (Long, Source) -> Unit,
+    deckDetailsScreenContent: @Composable (String, Source) -> Unit,
+    trainingScreenContent: @Composable (String, Source) -> Unit,
     historyScreenContent: @Composable () -> Unit,
     localDecksScreenContent: @Composable () -> Unit,
-    addEditDeckScreenContent: @Composable (Long?) -> Unit,
-    addEditCardScreenContent: @Composable (Long, Long?) -> Unit,
-    reminderScreenContent: @Composable (Long, Source, String) -> Unit
+    addEditDeckScreenContent: @Composable (String?) -> Unit,
+    addEditCardScreenContent: @Composable (String, Int?) -> Unit,
+    reminderScreenContent: @Composable (String, Source, String) -> Unit
 ) {
     NavHost(
         navController = navHostController,

@@ -8,6 +8,6 @@ class InsertCardUseCase @Inject constructor(
     private val repository: LocalDeckRepository
 ) {
 
-    suspend operator fun invoke(card: Card, deckId: Long) =
+    suspend operator fun invoke(card: Card, deckId: String) =
         repository.insertCard(card = card, deckId = deckId)
 }

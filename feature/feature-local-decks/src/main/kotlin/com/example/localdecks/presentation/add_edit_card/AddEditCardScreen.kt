@@ -25,8 +25,8 @@ import com.example.localdecks.presentation.components.TextFieldWithError
 
 @Composable
 fun AddEditCardScreen(
-    cardId: Long?,
-    deckId: Long,
+    cardId: Int?,
+    deckId: String,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {

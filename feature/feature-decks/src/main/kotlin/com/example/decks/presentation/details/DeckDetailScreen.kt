@@ -51,14 +51,14 @@ import com.example.decks.R
 
 @Composable
 fun DeckDetailScreen(
-    deckId: Long,
+    deckId: String,
     source: Source,
     paddingValues: PaddingValues,
-    onStartTraining: (deckId: Long) -> Unit,
+    onStartTraining: (deckId: String) -> Unit,
     onAddCardClick: () -> Unit,
     onDeleteDeck: () -> Unit,
-    onEditDeck: (deckId: Long) -> Unit = {},
-    onEditCard: (deckId: Long, cardId: Long?) -> Unit,
+    onEditDeck: (deckId: String) -> Unit = {},
+    onEditCard: (deckId: String, cardId: Int?) -> Unit,
     onRemindClick: (deckName: String) -> Unit
 ) {
     val viewModel: DeckDetailViewModel = hiltViewModel()
@@ -104,11 +104,11 @@ private fun DeckDetailContent(
     deck: Deck,
     source: Source,
     paddingValues: PaddingValues,
-    onStartTraining: (deckId: Long) -> Unit,
+    onStartTraining: (deckId: String) -> Unit,
     onAddCardClick: () -> Unit,
-    onEditDeck: (deckId: Long) -> Unit,
+    onEditDeck: (deckId: String) -> Unit,
     onDeleteDeck: (Deck) -> Unit,
-    onEditCard: (deckId: Long, cardId: Long?) -> Unit,
+    onEditCard: (deckId: String, cardId: Int?) -> Unit,
     onDeleteCard: (Card) -> Unit,
     onRemindClick: (deckName: String) -> Unit
 ) {

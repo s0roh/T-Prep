@@ -5,13 +5,13 @@ import com.example.database.models.Source
 
 interface TrainingRepository {
 
-    suspend fun prepareTrainingCards(deckId: Long, cards: List<Card>, source: Source): List<Card>
+    suspend fun prepareTrainingCards(deckId: String, cards: List<Card>, source: Source): List<Card>
 
     suspend fun recordAnswer(
-        deckId: Long,
+        deckId: String,
         deckName: String,
         cardsCount: Int,
-        cardId: Long,
+        cardId: Int,
         isCorrect: Boolean,
         source: Source
     )

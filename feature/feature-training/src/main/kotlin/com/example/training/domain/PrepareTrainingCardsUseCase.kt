@@ -8,7 +8,7 @@ internal class PrepareTrainingCardsUseCase @Inject constructor(
     private val repository: TrainingRepository
 ) {
 
-    suspend operator fun invoke(deckId: Long, cards: List<Card>, source: Source): List<Card> =
+    suspend operator fun invoke(deckId: String, cards: List<Card>, source: Source): List<Card> =
         repository.prepareTrainingCards(
             deckId = deckId,
             cards = cards,

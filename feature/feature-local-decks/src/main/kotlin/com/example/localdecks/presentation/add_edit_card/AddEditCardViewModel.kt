@@ -21,8 +21,8 @@ internal class AddEditCardViewModel @Inject constructor(
     var screenState = MutableStateFlow<AddEditCardScreenState>(AddEditCardScreenState())
         private set
 
-    var currentCardId: Long? = null
-    var currentDeckId: Long? = null
+    var currentCardId: Int? = null
+    var currentDeckId: String? = null
 
     fun initCard() {
         viewModelScope.launch {

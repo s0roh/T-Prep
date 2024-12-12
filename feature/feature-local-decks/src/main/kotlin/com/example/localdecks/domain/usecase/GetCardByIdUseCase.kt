@@ -8,5 +8,5 @@ class GetCardByIdUseCase @Inject constructor(
     private val repository: LocalDeckRepository
 ) {
 
-    suspend operator fun invoke(cardId: Long): Card? = repository.getCardById(cardId)
+    suspend operator fun invoke(cardId: Int): Card? = repository.getCardById(cardId)
 }

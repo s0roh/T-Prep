@@ -16,14 +16,22 @@ interface DeckDao {
     fun getDecks(): Flow<List<DeckDBO>>
 
     @Query("SELECT * FROM decks WHERE id = :deckId")
-    suspend fun getDeckById(deckId: Long): DeckDBO?
+    suspend fun getDeckById(deckId: String): DeckDBO?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDeck(deckDBO: DeckDBO): Long
+    @Query("SELECT id FROM decks WHERE id = :id")
+    suspend fun getDeckId(id: String): String?
+
+    suspend fun insertDeck(deckDBO: DeckDBO): String {
+        privateInsertDeck(deckDBO)
+        return getDeckId(deckDBO.id) ?: throw IllegalStateException("Insert failed")
+    }
 
     @Update
     suspend fun updateDeck(deckDBO: DeckDBO)
 
     @Delete
     suspend fun deleteDeck(deckDBO: DeckDBO)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun privateInsertDeck(deckDBO: DeckDBO)
 }

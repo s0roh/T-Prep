@@ -1,68 +1,81 @@
 package com.example.auth.data.repository
 
-import com.example.auth.domain.entity.AuthState
 import com.example.auth.domain.repository.AuthRepository
-import com.example.auth.domain.usecase.GetTokenUseCase
-import com.example.auth.domain.usecase.IsTokenValidUseCase
-import com.example.auth.domain.usecase.SaveTokenUseCase
+import com.example.auth.mapper.toDto
+import com.example.auth.mapper.toLoginRequestDto
+import com.example.auth.mapper.toSignupRequestDto
 import com.example.network.api.ApiService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
+import com.example.network.dto.user.AuthResponseDto
+import com.example.preferences.AuthPreferences
+import retrofit2.Response
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject internal constructor(
     private val apiService: ApiService,
-    private val getTokenUseCase: GetTokenUseCase,
-    private val isTokenValidUseCase: IsTokenValidUseCase,
-    private val saveTokenUseCase: SaveTokenUseCase
+    private val authPreferences: AuthPreferences,
 ) : AuthRepository {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Default)
-    private val checkAuthStateEvents = MutableSharedFlow<Unit>(replay = 1)
-
-    private val authStateFlow: StateFlow<AuthState> = flow {
-        checkAuthStateEvents.emit(Unit)
-        checkAuthStateEvents.collect {
-            val currentToken = getTokenUseCase()
-            val loggedIn = currentToken != null && isTokenValidUseCase()
-            val authState =
-                if (loggedIn) AuthState.Authorized(currentToken) else AuthState.NotAuthorized
-            emit(authState)
-        }
-    }.stateIn(
-        scope = coroutineScope,
-        started = SharingStarted.Lazily,
-        initialValue = AuthState.Initial
-    )
-
-    override fun getAuthStateFlow(): StateFlow<AuthState> = authStateFlow
-
-    override suspend fun refreshAuthState() {
-        checkAuthStateEvents.emit(Unit)
+    override fun isAccessTokenValid(): Boolean {
+        return authPreferences.isAccessTokenValid()
     }
 
-    override suspend fun loginUser(userName: String, password: String): AuthState {
-        val response = apiService.loginUser(userName, password)
-        return if (response.isSuccessful) {
-            val token = response.body()
-            val expiration = response.headers()[HEADER_EXPIRES_AFTER]
-            if (token != null && expiration != null) {
-                saveTokenUseCase(token, expiration)
-                AuthState.Authorized(token)
-            } else {
-                AuthState.NotAuthorized
+    override fun isRefreshTokenValid(): Boolean {
+        return authPreferences.isRefreshTokenValid()
+    }
+
+    override suspend fun refreshTokens(): Boolean {
+        val refreshToken = authPreferences.getRefreshToken()?.takeIf {
+            authPreferences.isRefreshTokenValid()
+        } ?: return false
+        val response = apiService.refreshToken(refreshToken.toDto())
+        return processAuthResponse(response)
+    }
+
+    override suspend fun login(email: String, password: String): Boolean {
+        val temp = toLoginRequestDto(email, password)
+        val response = apiService.login(temp)
+        return processAuthResponse(response)
+    }
+
+    override suspend fun signup(email: String, password: String, name: String): Boolean {
+        val response = apiService.signup(toSignupRequestDto(email, password, name))
+        return processAuthResponse(response)
+    }
+
+    suspend fun <T> withAuthToken(apiCall: suspend (String) -> T?): T? {
+        val accessToken = authPreferences.getAccessToken()
+        if (accessToken != null && authPreferences.isAccessTokenValid()) {
+            return apiCall("Bearer $accessToken")
+        }
+
+        if (refreshTokens()) {
+            val newAccessToken = authPreferences.getAccessToken()
+            if (newAccessToken != null) {
+                return apiCall("Bearer $newAccessToken")
             }
-        } else {
-            throw IllegalStateException("Неверный логин или пароль")
         }
+
+        return null
     }
 
-    companion object {
-        const val HEADER_EXPIRES_AFTER = "X-Expires-After"
+
+    private fun processAuthResponse(response: Response<AuthResponseDto>): Boolean {
+        if (!response.isSuccessful) return false
+        val newAccessToken = response.body()?.accessToken
+        val newRefreshToken = response.body()?.refreshToken
+        val accessTokenExpirationDate = response.headers()["X-Access-Expires-After"] ?: ""
+        val refreshTokenExpirationDate = response.headers()["X-Refresh-Expires-After"] ?: ""
+
+        return if (newAccessToken != null && newRefreshToken != null) {
+            authPreferences.saveTokens(
+                newAccessToken,
+                newRefreshToken,
+                accessTokenExpirationDate,
+                refreshTokenExpirationDate
+            )
+            true
+        } else {
+            false
+        }
     }
 }

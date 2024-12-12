@@ -11,9 +11,9 @@ class SyncHelperImpl @Inject internal constructor(
 ) : SyncHelper {
 
     override suspend fun markAsNew(
-        deckId: Long,
+        deckId: String,
         entityType: EntityType,
-        cardId: Long?
+        cardId: Int?
     ) {
         when (entityType) {
             EntityType.DECK -> handleNewDeck(deckId)
@@ -22,9 +22,9 @@ class SyncHelperImpl @Inject internal constructor(
     }
 
     override suspend fun markAsUpdated(
-        deckId: Long,
+        deckId: String,
         entityType: EntityType,
-        cardId: Long?
+        cardId: Int?
     ) {
         when (entityType) {
             EntityType.DECK -> handleUpdatedDeck(deckId)
@@ -33,9 +33,9 @@ class SyncHelperImpl @Inject internal constructor(
     }
 
     override suspend fun markAsDeleted(
-        deckId: Long,
+        deckId: String,
         entityType: EntityType,
-        cardId: Long?
+        cardId: Int?
     ) {
         when (entityType) {
             EntityType.DECK -> handleDeletedDeck(deckId)
@@ -43,7 +43,7 @@ class SyncHelperImpl @Inject internal constructor(
         }
     }
 
-    private suspend fun handleNewDeck(deckId: Long) {
+    private suspend fun handleNewDeck(deckId: String) {
         database.syncMetadataDao.insert(
             SyncMetadataDBO(
                 id = 0,
@@ -56,7 +56,7 @@ class SyncHelperImpl @Inject internal constructor(
         )
     }
 
-    private suspend fun handleNewCard(deckId: Long, cardId: Long?) {
+    private suspend fun handleNewCard(deckId: String, cardId: Int?) {
         requireNotNull(cardId) { "cardId cannot be null for CARD entity type" }
         database.syncMetadataDao.insert(
             SyncMetadataDBO(
@@ -70,7 +70,7 @@ class SyncHelperImpl @Inject internal constructor(
         )
     }
 
-    private suspend fun handleUpdatedDeck(deckId: Long) {
+    private suspend fun handleUpdatedDeck(deckId: String) {
         database.syncMetadataDao.deleteUpdatedDeckSyncMetadata(deckId)
         database.syncMetadataDao.insert(
             SyncMetadataDBO(
@@ -84,7 +84,7 @@ class SyncHelperImpl @Inject internal constructor(
         )
     }
 
-    private suspend fun handleUpdatedCard(deckId: Long, cardId: Long?) {
+    private suspend fun handleUpdatedCard(deckId: String, cardId: Int?) {
         requireNotNull(cardId) { "cardId cannot be null for CARD entity type" }
         database.syncMetadataDao.deleteUpdatedCardSyncMetadata(deckId, cardId)
         database.syncMetadataDao.insert(
@@ -99,7 +99,7 @@ class SyncHelperImpl @Inject internal constructor(
         )
     }
 
-    private suspend fun handleDeletedDeck(deckId: Long) {
+    private suspend fun handleDeletedDeck(deckId: String) {
         val existingMetadata = database.syncMetadataDao.getDeckSyncMetadata(deckId)
         if (existingMetadata.any { it.status == SyncStatus.NEW }) {
             database.syncMetadataDao.deleteDeckSyncMetadata(deckId)
@@ -119,7 +119,7 @@ class SyncHelperImpl @Inject internal constructor(
         }
     }
 
-    private suspend fun handleDeletedCard(deckId: Long, cardId: Long?) {
+    private suspend fun handleDeletedCard(deckId: String, cardId: Int?) {
         requireNotNull(cardId) { "cardId cannot be null for CARD entity type" }
         val existingMetadata = database.syncMetadataDao.getCardSyncMetadata(deckId, cardId)
         if (existingMetadata.any { it.status == SyncStatus.NEW }) {

@@ -23,18 +23,18 @@ sealed interface Screen {
 
     @Serializable
     data class AddEditDeck(
-        val deckId: Long?
+        val deckId: String?
     ) : Screen
 
     @Serializable
     data class AddEditCard(
-        val deckId: Long,
-        val cardId: Long?
+        val deckId: String,
+        val cardId: Int?
     ) : Screen
 
     @Serializable
     data class DeckDetails(
-        val deckId: Long,
+        val deckId: String,
         val source: Source
     ) : Screen {
         fun toRoute(): String {
@@ -44,7 +44,7 @@ sealed interface Screen {
         companion object {
             fun fromRoute(route: String): Screen? {
                 val parts = route.split("/")
-                val deckId = parts.getOrNull(1)?.toLongOrNull() ?: return null
+                val deckId = parts.getOrNull(1) ?: return null
                 val source = parts.getOrNull(2)?.let { Source.valueOf(it) } ?: return null
                 return DeckDetails(deckId, source)
             }
@@ -53,13 +53,13 @@ sealed interface Screen {
 
     @Serializable
     data class Training(
-        val deckId: Long,
+        val deckId: String,
         val source: Source
     ) : Screen
 
     @Serializable
     data class Reminder(
-        val deckId: Long,
+        val deckId: String,
         val source: Source,
         val deckName: String
     ) : Screen

@@ -30,11 +30,11 @@ interface HistoryDao {
         WHERE cardId = :cardId AND deckId = :deckId AND source = :source
     """
     )
-    suspend fun getHistoryForCard(cardId: Long, deckId: Long, source: Source): HistoryDBO?
+    suspend fun getHistoryForCard(cardId: Int, deckId: String, source: Source): HistoryDBO?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdateHistory(history: HistoryDBO)
 
     @Query("DELETE FROM history WHERE deckId = :deckId")
-    suspend fun deleteHistoryForDeck(deckId: Long)
+    suspend fun deleteHistoryForDeck(deckId: String)
 }

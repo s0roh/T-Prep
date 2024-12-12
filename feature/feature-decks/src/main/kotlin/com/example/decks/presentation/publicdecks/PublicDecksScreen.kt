@@ -36,7 +36,7 @@ import com.example.decks.R
 @Composable
 fun PublicDecksScreen(
     paddingValues: PaddingValues,
-    onDeckClickListener: (Long) -> Unit
+    onDeckClickListener: (String) -> Unit
 ) {
     val viewModel: PublicDecksViewModel = hiltViewModel()
     val lazyPagingItems = viewModel.publicDecks.collectAsLazyPagingItems()
@@ -75,7 +75,7 @@ private fun HandlePagingLoadState(
 private fun PublicDecksList(
     lazyPagingItems: LazyPagingItems<Deck>,
     paddingValues: PaddingValues,
-    onDeckClickListener: (Long) -> Unit
+    onDeckClickListener: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
