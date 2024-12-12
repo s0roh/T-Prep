@@ -2,13 +2,21 @@ package com.example.preferences
 
 interface AuthPreferences {
 
-    fun saveToken(token: String, expirationDate: String)
+    fun saveTokens(
+        accessToken: String,
+        refreshToken: String,
+        accessTokenExpirationDate: String,
+        refreshTokenExpirationDate: String
+    )
 
-    fun getToken(): String?
+    fun getAccessToken(): String?
+    fun getRefreshToken(): String?
 
-    fun getExpirationDate(): String?
+    fun getAccessTokenExpirationDate(): String?
+    fun getRefreshTokenExpirationDate(): String?
 
-    fun clearToken()
+    fun clearTokens()
 
-    fun isTokenValid(): Boolean
+    fun isAccessTokenValid(): Boolean
+    fun isRefreshTokenValid(): Boolean
 }

@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.auth.presentation.login.LoginScreen
+import com.example.auth.presentation.signup.SignupScreen
 import com.example.database.models.Source
 import com.example.decks.presentation.details.DeckDetailScreen
 import com.example.decks.presentation.publicdecks.PublicDecksScreen
@@ -48,6 +49,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             TPrepTheme {
                 navController = rememberNavController()
+
+                //SignupScreen()
                 MainScreen(navController = navController)
             }
         }

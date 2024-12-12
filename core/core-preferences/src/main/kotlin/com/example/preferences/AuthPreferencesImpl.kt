@@ -15,37 +15,64 @@ class AuthPreferencesImpl @Inject constructor(
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    override fun saveToken(token: String, expirationDate: String) {
+    override fun saveTokens(
+        accessToken: String,
+        refreshToken: String,
+        accessTokenExpirationDate: String,
+        refreshTokenExpirationDate: String
+    ) {
         prefs.edit()
-            .putString(TOKEN_KEY, token)
-            .putString(EXPIRATION_KEY, expirationDate)
+            .putString(ACCESS_TOKEN_KEY, accessToken)
+            .putString(REFRESH_TOKEN_KEY, refreshToken)
+            .putString(ACCESS_TOKEN_EXPIRATION_KEY, accessTokenExpirationDate)
+            .putString(REFRESH_TOKEN_EXPIRATION_KEY, refreshTokenExpirationDate)
             .apply()
     }
 
-    override fun getToken(): String? = prefs.getString(TOKEN_KEY, null)
+    override fun getAccessToken(): String? = prefs.getString(ACCESS_TOKEN_KEY, null)
 
-    override fun getExpirationDate(): String? = prefs.getString(EXPIRATION_KEY, null)
+    override fun getRefreshToken(): String? = prefs.getString(REFRESH_TOKEN_KEY, null)
 
-    override fun clearToken() {
-        prefs.edit().remove(TOKEN_KEY).remove(EXPIRATION_KEY).apply()
+    override fun getAccessTokenExpirationDate(): String? = prefs.getString(ACCESS_TOKEN_EXPIRATION_KEY, null)
+
+    override fun getRefreshTokenExpirationDate(): String? = prefs.getString(REFRESH_TOKEN_EXPIRATION_KEY, null)
+
+    override fun clearTokens() {
+        prefs.edit()
+            .remove(ACCESS_TOKEN_KEY)
+            .remove(REFRESH_TOKEN_KEY)
+            .remove(ACCESS_TOKEN_EXPIRATION_KEY)
+            .remove(REFRESH_TOKEN_EXPIRATION_KEY)
+            .apply()
     }
 
-    override fun isTokenValid(): Boolean {
-        val expiration = getExpirationDate() ?: return false
+    override fun isAccessTokenValid(): Boolean {
+        val expiration = getAccessTokenExpirationDate() ?: return false
+        return isTokenValid(expiration)
+    }
+
+    override fun isRefreshTokenValid(): Boolean {
+        val expiration = getRefreshTokenExpirationDate() ?: return false
+        return isTokenValid(expiration)
+    }
+
+    private fun isTokenValid(expiration: String): Boolean {
         return try {
             val format = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
             val expirationDate = format.parse(expiration)
             expirationDate != null && Date().before(expirationDate)
-        } catch (_: Exception) {
-            false
+        } catch (e: Exception) {
+            throw IllegalStateException(e)
         }
     }
 
     companion object {
 
         private const val PREFS_NAME = "auth_prefs"
-        private const val TOKEN_KEY = "auth_token"
-        private const val EXPIRATION_KEY = "token_expiration"
-        private const val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+        private const val ACCESS_TOKEN_KEY = "access_token"
+        private const val REFRESH_TOKEN_KEY = "refresh_token"
+        private const val ACCESS_TOKEN_EXPIRATION_KEY = "access_token_expiration"
+        private const val REFRESH_TOKEN_EXPIRATION_KEY = "refresh_token_expiration"
+        private const val DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS Z 'UTC'"
     }
 }

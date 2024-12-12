@@ -1,13 +1,14 @@
 package com.example.auth.domain.repository
 
-import com.example.auth.domain.entity.AuthState
-import kotlinx.coroutines.flow.StateFlow
-
 interface AuthRepository {
 
-    fun getAuthStateFlow(): StateFlow<AuthState>
+    fun isAccessTokenValid(): Boolean
 
-    suspend fun loginUser(userName: String, password: String): AuthState
+    fun isRefreshTokenValid(): Boolean
 
-    suspend fun refreshAuthState()
+    suspend fun refreshTokens(): Boolean
+
+    suspend fun login(email: String, password: String): Boolean
+
+    suspend fun signup(email: String, password: String, name: String): Boolean
 }

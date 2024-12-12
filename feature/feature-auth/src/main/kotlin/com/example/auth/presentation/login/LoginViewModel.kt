@@ -1,11 +1,12 @@
 package com.example.auth.presentation.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.auth.domain.entity.AuthState
-import com.example.auth.domain.usecase.GetAuthStateFlowUseCase
-import com.example.auth.domain.usecase.LoginUserUseCase
-import com.example.auth.domain.usecase.RefreshAuthStateUseCase
+import com.example.auth.domain.usecase.IsAccessTokenValidUseCase
+import com.example.auth.domain.usecase.IsRefreshTokenValidUseCase
+import com.example.auth.domain.usecase.LoginUseCase
+import com.example.auth.domain.usecase.RefreshTokensUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,9 +15,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class LoginViewModel @Inject constructor(
-    private val getAuthStateFlowUseCase: GetAuthStateFlowUseCase,
-    private val loginUserUseCase: LoginUserUseCase,
-    private val refreshAuthStateUseCase: RefreshAuthStateUseCase,
+    private val isAccessTokenValidUseCase: IsAccessTokenValidUseCase,
+    private val isRefreshTokenValidUseCase: IsRefreshTokenValidUseCase,
+    private val refreshTokensUseCase: RefreshTokensUseCase,
+    private val loginUseCase: LoginUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<LoginScreenState>(LoginScreenState.Initial)
@@ -27,28 +29,44 @@ internal class LoginViewModel @Inject constructor(
     }
 
     init {
+        checkAuthState()
+    }
+
+    private fun checkAuthState() {
         viewModelScope.launch(exceptionHandler) {
-            getAuthStateFlowUseCase().collect { authState ->
-                screenState.value = when (authState) {
-                    is AuthState.Authorized -> LoginScreenState.Success(authState.token)
-                    AuthState.Initial -> LoginScreenState.Initial
-                    AuthState.NotAuthorized -> LoginScreenState.Initial
+            val isAccessTokenValid = isAccessTokenValidUseCase()
+            val isRefreshTokenValid = isRefreshTokenValidUseCase()
+
+            if (!isAccessTokenValid && isRefreshTokenValid) {
+                val refreshSuccess = refreshTokensUseCase()
+                if (refreshSuccess) {
+                    screenState.emit(LoginScreenState.Success("User is authenticated"))
+                } else {
+                    screenState.emit(LoginScreenState.Initial)
                 }
+            } else if (isAccessTokenValid) {
+                screenState.emit(LoginScreenState.Success("User is authenticated"))
+            } else {
+                screenState.emit(LoginScreenState.Initial)
             }
         }
     }
 
-    fun onLoginClick(login: String, password: String) {
+
+    fun onLoginClick(email: String, password: String) {
         viewModelScope.launch(exceptionHandler) {
-            if (login.isNotBlank() && password.isNotBlank()) {
+            if (email.isNotBlank() && password.isNotBlank()) {
                 screenState.emit(LoginScreenState.Loading)
-                val authState = loginUserUseCase(login, password)
-                if (authState is AuthState.Authorized) {
-                    refreshAuthStateUseCase()
+
+                val loginSuccess = loginUseCase(email = email, password = password)
+                Log.d("!@#", "$loginSuccess")
+                if (loginSuccess) {
+                    screenState.emit(LoginScreenState.Success("Login Successful"))
+                } else {
+                    screenState.emit(LoginScreenState.Error("Неверный логин или пароль"))
                 }
             } else {
-                screenState.value =
-                    LoginScreenState.Error("Поля логин и пароль должны быть заполнены")
+                screenState.emit(LoginScreenState.Error("Поля логин и пароль должны быть заполнены"))
             }
         }
     }

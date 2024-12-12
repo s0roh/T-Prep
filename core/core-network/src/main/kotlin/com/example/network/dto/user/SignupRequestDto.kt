@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
  * @property password The password chosen by the user.
  */
 @Serializable
-data class CreateUserRequestDto(
+data class SignupRequestDto(
     @SerialName("username") val userName: String,
     @SerialName("email") val email: String,
     @SerialName("password") val password: String
