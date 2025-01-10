@@ -36,7 +36,7 @@ import com.example.decks.R
 @Composable
 fun PublicDecksScreen(
     paddingValues: PaddingValues,
-    onDeckClickListener: (String) -> Unit
+    onDeckClickListener: (String) -> Unit,
 ) {
     val viewModel: PublicDecksViewModel = hiltViewModel()
     val lazyPagingItems = viewModel.publicDecks.collectAsLazyPagingItems()
@@ -57,7 +57,7 @@ fun PublicDecksScreen(
 private fun HandlePagingLoadState(
     loadState: LoadState,
     onRetry: () -> Unit,
-    onContent: @Composable () -> Unit
+    onContent: @Composable () -> Unit,
 ) {
     when (loadState) {
         is LoadState.Loading -> LoadingIndicator()
@@ -75,7 +75,7 @@ private fun HandlePagingLoadState(
 private fun PublicDecksList(
     lazyPagingItems: LazyPagingItems<Deck>,
     paddingValues: PaddingValues,
-    onDeckClickListener: (String) -> Unit
+    onDeckClickListener: (String) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -130,7 +130,7 @@ private fun PublicDecksList(
 
 @Composable
 private fun LoadingIndicator(
-    modifier: Modifier = Modifier.fillMaxSize()
+    modifier: Modifier = Modifier.fillMaxSize(),
 ) {
     Box(
         modifier = modifier,
@@ -145,7 +145,7 @@ private fun ErrorContent(
     message: String,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier.fillMaxSize(),
-    isFullScreen: Boolean = true
+    isFullScreen: Boolean = true,
 ) {
     Box(
         modifier = modifier.padding(16.dp),

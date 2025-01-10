@@ -16,6 +16,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.create
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -45,7 +46,8 @@ interface ApiService {
 
     @GET("collection/{id}")
     suspend fun getDeckById(
-        @Path("id") deckId: String
+        @Path("id") deckId: String,
+        @Header("Authorization") authHeader: String? = null
     ): DeckDto
 }
 

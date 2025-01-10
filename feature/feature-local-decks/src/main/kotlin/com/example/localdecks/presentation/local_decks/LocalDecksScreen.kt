@@ -32,7 +32,7 @@ fun LocalDecksScreen(
 
     Column {
         TopAppBar(
-            title = { Text("My Decks") },
+            title = { Text("Мои колоды") },
             actions = {
                 IconButton(
                     onClick = onAddClick

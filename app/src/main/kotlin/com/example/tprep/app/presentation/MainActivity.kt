@@ -45,9 +45,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             TPrepTheme {
                 navController = rememberNavController()
-
-
-                //SignupScreen()
                 MainScreen(navController = navController)
             }
         }
@@ -115,6 +112,7 @@ fun MainScreen(navController: NavHostController) {
             },
             profileScreenContent = {
                 ProfileScreen(
+                    paddingValues = paddingValues,
                     onLogoutClick = {
                         navigationState.navigateLogout(Screen.Auth)
                     }
@@ -124,7 +122,7 @@ fun MainScreen(navController: NavHostController) {
                 // TODO Заменить временное значение deckId = 2 на реальный идентификатор,
                 // получаемый из параметра deckId. Сейчас используется константа для тестирования.
                 var temporaryDeckId: String = deckId
-                //if (deckId > 2) temporaryDeckId = 1
+                if (source == Source.NETWORK) temporaryDeckId = "eff199f9-da03-4468-9f36-82e819ea516c"
 
                 DeckDetailScreen(
                     deckId = temporaryDeckId,

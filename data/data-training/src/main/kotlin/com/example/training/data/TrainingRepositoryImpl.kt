@@ -48,12 +48,14 @@ class TrainingRepositoryImpl @Inject internal constructor(
         currentCard: Card,
         allCards: List<Card>
     ): List<String> {
-        val otherAnswers = allCards
+        return allCards
+            .asSequence()
             .filter { it.id != currentCard.id }
             .map { it.answer }
-            .distinct()
-
-        return otherAnswers.shuffled().take(WRONG_ANSWERS_COUNT)
+            .filter { it != currentCard.answer }
+            .toSet()
+            .shuffled()
+            .take(WRONG_ANSWERS_COUNT)
     }
 
     override suspend fun recordAnswer(

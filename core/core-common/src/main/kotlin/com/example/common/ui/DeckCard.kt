@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.common.R
 import com.example.common.domain.entity.Deck
@@ -43,11 +44,13 @@ fun DeckCard(
             Text(
                 text = deck.name,
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 4.dp)
+                modifier = Modifier.padding(bottom = 4.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = if (deck.isPublic) stringResource(R.string.decks_public)
-                else stringResource(R.string.decks_private),
+                text = if (deck.isPublic) stringResource(R.string.public_deck)
+                else stringResource(R.string.private_deck),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 4.dp)

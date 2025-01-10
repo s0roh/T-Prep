@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -115,31 +117,40 @@ private fun TrainingCardsContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
-
-            QuestionArea(question = currentCard.question)
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            AnswerOptions(
-                shuffledAnswers = shuffledAnswers,
-                selectedAnswer = selectedAnswer,
-                isAnswered = isAnswered,
-                correctAnswer = currentCard.answer,
-                onAnswerSelected = {
-                    if (!isAnswered) {
-                        selectedAnswer = it
-                        isAnswered = true
-                        showNextButton = true
-                        onAnswer(it == currentCard.answer, it)
-                    }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(vertical = 16.dp)
+            ) {
+                item {
+                    //Spacer(modifier = Modifier.height(20.dp))
+                    QuestionArea(question = currentCard.question)
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
-            )
 
-            Spacer(modifier = Modifier.weight(2f))
+                items(shuffledAnswers.size) { index ->
+                    val answer = shuffledAnswers[index]
+                    val color = getAnswerColor(isAnswered, answer, currentCard.answer, selectedAnswer)
+
+                    AnswerButton(
+                        answer = answer,
+                        color = color,
+                        isEnabled = !isAnswered,
+                        onClick = {
+                            if (!isAnswered) {
+                                selectedAnswer = answer
+                                isAnswered = true
+                                showNextButton = true
+                                onAnswer(answer == currentCard.answer, answer)
+                            }
+                        }
+                    )
+                }
+            }
 
             Button(
                 onClick = {
@@ -156,13 +167,96 @@ private fun TrainingCardsContent(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 20.dp)
+                    .padding(start = 16.dp, end= 16.dp, bottom = 20.dp)
             ) {
                 Text(text = stringResource(if (showNextButton) R.string.next else R.string.skip))
             }
         }
     }
 }
+
+
+//@Composable
+//private fun TrainingCardsContent(
+//    currentState: TrainingScreenState.Success,
+//    onAnswer: (Boolean, String?) -> Unit,
+//    onSkip: () -> Unit,
+//    onExit: () -> Unit,
+//    onNextCard: () -> Unit
+//) {
+//    val currentCard = currentState.cards[currentState.currentCardIndex]
+//    var selectedAnswer by remember(currentState.selectedAnswer) {
+//        mutableStateOf(currentState.selectedAnswer)
+//    }
+//    var isAnswered by remember { mutableStateOf(currentState.selectedAnswer != null) }
+//    var showNextButton by remember { mutableStateOf(currentState.selectedAnswer != null) }
+//
+//    val shuffledAnswers = remember(currentCard.id) {
+//        (listOf(currentCard.answer) + currentCard.wrongAnswers).shuffled()
+//    }
+//
+//    BackHandler(onBack = onExit)
+//
+//    Scaffold(
+//        topBar = {
+//            CenteredTopAppBar(
+//                title = "Тренировка",
+//                shouldShowArrowBack = true,
+//                onBackClick = onExit
+//            )
+//        }
+//    ) { paddingValues ->
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(paddingValues)
+//                .padding(horizontal = 16.dp),
+//        ) {
+//            Spacer(modifier = Modifier.height(20.dp))
+//
+//            QuestionArea(question = currentCard.question)
+//
+//            Spacer(modifier = Modifier.weight(1f))
+//
+//            AnswerOptions(
+//                shuffledAnswers = shuffledAnswers,
+//                selectedAnswer = selectedAnswer,
+//                isAnswered = isAnswered,
+//                correctAnswer = currentCard.answer,
+//                onAnswerSelected = {
+//                    if (!isAnswered) {
+//                        selectedAnswer = it
+//                        isAnswered = true
+//                        showNextButton = true
+//                        onAnswer(it == currentCard.answer, it)
+//                    }
+//                }
+//            )
+//
+//            Spacer(modifier = Modifier.weight(2f))
+//
+//            Button(
+//                onClick = {
+//                    if (showNextButton) {
+//                        selectedAnswer = null
+//                        isAnswered = false
+//                        showNextButton = false
+//                        onNextCard()
+//                    } else {
+//                        onSkip()
+//                        isAnswered = true
+//                        showNextButton = true
+//                    }
+//                },
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(bottom = 20.dp)
+//            ) {
+//                Text(text = stringResource(if (showNextButton) R.string.next else R.string.skip))
+//            }
+//        }
+//    }
+//}
 
 
 @Composable
@@ -208,6 +302,8 @@ private fun AnswerButton(answer: String, color: Color, isEnabled: Boolean, onCli
     ) {
         Text(
             text = answer,
+//            maxLines = 4,
+//            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(8.dp),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
