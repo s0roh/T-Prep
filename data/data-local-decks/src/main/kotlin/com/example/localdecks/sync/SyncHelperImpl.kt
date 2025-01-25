@@ -1,46 +1,53 @@
 package com.example.localdecks.sync
 
+import android.content.Context
 import com.example.database.TPrepDatabase
 import com.example.database.models.EntityType
 import com.example.database.models.SyncMetadataDBO
 import com.example.database.models.SyncStatus
+import com.example.localdecks.util.startSyncWork
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class SyncHelperImpl @Inject internal constructor(
-    private val database: TPrepDatabase
+    private val database: TPrepDatabase,
+    @ApplicationContext private val context: Context,
 ) : SyncHelper {
 
     override suspend fun markAsNew(
         deckId: String,
         entityType: EntityType,
-        cardId: Int?
+        cardId: Int?,
     ) {
         when (entityType) {
             EntityType.DECK -> handleNewDeck(deckId)
             EntityType.CARD -> handleNewCard(deckId, cardId)
         }
+        startSyncWork(context)
     }
 
     override suspend fun markAsUpdated(
         deckId: String,
         entityType: EntityType,
-        cardId: Int?
+        cardId: Int?,
     ) {
         when (entityType) {
             EntityType.DECK -> handleUpdatedDeck(deckId)
             EntityType.CARD -> handleUpdatedCard(deckId, cardId)
         }
+        startSyncWork(context)
     }
 
     override suspend fun markAsDeleted(
         deckId: String,
         entityType: EntityType,
-        cardId: Int?
+        cardId: Int?,
     ) {
         when (entityType) {
             EntityType.DECK -> handleDeletedDeck(deckId)
             EntityType.CARD -> handleDeletedCard(deckId, cardId)
         }
+        startSyncWork(context)
     }
 
     private suspend fun handleNewDeck(deckId: String) {

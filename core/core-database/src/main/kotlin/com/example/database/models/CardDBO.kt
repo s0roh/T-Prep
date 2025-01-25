@@ -10,5 +10,6 @@ data class CardDBO(
     @ColumnInfo("serverCardId") val serverCardId: Int?,
     @ColumnInfo("deckId") val deckId: String,
     @ColumnInfo("question") val question: String,
-    @ColumnInfo("answer") val answer: String
+    @ColumnInfo("answer") val answer: String,
+    @ColumnInfo("isDeleted") val isDeleted: Boolean = false,
 )

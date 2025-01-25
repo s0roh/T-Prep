@@ -23,6 +23,7 @@ import com.example.history.presentation.history.HistoryScreen
 import com.example.localdecks.presentation.add_edit_card.AddEditCardScreen
 import com.example.localdecks.presentation.add_edit_deck.AddEditDeckScreen
 import com.example.localdecks.presentation.local_decks.LocalDecksScreen
+import com.example.localdecks.util.startSyncWork
 import com.example.tprep.app.navigation.AppNavGraph
 import com.example.tprep.app.navigation.Screen
 import com.example.tprep.app.navigation.navigateToRoute
@@ -41,6 +42,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        startSyncWork(this)
         enableEdgeToEdge()
         setContent {
             TPrepTheme {

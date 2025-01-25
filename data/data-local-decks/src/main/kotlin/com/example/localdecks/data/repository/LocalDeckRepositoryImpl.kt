@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 class LocalDeckRepositoryImpl @Inject internal constructor(
     private val database: TPrepDatabase,
-    private val syncHelper: SyncHelper
+    private val syncHelper: SyncHelper,
 ) : LocalDeckRepository {
 
     override fun getDecks(): Flow<List<Deck>> {
@@ -60,16 +60,23 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
         if (existingDeck != null) {
             val cards = database.cardDao.getCardsForDeck(deck.id).firstOrNull() ?: emptyList()
             cards.forEach { card ->
-                database.cardDao.deleteCard(card)
-
-                syncHelper.markAsDeleted(deckId = deck.id,
-                entityType = EntityType.CARD,
-                cardId = card.id)
+                if (card.serverCardId == null) {
+                    database.cardDao.deleteCard(card)
+                } else {
+                    database.cardDao.updateCard(card.copy(isDeleted = true))
+                }
+                syncHelper.markAsDeleted(
+                    deckId = deck.id,
+                    entityType = EntityType.CARD,
+                    cardId = card.id
+                )
             }
             database.historyDao.deleteHistoryForDeck(deck.id)
-
-            database.deckDao.deleteDeck(existingDeck)
-
+            if (existingDeck.serverDeckId == null) {
+                database.deckDao.deleteDeck(existingDeck)
+            } else {
+                database.deckDao.updateDeck(existingDeck.copy(isDeleted = true))
+            }
             syncHelper.markAsDeleted(deckId = deck.id, entityType = EntityType.DECK, cardId = null)
 
         }
@@ -112,8 +119,11 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
     override suspend fun deleteCard(card: Card) {
         val existingCard = database.cardDao.getCardById(card.id)
         if (existingCard != null) {
-            database.cardDao.deleteCard(existingCard)
-
+            if (existingCard.serverCardId == null) {
+                database.cardDao.deleteCard(existingCard)
+            } else {
+                database.cardDao.updateCard(existingCard.copy(isDeleted = true))
+            }
             syncHelper.markAsDeleted(
                 deckId = existingCard.deckId,
                 entityType = EntityType.CARD,

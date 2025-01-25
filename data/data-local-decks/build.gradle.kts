@@ -8,7 +8,15 @@ android {
 
 dependencies {
     implementation(project(":core-database"))
+    implementation(project(":core-network"))
     implementation(project(":core-common"))
+    implementation(project(":core-preferences"))
+
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.work.compiler)
+    implementation(libs.work.runtime.ktx)
+
+    implementation(libs.retrofit.core)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CardDao {
 
-    @Query("SELECT * FROM cards WHERE deckId = :deckId")
+    @Query("SELECT * FROM cards WHERE deckId = :deckId AND isDeleted = 0")
     fun getCardsForDeck(deckId: String): Flow<List<CardDBO>>
 
     @Query("SELECT * FROM cards WHERE id = :cardID")

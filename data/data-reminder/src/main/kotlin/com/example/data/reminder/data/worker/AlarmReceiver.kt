@@ -60,7 +60,7 @@ private fun handleReminderNotification(context: Context, intent: Intent) {
 private fun sendNotification(
     context: Context,
     routeNavigator: RouteNavigator,
-    reminder: TrainingReminderDBO
+    reminder: TrainingReminderDBO,
 ) {
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -91,7 +91,7 @@ private fun sendNotification(
     notificationManager.notify(reminder.id.toInt(), notification)
 
     CoroutineScope(Dispatchers.IO).launch {
-        val entryPoint =getEntryPoint(context)
+        val entryPoint = getEntryPoint(context)
         val database = entryPoint.getTPrepDatabase()
 
         database.trainingReminderDao.deleteReminder(
@@ -104,7 +104,7 @@ private fun sendNotification(
 @SuppressLint("NewApi")
 private fun createNotificationChannel(
     notificationManager: NotificationManager,
-    channelId: String
+    channelId: String,
 ) {
     if (notificationManager.getNotificationChannel(channelId) == null) {
         val channel = NotificationChannel(

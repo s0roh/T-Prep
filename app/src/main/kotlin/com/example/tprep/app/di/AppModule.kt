@@ -71,7 +71,7 @@ interface AppModule {
         @Provides
         @Singleton
         fun provideTPrepDatabase(
-            @ApplicationContext context: Context
+            @ApplicationContext context: Context,
         ): TPrepDatabase {
             return TPrepDatabase(context)
         }
@@ -90,7 +90,7 @@ interface AppModule {
         @Singleton
         fun provideApiService(
             @ApplicationContext context: Context,
-            okHttpClient: OkHttpClient
+            okHttpClient: OkHttpClient,
         ): ApiService {
             val apiBaseUrl = getApiBaseUrl(context)
             return ApiService(
@@ -115,7 +115,7 @@ interface AppModule {
         @Singleton
         fun provideReminderScheduler(
             @ApplicationContext context: Context,
-            database: TPrepDatabase
+            database: TPrepDatabase,
         ): ReminderScheduler {
             return ReminderSchedulerImpl(context, database)
         }
