@@ -11,6 +11,7 @@ import com.example.network.dto.user.RefreshRequestDto
 import com.example.network.dto.user.SignupRequestDto
 import com.example.network.dto.user.AuthResponseDto
 import com.example.network.dto.user.LoginRequestDto
+import com.example.network.dto.user.UserInfoDto
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -96,6 +97,11 @@ interface ApiService {
         @Path("cardID") cardId: Int,
         @Header("Authorization") authHeader: String? = null,
     ): Response<ResponseMessageDto>
+
+    @GET("user")
+    suspend fun getUserInfo(
+        @Header("Authorization") authHeader: String? = null
+    ): Response<UserInfoDto>
 }
 
 fun ApiService(

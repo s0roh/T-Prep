@@ -42,7 +42,7 @@ class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase
         SyncMetadataDBO::class,
         TrainingReminderDBO::class
     ],
-    version = 3,
+    version = 1,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -60,6 +60,6 @@ fun TPrepDatabase(applicationContext: Context): TPrepDatabase {
             checkNotNull(applicationContext.applicationContext),
             TPrepRoomDatabase::class.java,
             "prep_database"
-        ).fallbackToDestructiveMigration().build()
+        ).build() //fallbackToDestructiveMigration().
     return TPrepDatabase(tPrepRoomDatabase)
 }

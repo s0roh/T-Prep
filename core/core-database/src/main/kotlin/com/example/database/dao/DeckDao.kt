@@ -18,6 +18,9 @@ interface DeckDao {
     @Query("SELECT * FROM decks WHERE id = :deckId")
     suspend fun getDeckById(deckId: String): DeckDBO?
 
+    @Query("SELECT * FROM decks WHERE serverDeckId = :serverDeckId")
+    fun getDeckByServerId(serverDeckId: String): DeckDBO?
+
     @Query("SELECT id FROM decks WHERE id = :id")
     suspend fun getDeckId(id: String): String?
 

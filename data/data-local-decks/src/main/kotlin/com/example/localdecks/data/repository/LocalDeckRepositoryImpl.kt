@@ -8,8 +8,12 @@ import com.example.localdecks.data.mapper.toDBO
 import com.example.localdecks.data.mapper.toEntity
 import com.example.localdecks.domain.repository.LocalDeckRepository
 import com.example.localdecks.sync.SyncHelper
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -18,13 +22,24 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
     private val syncHelper: SyncHelper,
 ) : LocalDeckRepository {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getDecks(): Flow<List<Deck>> {
-        return database.deckDao.getDecks().map { dboList ->
-            dboList.map { dbo ->
-                val cards = database.cardDao.getCardsForDeck(dbo.id).firstOrNull()?.map {
-                    it.toEntity()
-                } ?: emptyList()
-                dbo.toEntity(cards)
+        return database.deckDao.getDecks().flatMapLatest { dboList ->
+
+            if (dboList.isEmpty()) {
+                return@flatMapLatest flowOf(emptyList())
+            }
+
+            // Получаем карты для каждой колоды
+            combine(
+                dboList.map { dbo ->
+                    database.cardDao.getCardsForDeck(dbo.id).map { cardDboList ->
+                        val cards = cardDboList.map { it.toEntity() }
+                        dbo.toEntity(cards)
+                    }
+                }
+            ) { decks ->
+                decks.toList()
             }
         }
     }

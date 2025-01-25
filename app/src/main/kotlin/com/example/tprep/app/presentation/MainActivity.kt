@@ -97,6 +97,7 @@ fun MainScreen(navController: NavHostController) {
                 )
             },
             publicDecksScreenContent = {
+                startSyncWork(context)
                 PublicDecksScreen(
                     paddingValues = paddingValues,
                     onDeckClickListener = {
@@ -182,7 +183,7 @@ fun MainScreen(navController: NavHostController) {
                 LocalDecksScreen(
                     paddingValues = paddingValues,
                     onDeckClick = { deckId ->
-                        navigationState.navigateWithLocalDecksRefresh(
+                        navigationState.navigateWithSaveState(
                             Screen.DeckDetails(
                                 deckId,
                                 Source.LOCAL

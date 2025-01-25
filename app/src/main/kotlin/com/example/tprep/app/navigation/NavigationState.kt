@@ -41,19 +41,6 @@ class NavigationState(
         }
     }
 
-    fun <T : Any> navigateWithLocalDecksRefresh(route: T) {
-        navHostController.popBackStack()
-        navHostController.navigate(Screen.LocalDecks)
-        navHostController.navigate(route) {
-            popUpTo(navHostController.graph.startDestinationId) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
-    }
-
-
     fun <T : Any> navigateFromLogin(route: T) {
         navHostController.navigate(route) {
             popUpTo(Screen.Auth) {

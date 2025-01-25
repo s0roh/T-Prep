@@ -28,6 +28,7 @@ class SyncDeleteDeckUseCase @Inject constructor(
             if (response.isSuccessful) {
                 Log.d("SyncWorker", "Колода удалена успешно: ${metadata.deckId}")
                 database.syncMetadataDao.deleteDeckSyncMetadata(metadata.deckId)
+                database.historyDao.deleteHistoryForDeck(metadata.deckId)
                 database.deckDao.deleteDeck(metadataInfo)
             } else {
 
@@ -43,6 +44,7 @@ class SyncDeleteDeckUseCase @Inject constructor(
                         "Колода с ID ${metadata.deckId} не существует на сервере. Удаление из базы данных."
                     )
                     database.syncMetadataDao.deleteDeckSyncMetadata(metadata.deckId)
+                    database.historyDao.deleteHistoryForDeck(metadata.deckId)
                     database.deckDao.deleteDeck(metadataInfo)
                 }
                 Log.e(

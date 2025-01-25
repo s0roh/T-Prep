@@ -48,6 +48,7 @@ class SyncUpdateDeckUseCase @Inject constructor(
                         "Колода с ID ${metadata.deckId} не существует на сервере. Удаление из базы данных."
                     )
                     database.syncMetadataDao.deleteDeckSyncMetadata(metadata.deckId)
+                    database.historyDao.deleteHistoryForDeck(metadata.deckId)
                     database.deckDao.deleteDeck(metadataInfo)
                 }
                 Log.e(
