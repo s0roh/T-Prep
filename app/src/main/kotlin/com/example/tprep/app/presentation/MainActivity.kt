@@ -23,6 +23,7 @@ import com.example.history.presentation.history.HistoryScreen
 import com.example.localdecks.presentation.add_edit_card.AddEditCardScreen
 import com.example.localdecks.presentation.add_edit_deck.AddEditDeckScreen
 import com.example.localdecks.presentation.local_decks.LocalDecksScreen
+import com.example.localdecks.util.startSyncWork
 import com.example.tprep.app.navigation.AppNavGraph
 import com.example.tprep.app.navigation.Screen
 import com.example.tprep.app.navigation.navigateToRoute
@@ -41,13 +42,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        startSyncWork(this)
         enableEdgeToEdge()
         setContent {
             TPrepTheme {
                 navController = rememberNavController()
-
-
-                //SignupScreen()
                 MainScreen(navController = navController)
             }
         }
@@ -98,6 +97,7 @@ fun MainScreen(navController: NavHostController) {
                 )
             },
             publicDecksScreenContent = {
+                startSyncWork(context)
                 PublicDecksScreen(
                     paddingValues = paddingValues,
                     onDeckClickListener = {
@@ -115,6 +115,7 @@ fun MainScreen(navController: NavHostController) {
             },
             profileScreenContent = {
                 ProfileScreen(
+                    paddingValues = paddingValues,
                     onLogoutClick = {
                         navigationState.navigateLogout(Screen.Auth)
                     }
@@ -124,7 +125,7 @@ fun MainScreen(navController: NavHostController) {
                 // TODO Заменить временное значение deckId = 2 на реальный идентификатор,
                 // получаемый из параметра deckId. Сейчас используется константа для тестирования.
                 var temporaryDeckId: String = deckId
-                //if (deckId > 2) temporaryDeckId = 1
+                if (source == Source.NETWORK) temporaryDeckId = "eff199f9-da03-4468-9f36-82e819ea516c"
 
                 DeckDetailScreen(
                     deckId = temporaryDeckId,
@@ -182,7 +183,7 @@ fun MainScreen(navController: NavHostController) {
                 LocalDecksScreen(
                     paddingValues = paddingValues,
                     onDeckClick = { deckId ->
-                        navigationState.navigateWithLocalDecksRefresh(
+                        navigationState.navigateWithSaveState(
                             Screen.DeckDetails(
                                 deckId,
                                 Source.LOCAL

@@ -47,6 +47,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.auth.R
 import com.example.auth.presentation.components.AuthTextField
+import com.example.auth.util.isEmailValid
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -100,14 +102,14 @@ private fun AuthScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         var tabState by remember { mutableIntStateOf(0) }
-        val titles = listOf("Вход", "Регистация")
+        val titles = listOf("Вход", "Регистрация")
 
         Text(text = "T-Prep", style = MaterialTheme.typography.displayLarge)
 
         Spacer(modifier = Modifier.height(34.dp))
 
         AuthTextTabs(
-            modifier = Modifier.padding(horizontal = 66.dp),
+            modifier = Modifier.padding(horizontal = 62.dp),
             state = tabState,
             onStateChange = { newState -> tabState = newState },
             titles = titles
@@ -194,6 +196,7 @@ private fun SignupTabContent(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    var emailError by rememberSaveable { mutableStateOf("") }
     val isButtonEnabled = screenState !is AuthScreenState.Loading
     val focusManager = LocalFocusManager.current
 
@@ -210,11 +213,25 @@ private fun SignupTabContent(
 
         AuthTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange =  {
+                email = it
+                emailError = if (!isEmailValid(it)) "Введите корректную электронную почту" else ""
+            },
             label = stringResource(R.string.auth_email),
             imeAction = ImeAction.Next,
+            keyboardType = KeyboardType.Email,
+            isError = emailError.isNotEmpty(),
             onImeAction = { focusManager.moveFocus(FocusDirection.Down) }
         )
+
+        if (emailError.isNotEmpty()) {
+            Text(
+                text = emailError,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(15.dp))
 
@@ -260,17 +277,31 @@ private fun LoginTabContent(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    var emailError by rememberSaveable { mutableStateOf("") }
     val isButtonEnabled = screenState !is AuthScreenState.Loading
     val focusManager = LocalFocusManager.current
 
     Column(modifier = modifier) {
         AuthTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {
+                email = it
+                emailError = if (!isEmailValid(it)) "Введите корректную электронную почту" else ""
+            },
             label = stringResource(R.string.auth_email),
             imeAction = ImeAction.Next,
+            keyboardType = KeyboardType.Email,
+            isError = emailError.isNotEmpty(),
             onImeAction = { focusManager.moveFocus(FocusDirection.Down) }
         )
+        if (emailError.isNotEmpty()) {
+            Text(
+                text = emailError,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(15.dp))
 

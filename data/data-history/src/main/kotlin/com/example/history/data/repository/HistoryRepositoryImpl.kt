@@ -8,17 +8,22 @@ import com.example.history.domain.entity.HistoryWithTimePeriod
 import com.example.history.domain.entity.TimePeriod
 import com.example.history.domain.entity.TrainingHistory
 import com.example.history.domain.repository.HistoryRepository
+import com.example.preferences.AuthPreferences
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.ZoneId
 import javax.inject.Inject
 
 class HistoryRepositoryImpl @Inject internal constructor(
-    private val database: TPrepDatabase
+    private val database: TPrepDatabase,
+    private val preferences: AuthPreferences,
 ) : HistoryRepository {
 
     override suspend fun getLastTrainingPerDeck(): List<TrainingHistory> {
-        return database.historyDao.getLastTrainingPerDeck().map { it.toEntity() }
+        val userId = preferences.getUserId()
+            ?: throw IllegalStateException("User ID not found in preferences")
+
+        return database.historyDao.getLastTrainingPerDeck(userId).map { it.toEntity() }
     }
 
     override suspend fun insertHistory(history: TrainingHistory) {

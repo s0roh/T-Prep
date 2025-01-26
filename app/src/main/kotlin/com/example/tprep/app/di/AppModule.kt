@@ -12,9 +12,15 @@ import com.example.decks.domain.repository.PublicDeckRepository
 import com.example.history.data.repository.HistoryRepositoryImpl
 import com.example.history.domain.repository.HistoryRepository
 import com.example.localdecks.data.repository.LocalDeckRepositoryImpl
+import com.example.localdecks.data.repository.SyncCardRepositoryImpl
+import com.example.localdecks.data.repository.SyncDeckRepositoryImpl
 import com.example.localdecks.domain.repository.LocalDeckRepository
-import com.example.localdecks.sync.SyncHelper
-import com.example.localdecks.sync.SyncHelperImpl
+import com.example.localdecks.domain.repository.SyncHelper
+import com.example.localdecks.data.repository.SyncHelperImpl
+import com.example.localdecks.data.repository.SyncUserDataRepositoryImpl
+import com.example.localdecks.domain.repository.SyncCardRepository
+import com.example.localdecks.domain.repository.SyncDeckRepository
+import com.example.localdecks.domain.repository.SyncUserDataRepository
 import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthPreferencesImpl
@@ -64,6 +70,21 @@ interface AppModule {
     @Binds
     @Singleton
     @Suppress("unused")
+    fun bindSyncCardRepository(syncCardRepositoryImpl: SyncCardRepositoryImpl): SyncCardRepository
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
+    fun bindSyncDeckRepository(syncDeckRepositoryImpl: SyncDeckRepositoryImpl): SyncDeckRepository
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
+    fun bindSyncUserDataRepository(syncUserDataRepositoryImpl: SyncUserDataRepositoryImpl): SyncUserDataRepository
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
     fun bindSyncHelper(syncHelperImpl: SyncHelperImpl): SyncHelper
 
     companion object {
@@ -71,7 +92,7 @@ interface AppModule {
         @Provides
         @Singleton
         fun provideTPrepDatabase(
-            @ApplicationContext context: Context
+            @ApplicationContext context: Context,
         ): TPrepDatabase {
             return TPrepDatabase(context)
         }
@@ -90,7 +111,7 @@ interface AppModule {
         @Singleton
         fun provideApiService(
             @ApplicationContext context: Context,
-            okHttpClient: OkHttpClient
+            okHttpClient: OkHttpClient,
         ): ApiService {
             val apiBaseUrl = getApiBaseUrl(context)
             return ApiService(
@@ -115,7 +136,7 @@ interface AppModule {
         @Singleton
         fun provideReminderScheduler(
             @ApplicationContext context: Context,
-            database: TPrepDatabase
+            database: TPrepDatabase,
         ): ReminderScheduler {
             return ReminderSchedulerImpl(context, database)
         }

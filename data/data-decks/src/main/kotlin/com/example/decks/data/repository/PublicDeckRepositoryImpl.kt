@@ -7,15 +7,19 @@ import com.example.common.domain.entity.Deck
 import com.example.decks.data.mapper.toEntity
 import com.example.decks.domain.repository.PublicDeckRepository
 import com.example.network.api.ApiService
+import com.example.preferences.AuthRequestWrapper
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class PublicDeckRepositoryImpl @Inject internal constructor(
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    private val authRequestWrapper: AuthRequestWrapper
 ) : PublicDeckRepository {
 
     override suspend fun getDeckById(id: String): Deck {
-        return apiService.getDeckById(id).toEntity()
+        return authRequestWrapper.executeWithAuth { token ->
+            apiService.getDeckById(id, token).toEntity()
+        }
     }
 
     override fun getPublicDecks(): Flow<PagingData<Deck>> {

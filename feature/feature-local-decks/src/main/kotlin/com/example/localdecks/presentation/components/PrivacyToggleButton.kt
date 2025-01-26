@@ -1,6 +1,7 @@
 package com.example.localdecks.presentation.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,8 +15,8 @@ internal fun PrivacyToggleButton(
     onToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val borderColor = if (isPublic) Color.Green else Color(0xFFFFA500)
-    val textColor = if (isPublic) Color.Green else Color(0xFFFFA500)
+    val borderColor = if (isPublic) MaterialTheme.colorScheme.primary else Color(0xFFFFA500)
+    val textColor = if (isPublic) MaterialTheme.colorScheme.primary else Color(0xFFFFA500)
 
     OutlinedButton(
         onClick = onToggle,
@@ -23,7 +24,7 @@ internal fun PrivacyToggleButton(
         border = BorderStroke(2.dp, borderColor)
     ) {
         Text(
-            text = if (isPublic) "Public" else "Private",
+            text = if (isPublic) "Публичная" else "Приватная",
             color = textColor
         )
     }

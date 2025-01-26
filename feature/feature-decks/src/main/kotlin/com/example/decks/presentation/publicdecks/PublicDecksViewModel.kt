@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class PublicDecksViewModel @Inject constructor(
-    getPublicDecksUseCase: GetPublicDecksUseCase
+    getPublicDecksUseCase: GetPublicDecksUseCase,
 ) : ViewModel() {
 
     val publicDecks: Flow<PagingData<Deck>> = getPublicDecksUseCase()

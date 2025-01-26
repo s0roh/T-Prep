@@ -9,7 +9,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 class AuthPreferencesImpl @Inject constructor(
-    @ApplicationContext context: Context
+    @ApplicationContext context: Context,
 ) : AuthPreferences {
 
     private val prefs: SharedPreferences =
@@ -19,7 +19,7 @@ class AuthPreferencesImpl @Inject constructor(
         accessToken: String,
         refreshToken: String,
         accessTokenExpirationDate: String,
-        refreshTokenExpirationDate: String
+        refreshTokenExpirationDate: String,
     ) {
         prefs.edit()
             .putString(ACCESS_TOKEN_KEY, accessToken)
@@ -29,13 +29,21 @@ class AuthPreferencesImpl @Inject constructor(
             .apply()
     }
 
+    override fun saveUserId(userId: String) {
+        prefs.edit().putString(USER_ID_KEY, userId).apply()
+    }
+
     override fun getAccessToken(): String? = prefs.getString(ACCESS_TOKEN_KEY, null)
 
     override fun getRefreshToken(): String? = prefs.getString(REFRESH_TOKEN_KEY, null)
 
-    override fun getAccessTokenExpirationDate(): String? = prefs.getString(ACCESS_TOKEN_EXPIRATION_KEY, null)
+    override fun getAccessTokenExpirationDate(): String? =
+        prefs.getString(ACCESS_TOKEN_EXPIRATION_KEY, null)
 
-    override fun getRefreshTokenExpirationDate(): String? = prefs.getString(REFRESH_TOKEN_EXPIRATION_KEY, null)
+    override fun getRefreshTokenExpirationDate(): String? =
+        prefs.getString(REFRESH_TOKEN_EXPIRATION_KEY, null)
+
+    override fun getUserId(): String? = prefs.getString(USER_ID_KEY, null)
 
     override fun clearTokens() {
         prefs.edit()
@@ -43,6 +51,7 @@ class AuthPreferencesImpl @Inject constructor(
             .remove(REFRESH_TOKEN_KEY)
             .remove(ACCESS_TOKEN_EXPIRATION_KEY)
             .remove(REFRESH_TOKEN_EXPIRATION_KEY)
+            .remove(USER_ID_KEY)
             .apply()
     }
 
@@ -73,6 +82,7 @@ class AuthPreferencesImpl @Inject constructor(
         private const val REFRESH_TOKEN_KEY = "refresh_token"
         private const val ACCESS_TOKEN_EXPIRATION_KEY = "access_token_expiration"
         private const val REFRESH_TOKEN_EXPIRATION_KEY = "refresh_token_expiration"
+        private const val USER_ID_KEY = "user_id"
         private const val DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS Z 'UTC'"
     }
 }

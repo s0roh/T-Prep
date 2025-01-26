@@ -28,11 +28,12 @@ fun LocalDecksScreen(
     onAddClick: () -> Unit
 ) {
     val viewModel: LocalDecksViewModel = hiltViewModel()
-    val decks by viewModel.decks.collectAsState()
+    val decks by viewModel.
+    decks.collectAsState()
 
     Column {
         TopAppBar(
-            title = { Text("My Decks") },
+            title = { Text("Мои колоды") },
             actions = {
                 IconButton(
                     onClick = onAddClick

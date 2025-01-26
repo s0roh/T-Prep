@@ -8,6 +8,7 @@ import com.example.auth.domain.usecase.IsRefreshTokenValidUseCase
 import com.example.auth.domain.usecase.LoginUseCase
 import com.example.auth.domain.usecase.RefreshTokensUseCase
 import com.example.auth.domain.usecase.SignupUseCase
+import com.example.auth.util.isEmailValid
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,6 +53,10 @@ internal class AuthViewModel @Inject constructor(
 
     fun onLoginClick(email: String, password: String) {
         viewModelScope.launch(exceptionHandler) {
+            if (!isEmailValid(email)) {
+                screenState.emit(AuthScreenState.Error("Введите корректную электронную почту"))
+                return@launch
+            }
             if (email.isNotBlank() && password.isNotBlank()) {
                 screenState.emit(AuthScreenState.Loading)
 
@@ -70,6 +75,10 @@ internal class AuthViewModel @Inject constructor(
 
     fun onSignupClick(email: String, password: String, name: String) {
         viewModelScope.launch(exceptionHandler) {
+            if (!isEmailValid(email)) {
+                screenState.emit(AuthScreenState.Error("Введите корректную электронную почту"))
+                return@launch
+            }
             if (email.isNotBlank() && password.isNotBlank() && name.isNotBlank()) {
                 screenState.emit(AuthScreenState.Loading)
 
@@ -77,7 +86,7 @@ internal class AuthViewModel @Inject constructor(
                 if (signupSuccess) {
                     screenState.emit(AuthScreenState.Success("Signup Successful"))
                 } else {
-                    screenState.emit(AuthScreenState.Error("Ошибка регистрации"))
+                    screenState.emit(AuthScreenState.Error("Пользователь с такой электронной почтой уже существует"))
                 }
             } else {
                 screenState.emit(AuthScreenState.Error("Все поля должны быть заполнены"))

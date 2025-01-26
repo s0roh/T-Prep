@@ -22,7 +22,8 @@ data class HistoryDBO(
     @ColumnInfo("timestamp") val timestamp: Long,
     @ColumnInfo("isCorrect") val isCorrect: Boolean,
     @ColumnInfo("source") val source: Source,
-    @ColumnInfo("coefficient") val coefficient: Double
+    @ColumnInfo("coefficient") val coefficient: Double,
+    @ColumnInfo("userId") val userId: String
 )
 
 enum class Source {

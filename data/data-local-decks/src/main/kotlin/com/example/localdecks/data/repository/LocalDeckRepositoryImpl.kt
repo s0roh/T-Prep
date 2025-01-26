@@ -7,24 +7,41 @@ import com.example.database.models.EntityType
 import com.example.localdecks.data.mapper.toDBO
 import com.example.localdecks.data.mapper.toEntity
 import com.example.localdecks.domain.repository.LocalDeckRepository
-import com.example.localdecks.sync.SyncHelper
+import com.example.localdecks.domain.repository.SyncHelper
+import com.example.preferences.AuthPreferences
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class LocalDeckRepositoryImpl @Inject internal constructor(
     private val database: TPrepDatabase,
-    private val syncHelper: SyncHelper
+    private val syncHelper: SyncHelper,
+    private val preferences: AuthPreferences,
 ) : LocalDeckRepository {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getDecks(): Flow<List<Deck>> {
-        return database.deckDao.getDecks().map { dboList ->
-            dboList.map { dbo ->
-                val cards = database.cardDao.getCardsForDeck(dbo.id).firstOrNull()?.map {
-                    it.toEntity()
-                } ?: emptyList()
-                dbo.toEntity(cards)
+        return database.deckDao.getDecks().flatMapLatest { dboList ->
+
+            if (dboList.isEmpty()) {
+                return@flatMapLatest flowOf(emptyList())
+            }
+
+            // Получаем карты для каждой колоды
+            combine(
+                dboList.map { dbo ->
+                    database.cardDao.getCardsForDeck(dbo.id).map { cardDboList ->
+                        val cards = cardDboList.map { it.toEntity() }
+                        dbo.toEntity(cards)
+                    }
+                }
+            ) { decks ->
+                decks.toList()
             }
         }
     }
@@ -37,17 +54,22 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
     }
 
     override suspend fun insertDeck(deck: Deck) {
-        val dbo = deck.toDBO(serverDeckId = null)
+        val userId = preferences.getUserId()
+            ?: throw IllegalStateException("User ID not found in preferences")
+        val dbo = deck.toDBO(serverDeckId = null, userId = userId)
         val generatedId = database.deckDao.insertDeck(dbo)
 
         syncHelper.markAsNew(deckId = generatedId, entityType = EntityType.DECK, cardId = null)
     }
 
     override suspend fun updateDeck(deck: Deck) {
+        val userId = preferences.getUserId()
+            ?: throw IllegalStateException("User ID not found in preferences")
         val existingDeck = database.deckDao.getDeckById(deck.id)
         if (existingDeck != null) {
             val updatedDeck = deck.toDBO(
-                serverDeckId = existingDeck.serverDeckId
+                serverDeckId = existingDeck.serverDeckId,
+                userId = userId
             )
             database.deckDao.updateDeck(updatedDeck)
 
@@ -60,16 +82,23 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
         if (existingDeck != null) {
             val cards = database.cardDao.getCardsForDeck(deck.id).firstOrNull() ?: emptyList()
             cards.forEach { card ->
-                database.cardDao.deleteCard(card)
-
-                syncHelper.markAsDeleted(deckId = deck.id,
-                entityType = EntityType.CARD,
-                cardId = card.id)
+                if (card.serverCardId == null) {
+                    database.cardDao.deleteCard(card)
+                } else {
+                    database.cardDao.updateCard(card.copy(isDeleted = true))
+                }
+                syncHelper.markAsDeleted(
+                    deckId = deck.id,
+                    entityType = EntityType.CARD,
+                    cardId = card.id
+                )
             }
             database.historyDao.deleteHistoryForDeck(deck.id)
-
-            database.deckDao.deleteDeck(existingDeck)
-
+            if (existingDeck.serverDeckId == null) {
+                database.deckDao.deleteDeck(existingDeck)
+            } else {
+                database.deckDao.updateDeck(existingDeck.copy(isDeleted = true))
+            }
             syncHelper.markAsDeleted(deckId = deck.id, entityType = EntityType.DECK, cardId = null)
 
         }
@@ -112,8 +141,11 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
     override suspend fun deleteCard(card: Card) {
         val existingCard = database.cardDao.getCardById(card.id)
         if (existingCard != null) {
-            database.cardDao.deleteCard(existingCard)
-
+            if (existingCard.serverCardId == null) {
+                database.cardDao.deleteCard(existingCard)
+            } else {
+                database.cardDao.updateCard(existingCard.copy(isDeleted = true))
+            }
             syncHelper.markAsDeleted(
                 deckId = existingCard.deckId,
                 entityType = EntityType.CARD,

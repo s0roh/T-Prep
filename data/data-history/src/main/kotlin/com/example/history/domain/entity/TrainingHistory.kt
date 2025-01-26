@@ -11,5 +11,6 @@ data class TrainingHistory(
     val timestamp: Long,
     val isCorrect: Boolean,
     val source: Source,
-    val coefficient: Double
+    val coefficient: Double,
+    val userID: String
 )

@@ -43,7 +43,7 @@ fun AddEditCardScreen(
     Scaffold(
         topBar = {
             CenteredTopAppBar(
-                title = "Редактировать колоду",
+                title = "Редактировать карточку",
                 shouldShowArrowBack = true,
                 onBackClick = onBackClick
             )

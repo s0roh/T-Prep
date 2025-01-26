@@ -1,7 +1,10 @@
 package com.example.feature.profile.presentation
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,10 +22,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun ProfileScreen(
+    paddingValues: PaddingValues,
     onLogoutClick: () -> Unit,
 ) {
     val viewModel: ProfileViewModel = hiltViewModel()
-    Column(modifier = Modifier.padding(vertical = 32.dp, horizontal = 16.dp)) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(paddingValues)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Bottom
+    ) {
         Button(
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(

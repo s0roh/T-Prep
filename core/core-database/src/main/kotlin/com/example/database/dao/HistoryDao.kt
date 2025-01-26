@@ -17,20 +17,21 @@ interface HistoryDao {
     WHERE timestamp = (
         SELECT MAX(h2.timestamp)
         FROM history h2
-        WHERE h2.deckId = history.deckId AND h2.source = history.source
+        WHERE h2.deckId = history.deckId AND h2.source = history.source AND h2.userId = history.userId
     )
+    AND userId = :userId
     ORDER BY timestamp DESC
     """
     )
-    suspend fun getLastTrainingPerDeck(): List<HistoryDBO>
+    suspend fun getLastTrainingPerDeck(userId: String): List<HistoryDBO>
 
     @Query(
         """
         SELECT * FROM history 
-        WHERE cardId = :cardId AND deckId = :deckId AND source = :source
+        WHERE cardId = :cardId AND deckId = :deckId AND source = :source AND userId = :userId
     """
     )
-    suspend fun getHistoryForCard(cardId: Int, deckId: String, source: Source): HistoryDBO?
+    suspend fun getHistoryForCard(cardId: Int, deckId: String, source: Source, userId: String): HistoryDBO?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdateHistory(history: HistoryDBO)

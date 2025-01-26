@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
@@ -18,7 +19,9 @@ internal fun AuthTextField(
     modifier: Modifier = Modifier,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onValueChange: (String) -> Unit,
+    isError: Boolean = false,
     onImeAction: () -> Unit,
+    keyboardType: KeyboardType = KeyboardType.Unspecified,
     trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     OutlinedTextField(
@@ -27,9 +30,13 @@ internal fun AuthTextField(
         singleLine = true,
         label = { Text(label) },
         modifier = modifier.fillMaxWidth(),
+        isError = isError,
         visualTransformation = visualTransformation,
         trailingIcon = trailingIcon,
-        keyboardOptions = KeyboardOptions(imeAction = imeAction),
+        keyboardOptions = KeyboardOptions(
+            imeAction = imeAction,
+            keyboardType = keyboardType
+        ),
         keyboardActions = KeyboardActions(onAny = { onImeAction() })
     )
 }

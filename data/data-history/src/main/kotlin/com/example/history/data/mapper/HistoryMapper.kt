@@ -13,7 +13,8 @@ internal fun HistoryDBO.toEntity(): TrainingHistory =
         timestamp = timestamp,
         isCorrect = isCorrect,
         source = source,
-        coefficient = coefficient
+        coefficient = coefficient,
+        userID = userId
     )
 
 internal fun TrainingHistory.toDBO(): HistoryDBO =
@@ -26,5 +27,6 @@ internal fun TrainingHistory.toDBO(): HistoryDBO =
         timestamp = timestamp,
         isCorrect = isCorrect,
         source = source,
-        coefficient = coefficient
+        coefficient = coefficient,
+        userId = userID
     )

@@ -9,6 +9,7 @@ android {
 dependencies {
     implementation(project(":core-database"))
     implementation(project(":core-common"))
+    implementation(project(":core-preferences"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

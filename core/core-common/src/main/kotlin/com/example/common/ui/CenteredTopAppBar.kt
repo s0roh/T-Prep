@@ -8,7 +8,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import com.example.common.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,7 +21,7 @@ fun CenteredTopAppBar(
         title = {
             Text(
                 text = title,
-                fontWeight = FontWeight.Bold,
+                //fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.headlineMedium
             )
         },

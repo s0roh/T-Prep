@@ -10,5 +10,7 @@ data class DeckDBO(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     @ColumnInfo("serverDeckId") val serverDeckId: String?,
     @ColumnInfo("name") val name: String,
-    @ColumnInfo("isPublic") val isPublic: Boolean
+    @ColumnInfo("isPublic") val isPublic: Boolean,
+    @ColumnInfo("isDeleted") val isDeleted: Boolean = false,
+    @ColumnInfo("userId") val userId: String
 )

@@ -34,4 +34,7 @@ interface SyncMetadataDao {
 
     @Query("SELECT * FROM sync_metadata WHERE deckId = :deckId AND cardId = :cardId")
     suspend fun getCardSyncMetadata(deckId: String, cardId: Int): List<SyncMetadataDBO>
+
+    @Query("SELECT * FROM sync_metadata")
+    suspend fun getSyncItems(): List<SyncMetadataDBO>
 }

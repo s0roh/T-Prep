@@ -9,11 +9,15 @@ interface AuthPreferences {
         refreshTokenExpirationDate: String
     )
 
+    fun saveUserId(userId: String)
+
     fun getAccessToken(): String?
     fun getRefreshToken(): String?
 
     fun getAccessTokenExpirationDate(): String?
     fun getRefreshTokenExpirationDate(): String?
+
+    fun getUserId(): String?
 
     fun clearTokens()
 
