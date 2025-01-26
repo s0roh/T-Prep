@@ -1,10 +1,11 @@
-package com.example.localdecks.sync
+package com.example.localdecks.data.repository
 
 import android.content.Context
 import com.example.database.TPrepDatabase
 import com.example.database.models.EntityType
 import com.example.database.models.SyncMetadataDBO
 import com.example.database.models.SyncStatus
+import com.example.localdecks.domain.repository.SyncHelper
 import com.example.localdecks.util.startSyncWork
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

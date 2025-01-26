@@ -1,4 +1,4 @@
-package com.example.localdecks.sync
+package com.example.localdecks.domain.repository
 
 import com.example.database.models.EntityType
 

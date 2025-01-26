@@ -7,7 +7,7 @@ import com.example.database.models.EntityType
 import com.example.localdecks.data.mapper.toDBO
 import com.example.localdecks.data.mapper.toEntity
 import com.example.localdecks.domain.repository.LocalDeckRepository
-import com.example.localdecks.sync.SyncHelper
+import com.example.localdecks.domain.repository.SyncHelper
 import com.example.preferences.AuthPreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import okhttp3.internal.userAgent
 import javax.inject.Inject
 
 class LocalDeckRepositoryImpl @Inject internal constructor(
