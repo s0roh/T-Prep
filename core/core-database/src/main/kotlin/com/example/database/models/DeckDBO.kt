@@ -11,5 +11,6 @@ data class DeckDBO(
     @ColumnInfo("serverDeckId") val serverDeckId: String?,
     @ColumnInfo("name") val name: String,
     @ColumnInfo("isPublic") val isPublic: Boolean,
-    @ColumnInfo("isDeleted") val isDeleted: Boolean = false
+    @ColumnInfo("isDeleted") val isDeleted: Boolean = false,
+    @ColumnInfo("userId") val userId: String
 )

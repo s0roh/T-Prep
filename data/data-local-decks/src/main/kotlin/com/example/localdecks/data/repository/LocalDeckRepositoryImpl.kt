@@ -8,6 +8,7 @@ import com.example.localdecks.data.mapper.toDBO
 import com.example.localdecks.data.mapper.toEntity
 import com.example.localdecks.domain.repository.LocalDeckRepository
 import com.example.localdecks.sync.SyncHelper
+import com.example.preferences.AuthPreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -15,11 +16,13 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import okhttp3.internal.userAgent
 import javax.inject.Inject
 
 class LocalDeckRepositoryImpl @Inject internal constructor(
     private val database: TPrepDatabase,
     private val syncHelper: SyncHelper,
+    private val preferences: AuthPreferences,
 ) : LocalDeckRepository {
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -52,17 +55,22 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
     }
 
     override suspend fun insertDeck(deck: Deck) {
-        val dbo = deck.toDBO(serverDeckId = null)
+        val userId = preferences.getUserId()
+            ?: throw IllegalStateException("User ID not found in preferences")
+        val dbo = deck.toDBO(serverDeckId = null, userId = userId)
         val generatedId = database.deckDao.insertDeck(dbo)
 
         syncHelper.markAsNew(deckId = generatedId, entityType = EntityType.DECK, cardId = null)
     }
 
     override suspend fun updateDeck(deck: Deck) {
+        val userId = preferences.getUserId()
+            ?: throw IllegalStateException("User ID not found in preferences")
         val existingDeck = database.deckDao.getDeckById(deck.id)
         if (existingDeck != null) {
             val updatedDeck = deck.toDBO(
-                serverDeckId = existingDeck.serverDeckId
+                serverDeckId = existingDeck.serverDeckId,
+                userId = userId
             )
             database.deckDao.updateDeck(updatedDeck)
 

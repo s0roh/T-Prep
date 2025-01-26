@@ -22,11 +22,12 @@ internal fun CardDBO.toEntity(): Card = Card(
     answer = answer
 )
 
-internal fun Deck.toDBO(serverDeckId: String?): DeckDBO = DeckDBO(
+internal fun Deck.toDBO(serverDeckId: String?, userId: String): DeckDBO = DeckDBO(
     id = id,
     serverDeckId = serverDeckId,
     name = name,
-    isPublic = isPublic
+    isPublic = isPublic,
+    userId = userId
 )
 
 internal fun Card.toDBO(deckId: String, serverCardId: Int?): CardDBO = CardDBO(

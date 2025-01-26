@@ -9,7 +9,7 @@ import com.example.database.models.EntityType
 import com.example.database.models.SyncMetadataDBO
 import com.example.database.models.SyncStatus
 import com.example.localdecks.domain.usecase.GetSyncMetadataList
-import com.example.localdecks.domain.usecase.GetUserInfoUseCase
+import com.example.localdecks.domain.usecase.SyncUserDataUseCase
 import com.example.localdecks.domain.usecase.SyncCreateCardUseCase
 import com.example.localdecks.domain.usecase.SyncCreateDeckUseCase
 import com.example.localdecks.domain.usecase.SyncDeleteCardUseCase
@@ -32,7 +32,7 @@ class SyncWorker @AssistedInject constructor(
     private val syncCreateCardUseCase: SyncCreateCardUseCase,
     private val syncUpdateCardUseCase: SyncUpdateCardUseCase,
     private val syncDeleteCardUseCase: SyncDeleteCardUseCase,
-    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val syncUserDataUseCase: SyncUserDataUseCase,
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -54,7 +54,7 @@ class SyncWorker @AssistedInject constructor(
                     }
                 }
             }
-            getUserInfoUseCase()
+            syncUserDataUseCase()
             Log.d("SyncWorker", "Синхронизация завершена успешно")
             Result.success()
         } catch (e: Exception) {

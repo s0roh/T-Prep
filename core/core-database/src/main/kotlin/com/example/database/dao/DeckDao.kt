@@ -15,6 +15,9 @@ interface DeckDao {
     @Query("SELECT * FROM decks WHERE isDeleted = 0 ORDER BY id DESC")
     fun getDecks(): Flow<List<DeckDBO>>
 
+    @Query("SELECT * FROM decks ORDER BY id DESC")
+    fun getAllDecks(): Flow<List<DeckDBO>>
+
     @Query("SELECT * FROM decks WHERE id = :deckId")
     suspend fun getDeckById(deckId: String): DeckDBO?
 

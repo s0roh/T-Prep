@@ -4,13 +4,15 @@ import com.example.common.domain.entity.Card
 import com.example.database.TPrepDatabase
 import com.example.database.models.HistoryDBO
 import com.example.database.models.Source
+import com.example.preferences.AuthPreferences
 import com.example.training.domain.TrainingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class TrainingRepositoryImpl @Inject internal constructor(
-    private val database: TPrepDatabase
+    private val database: TPrepDatabase,
+    private val preferences: AuthPreferences
 ) : TrainingRepository {
 
     override suspend fun prepareTrainingCards(
@@ -19,11 +21,13 @@ class TrainingRepositoryImpl @Inject internal constructor(
         source: Source
     ): List<Card> {
         return withContext(Dispatchers.IO) {
+            val userId = preferences.getUserId() ?: throw IllegalStateException("User ID not found in preferences")
             val cardsWithSortingData = cards.map { card ->
                 val history = database.historyDao.getHistoryForCard(
                     cardId = card.id,
                     deckId = deckId,
-                    source = source
+                    source = source,
+                    userId = userId
                 )
                 val isNew = history == null
                 val coefficient = history?.coefficient ?: DEFAULT_COEFFICIENT
@@ -66,16 +70,21 @@ class TrainingRepositoryImpl @Inject internal constructor(
         isCorrect: Boolean,
         source: Source
     ) {
+        val userId = preferences.getUserId() ?: throw IllegalStateException("User ID not found in preferences")
+
         val history = database.historyDao.getHistoryForCard(
             cardId = cardId,
             deckId = deckId,
-            source = source
+            source = source,
+            userId = userId
         )
 
         val newCoefficient = calculateUpdatedCoefficient(
             currentCoefficient = history?.coefficient ?: DEFAULT_COEFFICIENT,
             isCorrect = isCorrect
         )
+
+
 
         val updatedHistory = HistoryDBO(
             id = history?.id ?: 0,
@@ -86,7 +95,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
             timestamp = System.currentTimeMillis(),
             isCorrect = isCorrect,
             source = source,
-            coefficient = newCoefficient
+            coefficient = newCoefficient,
+            userId = userId
         )
 
         database.historyDao.insertOrUpdateHistory(updatedHistory)

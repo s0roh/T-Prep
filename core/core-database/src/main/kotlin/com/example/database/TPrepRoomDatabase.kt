@@ -60,6 +60,6 @@ fun TPrepDatabase(applicationContext: Context): TPrepDatabase {
             checkNotNull(applicationContext.applicationContext),
             TPrepRoomDatabase::class.java,
             "prep_database"
-        ).build() //fallbackToDestructiveMigration().
+        ).build()
     return TPrepDatabase(tPrepRoomDatabase)
 }
