@@ -23,19 +23,19 @@ sealed interface Screen {
 
     @Serializable
     data class AddEditDeck(
-        val deckId: String?
+        val deckId: String?,
     ) : Screen
 
     @Serializable
     data class AddEditCard(
         val deckId: String,
-        val cardId: Int?
+        val cardId: Int?,
     ) : Screen
 
     @Serializable
     data class DeckDetails(
         val deckId: String,
-        val source: Source
+        val source: Source,
     ) : Screen {
         fun toRoute(): String {
             return "deckDetails/$deckId/${source.name}"
@@ -54,13 +54,21 @@ sealed interface Screen {
     @Serializable
     data class Training(
         val deckId: String,
-        val source: Source
+        val source: Source,
     ) : Screen
 
     @Serializable
     data class Reminder(
         val deckId: String,
+        val deckName: String,
         val source: Source,
-        val deckName: String
+    ) : Screen
+
+    @Serializable
+    data class AddReminder(
+        val deckId: String,
+        val deckName: String,
+        val source: Source,
+        val isAutoGeneration: Boolean,
     ) : Screen
 }

@@ -9,4 +9,5 @@ android {
 dependencies {
     implementation(project(":data-reminder"))
     implementation(project(":core-database"))
+    implementation(project(":core-common"))
 }

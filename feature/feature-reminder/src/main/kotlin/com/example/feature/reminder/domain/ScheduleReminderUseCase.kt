@@ -8,5 +8,5 @@ internal class ScheduleReminderUseCase @Inject constructor(
 ) {
 
     operator fun invoke(reminderId: Long, timeMillis: Long) =
-        reminderScheduler.scheduleReminder(reminderId = reminderId, timeMillis = timeMillis)
+        reminderScheduler.scheduleReminder(reminderId = reminderId, reminderTime = timeMillis)
 }

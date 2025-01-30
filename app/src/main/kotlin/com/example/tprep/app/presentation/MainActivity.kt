@@ -18,6 +18,7 @@ import com.example.database.models.Source
 import com.example.decks.presentation.details.DeckDetailScreen
 import com.example.decks.presentation.publicdecks.PublicDecksScreen
 import com.example.feature.profile.presentation.ProfileScreen
+import com.example.feature.reminder.presentation.add_reminder.AddReminderScreen
 import com.example.feature.reminder.presentation.reminder.ReminderScreen
 import com.example.history.presentation.history.HistoryScreen
 import com.example.localdecks.presentation.add_edit_card.AddEditCardScreen
@@ -125,7 +126,8 @@ fun MainScreen(navController: NavHostController) {
                 // TODO Заменить временное значение deckId = 2 на реальный идентификатор,
                 // получаемый из параметра deckId. Сейчас используется константа для тестирования.
                 var temporaryDeckId: String = deckId
-                if (source == Source.NETWORK) temporaryDeckId = "eff199f9-da03-4468-9f36-82e819ea516c"
+                if (source == Source.NETWORK) temporaryDeckId =
+                    "eff199f9-da03-4468-9f36-82e819ea516c"
 
                 DeckDetailScreen(
                     deckId = temporaryDeckId,
@@ -210,11 +212,28 @@ fun MainScreen(navController: NavHostController) {
                     onSaveClick = { navigationState.navHostController.popBackStack() }
                 )
             },
-            reminderScreenContent = { deckId, source, deckName ->
+            reminderScreenContent = { deckId, deckName, source ->
                 ReminderScreen(
                     deckId = deckId,
                     deckName = deckName,
                     source = source,
+                    onAddClick = { deckId, deckName, source, isAutoGeneration ->
+                        navigationState.navigateWithSaveState(
+                            Screen.AddReminder(
+                                deckId = deckId, deckName = deckName,
+                                source = source, isAutoGeneration = isAutoGeneration
+                            )
+                        )
+                    },
+                    onBackClick = { navigationState.navHostController.popBackStack() }
+                )
+            },
+            addReminderScreenContent = { deckId, deckName, source, isAutoGeneration ->
+                AddReminderScreen(
+                    deckId = deckId,
+                    deckName = deckName,
+                    source = source,
+                    isAutoGeneration = isAutoGeneration,
                     onBackClick = { navigationState.navHostController.popBackStack() }
                 )
             }

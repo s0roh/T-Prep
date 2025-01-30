@@ -2,45 +2,39 @@ package com.example.feature.reminder.presentation.reminder
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.database.models.Source
 import com.example.data.reminder.domain.entity.Reminder
+import com.example.database.models.Source
 import com.example.feature.reminder.domain.CancelReminderUseCase
 import com.example.feature.reminder.domain.DeleteReminderUseCase
-import com.example.feature.reminder.domain.GetReminderUseCase
-import com.example.feature.reminder.domain.InsertReminderUseCase
-import com.example.feature.reminder.domain.ScheduleReminderUseCase
+import com.example.feature.reminder.domain.GetRemindersForDeckUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 internal class ReminderViewModel @Inject constructor(
-    private val scheduleReminderUseCase: ScheduleReminderUseCase,
     private val cancelReminderUseCase: CancelReminderUseCase,
-    private val getReminderUseCase: GetReminderUseCase,
-    private val insertReminderUseCase: InsertReminderUseCase,
-    private val deleteReminderUseCase: DeleteReminderUseCase
+    private val deleteReminderUseCase: DeleteReminderUseCase,
+    private val getRemindersForDeckUseCase: GetRemindersForDeckUseCase,
 ) : ViewModel() {
 
-    fun scheduleReminder(reminderId: Long, timeMillis: Long) {
-        scheduleReminderUseCase(reminderId, timeMillis)
-    }
+    var reminders = MutableStateFlow<List<Reminder>>(emptyList())
+        private set
 
     fun cancelReminder(reminderId: Long) {
         cancelReminderUseCase(reminderId)
     }
-
-    suspend fun getReminder(deckId: String, source: Source): Reminder? {
-        return getReminderUseCase(deckId = deckId, source = source)
-    }
-
-    suspend fun insertReminder(reminder: Reminder): Long {
-        return insertReminderUseCase(reminder = reminder)
-    }
-
-    fun deleteReminder(deckId: String, source: Source) {
+    fun loadReminders(deckId: String, source: Source) {
         viewModelScope.launch {
-            deleteReminderUseCase(deckId = deckId, source = source)
+            reminders.value = getRemindersForDeckUseCase(deckId = deckId, source = source)
+        }
+    }
+
+    fun deleteReminder(deckId: String, source: Source, reminderTime: Long) {
+        viewModelScope.launch {
+            deleteReminderUseCase(deckId = deckId, source = source, reminderTime = reminderTime)
+            loadReminders(deckId, source)
         }
     }
 }
