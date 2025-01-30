@@ -5,9 +5,9 @@ import com.example.data.reminder.domain.repository.ReminderScheduler
 import javax.inject.Inject
 
 internal class DeleteReminderUseCase @Inject constructor(
-    private val reminderScheduler: ReminderScheduler
+    private val reminderScheduler: ReminderScheduler,
 ) {
 
-    suspend operator fun invoke(deckId: String, source: Source) =
-        reminderScheduler.deleteReminder(deckId = deckId, source = source)
+    suspend operator fun invoke(deckId: String, source: Source, reminderTime: Long) =
+        reminderScheduler.deleteReminder(deckId = deckId, source = source, reminderTime = reminderTime)
 }

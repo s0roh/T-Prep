@@ -52,7 +52,11 @@ private fun handleReminderNotification(context: Context, intent: Intent) {
         val reminder = database.trainingReminderDao.getReminderById(reminderId)
         if (reminder != null) {
             sendNotification(context, routeNavigator, reminder)
-            database.trainingReminderDao.deleteReminder(reminder.deckId, reminder.source)
+            database.trainingReminderDao.deleteReminder(
+                deckId = reminder.deckId,
+                source = reminder.source,
+                reminderTime = reminder.reminderTime
+            )
         }
     }
 }
@@ -96,7 +100,8 @@ private fun sendNotification(
 
         database.trainingReminderDao.deleteReminder(
             deckId = reminder.deckId,
-            source = reminder.source
+            source = reminder.source,
+            reminderTime = reminder.reminderTime
         )
     }
 }

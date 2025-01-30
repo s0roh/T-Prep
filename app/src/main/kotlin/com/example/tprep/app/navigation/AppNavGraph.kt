@@ -19,7 +19,8 @@ fun AppNavGraph(
     localDecksScreenContent: @Composable () -> Unit,
     addEditDeckScreenContent: @Composable (String?) -> Unit,
     addEditCardScreenContent: @Composable (String, Int?) -> Unit,
-    reminderScreenContent: @Composable (String, Source, String) -> Unit
+    reminderScreenContent: @Composable (String, String, Source) -> Unit,
+    addReminderScreenContent: @Composable (String, String, Source, Boolean) -> Unit,
 ) {
     NavHost(
         navController = navHostController,
@@ -58,7 +59,16 @@ fun AppNavGraph(
         }
         composable<Screen.Reminder> { backStackEntry ->
             val screen: Screen.Reminder = backStackEntry.toRoute()
-            reminderScreenContent(screen.deckId, screen.source, screen.deckName)
+            reminderScreenContent(screen.deckId, screen.deckName, screen.source)
+        }
+        composable<Screen.AddReminder> { backStackEntry ->
+            val screen: Screen.AddReminder = backStackEntry.toRoute()
+            addReminderScreenContent(
+                screen.deckId,
+                screen.deckName,
+                screen.source,
+                screen.isAutoGeneration
+            )
         }
     }
 }

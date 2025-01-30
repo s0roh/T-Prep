@@ -74,7 +74,12 @@ class ReminderSchedulerImpl @Inject constructor(
     override suspend fun deleteReminder(
         deckId: String,
         source: Source,
+        reminderTime: Long,
     ) {
-        database.trainingReminderDao.deleteReminder(deckId = deckId, source = source)
+        database.trainingReminderDao.deleteReminder(
+            deckId = deckId,
+            source = source,
+            reminderTime = reminderTime
+        )
     }
 }

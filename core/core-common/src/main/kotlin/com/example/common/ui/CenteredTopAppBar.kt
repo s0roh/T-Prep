@@ -21,7 +21,6 @@ fun CenteredTopAppBar(
         title = {
             Text(
                 text = title,
-                //fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.headlineMedium
             )
         },
