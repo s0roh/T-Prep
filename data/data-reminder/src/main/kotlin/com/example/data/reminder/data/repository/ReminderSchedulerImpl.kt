@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 class ReminderSchedulerImpl @Inject constructor(
     private val context: Context,
-    private val database: TPrepDatabase
+    private val database: TPrepDatabase,
 ) : ReminderScheduler {
 
     override fun scheduleReminder(reminderId: Long, timeMillis: Long) {
@@ -53,19 +53,27 @@ class ReminderSchedulerImpl @Inject constructor(
 
     override suspend fun getReminder(
         deckId: String,
-        source: Source
+        source: Source,
     ): Reminder? {
         return database.trainingReminderDao.getReminder(deckId = deckId, source = source)
             ?.toEntity()
     }
 
+    override suspend fun getRemindersForDeck(
+        deckId: String,
+        source: Source,
+    ): List<Reminder> {
+        return database.trainingReminderDao.getRemindersForDeck(deckId = deckId, source = source)
+            .map { it.toEntity() }
+    }
+
     override suspend fun insertReminder(reminder: Reminder): Long {
-       return database.trainingReminderDao.insertReminder(reminder.toDBO())
+        return database.trainingReminderDao.insertReminder(reminder.toDBO())
     }
 
     override suspend fun deleteReminder(
         deckId: String,
-        source: Source
+        source: Source,
     ) {
         database.trainingReminderDao.deleteReminder(deckId = deckId, source = source)
     }

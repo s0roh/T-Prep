@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.database.models.Source
-import com.example.data.reminder.domain.entity.Reminder
 import com.example.feature.reminder.presentation.componets.DatePickerDialogComposable
 import com.example.feature.reminder.presentation.componets.TimePickerDialogComposable
 import com.example.feature.reminder.presentation.util.combineDateAndTime
@@ -223,8 +222,12 @@ private fun handleScheduleReminder(
 
     coroutineScope.launch {
         try {
-            val reminder =
-                getOrUpdateReminder(viewModel, deckId, source, dateTimeInMillis, deckName)
+            val reminder = viewModel.createReminderIfValid(
+                deckId = deckId,
+                source = source,
+                reminderTime = dateTimeInMillis,
+                deckName = deckName
+            )
             if (reminder == null) {
                 showToast(context, "Напоминание с таким временем уже установлено.")
                 return@launch
@@ -236,28 +239,6 @@ private fun handleScheduleReminder(
         } catch (e: Exception) {
             showToast(context, "Ошибка при планировании тренировки: ${e.message}")
         }
-    }
-}
-
-private suspend fun getOrUpdateReminder(
-    viewModel: ReminderViewModel,
-    deckId: String,
-    source: Source,
-    dateTimeInMillis: Long,
-    deckName: String,
-): Reminder? {
-    val existingReminder = viewModel.getReminder(deckId, source)
-    return if (existingReminder != null && existingReminder.reminderTime == dateTimeInMillis) {
-        null
-    } else {
-        existingReminder?.copy(reminderTime = dateTimeInMillis)
-            ?: Reminder(
-                id = 0,
-                reminderTime = dateTimeInMillis,
-                source = source,
-                deckId = deckId,
-                name = deckName
-            )
     }
 }
 

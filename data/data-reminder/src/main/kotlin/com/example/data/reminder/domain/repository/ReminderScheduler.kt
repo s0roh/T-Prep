@@ -11,6 +11,8 @@ interface ReminderScheduler {
 
     suspend fun getReminder(deckId: String, source: Source): Reminder?
 
+    suspend fun getRemindersForDeck(deckId: String, source: Source): List<Reminder>
+
     suspend fun insertReminder(reminder: Reminder): Long
 
     suspend fun deleteReminder(deckId: String, source: Source)
