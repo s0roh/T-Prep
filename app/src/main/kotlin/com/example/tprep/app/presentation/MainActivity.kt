@@ -183,7 +183,6 @@ fun MainScreen(navController: NavHostController) {
             },
             localDecksScreenContent = {
                 LocalDecksScreen(
-                    paddingValues = paddingValues,
                     onDeckClick = { deckId ->
                         navigationState.navigateWithSaveState(
                             Screen.DeckDetails(

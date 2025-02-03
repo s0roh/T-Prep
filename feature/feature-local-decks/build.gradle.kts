@@ -9,4 +9,6 @@ android {
 dependencies {
     implementation(project(":core-common"))
     implementation(project(":data-local-decks"))
+
+    implementation(libs.work.runtime.ktx)
 }

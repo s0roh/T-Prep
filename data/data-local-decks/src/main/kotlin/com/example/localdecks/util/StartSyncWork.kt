@@ -7,8 +7,9 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.example.localdecks.sync.SyncWorker
+import java.util.UUID
 
-fun startSyncWork(context: Context) {
+fun startSyncWork(context: Context): UUID {
     val constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
@@ -22,4 +23,6 @@ fun startSyncWork(context: Context) {
         ExistingWorkPolicy.KEEP,
         syncWorkRequest
     )
+
+    return syncWorkRequest.id
 }
