@@ -11,11 +11,15 @@ import com.example.data.reminder.domain.entity.Reminder
 import com.example.data.reminder.domain.repository.ReminderScheduler
 import com.example.database.TPrepDatabase
 import com.example.database.models.Source
+import com.example.network.api.ApiService
+import com.example.preferences.AuthRequestWrapper
 import javax.inject.Inject
 
 class ReminderSchedulerImpl @Inject constructor(
     private val context: Context,
     private val database: TPrepDatabase,
+    private val apiService: ApiService,
+    private val authRequestWrapper: AuthRequestWrapper,
 ) : ReminderScheduler {
 
     override fun scheduleReminder(reminderId: Long, timeMillis: Long) {
@@ -81,5 +85,21 @@ class ReminderSchedulerImpl @Inject constructor(
             source = source,
             reminderTime = reminderTime
         )
+    }
+
+    override suspend fun getTrainingPlan(
+        startDate: Int,
+        finishDate: Int,
+        preferredTime: Int,
+    ): List<Long> {
+        return authRequestWrapper.executeWithAuth { token ->
+            val response = apiService.getTrainingPlan(
+                startDate = startDate,
+                finishDate = finishDate,
+                preferredTime = preferredTime,
+                authHeader = token
+            )
+            response.reminders.map { it.toLong() * 1000 }
+        }
     }
 }

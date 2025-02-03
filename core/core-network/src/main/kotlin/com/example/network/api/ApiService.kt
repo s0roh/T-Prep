@@ -5,6 +5,7 @@ import com.example.network.dto.collection.CardRequestDto
 import com.example.network.dto.collection.DeckDto
 import com.example.network.dto.collection.DeckRequestDto
 import com.example.network.dto.collection.ResponseMessageDto
+import com.example.network.dto.global.AutoRemindersDto
 import com.example.network.dto.global.CardDto
 import com.example.network.dto.global.PublicDecksDto
 import com.example.network.dto.user.RefreshRequestDto
@@ -102,6 +103,14 @@ interface ApiService {
     suspend fun getUserInfo(
         @Header("Authorization") authHeader: String? = null
     ): Response<UserInfoDto>
+
+    @GET("global/getTrainingPlan")
+    suspend fun getTrainingPlan(
+        @Query("start_date") startDate: Int,
+        @Query("end_date") finishDate: Int,
+        @Query("preferred_time") preferredTime: Int,
+        @Header("Authorization") authHeader: String? = null
+    ): AutoRemindersDto
 }
 
 fun ApiService(

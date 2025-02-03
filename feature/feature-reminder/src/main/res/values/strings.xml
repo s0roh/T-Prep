@@ -18,7 +18,4 @@
     <string name="end_of_training">Конец тренировок</string>
     <string name="preferred_time">Предпочитаемое время</string>
     <string name="select">Выберите</string>
-    <string name="select_date_and_time">Пожалуйста, выберите дату и время.</string>
-    <string name="reminder_with_that_time_has_already_been_set">Напоминание с таким временем уже установлено.</string>
-    <string name="training_has_been_successfully_scheduled">Тренировка успешно запланирована!</string>
 </resources>
