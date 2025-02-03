@@ -1,6 +1,7 @@
 package com.example.localdecks.presentation.local_decks
 
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
@@ -12,8 +13,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,12 +40,23 @@ internal class LocalDecksViewModel @Inject constructor(
             val workId = startSyncWork(context)
             val workManager = WorkManager.getInstance(context)
 
-            workManager.getWorkInfoByIdFlow(workId)
-                .collect { workInfo ->
-                    if (workInfo?.state == WorkInfo.State.SUCCEEDED || workInfo?.state == WorkInfo.State.FAILED) {
-                        isRefreshing.value = false
-                    }
+            val workInfoFlow = workManager.getWorkInfoByIdFlow(workId)
+
+            val workInfo = withTimeoutOrNull(5000) { // 5 секунд на ожидание
+                workInfoFlow.firstOrNull { workInfo ->
+                    workInfo?.state == WorkInfo.State.SUCCEEDED || workInfo?.state == WorkInfo.State.FAILED
                 }
+            }
+
+            isRefreshing.value = false
+
+            if (workInfo == null) {
+                // Если WorkManager ничего не вернул за 5 сек — проблема с сетью
+                Toast.makeText(context, "Ошибка синхронизации. Проверьте подключение к интернету", Toast.LENGTH_SHORT).show()
+            } else if (workInfo.state == WorkInfo.State.FAILED) {
+                // Если вернул, но завершился с ошибкой
+                Toast.makeText(context, "Ошибка синхронизации", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
