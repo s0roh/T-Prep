@@ -25,11 +25,10 @@ import com.example.common.ui.DeckCard
 fun LocalDecksScreen(
     paddingValues: PaddingValues,
     onDeckClick: (String) -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
 ) {
     val viewModel: LocalDecksViewModel = hiltViewModel()
-    val decks by viewModel.
-    decks.collectAsState()
+    val decks by viewModel.decks.collectAsState()
 
     Column {
         TopAppBar(
@@ -52,7 +51,10 @@ fun LocalDecksScreen(
                 items = decks,
                 key = { it.id }
             ) { deck ->
-                DeckCard(deck = deck, onDeckClickListener = { onDeckClick(deck.id) })
+                DeckCard(
+                    deck = deck,
+                    modifier = Modifier.animateItem(),
+                    onDeckClickListener = { onDeckClick(deck.id) })
             }
         }
     }

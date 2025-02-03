@@ -82,7 +82,7 @@ fun MainScreen(navController: NavHostController) {
         val context = LocalContext.current
         LaunchedEffect(Unit) {
             (context as? Activity)?.intent?.getStringExtra("route")?.let { route ->
-                //TODO временное решение. из-за специфичной навигации на данный момент необходима некоторая задержка
+                // Необходима задержка для корректной работы с уведомлениями
                 delay(100L)
                 navigateToRoute(route, navController)
             }

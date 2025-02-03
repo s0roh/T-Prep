@@ -8,6 +8,8 @@ android {
 
 dependencies {
     implementation(project(":core-database"))
+    implementation(project(":core-network"))
+    implementation(project(":core-preferences"))
 
     implementation(libs.hilt.work)
     ksp(libs.hilt.work.compiler)

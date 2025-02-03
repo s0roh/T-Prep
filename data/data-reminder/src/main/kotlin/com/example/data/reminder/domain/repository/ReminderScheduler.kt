@@ -16,4 +16,6 @@ interface ReminderScheduler {
     suspend fun insertReminder(reminder: Reminder): Long
 
     suspend fun deleteReminder(deckId: String, source: Source, reminderTime: Long)
+
+    suspend fun getTrainingPlan(startDate: Int, finishDate: Int, preferredTime: Int): List<Long>
 }

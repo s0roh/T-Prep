@@ -24,6 +24,7 @@ import com.example.localdecks.domain.repository.SyncUserDataRepository
 import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthPreferencesImpl
+import com.example.preferences.AuthRequestWrapper
 import com.example.tprep.app.reminder.AppRouteNavigator
 import com.example.tprep.app.utils.getApiBaseUrl
 import com.example.training.data.TrainingRepositoryImpl
@@ -137,8 +138,10 @@ interface AppModule {
         fun provideReminderScheduler(
             @ApplicationContext context: Context,
             database: TPrepDatabase,
+            apiService: ApiService,
+            authRequestWrapper: AuthRequestWrapper,
         ): ReminderScheduler {
-            return ReminderSchedulerImpl(context, database)
+            return ReminderSchedulerImpl(context, database, apiService, authRequestWrapper)
         }
     }
 }
