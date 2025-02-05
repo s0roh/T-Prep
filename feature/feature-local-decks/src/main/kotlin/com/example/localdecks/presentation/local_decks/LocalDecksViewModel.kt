@@ -42,7 +42,7 @@ internal class LocalDecksViewModel @Inject constructor(
 
             val workInfoFlow = workManager.getWorkInfoByIdFlow(workId)
 
-            val workInfo = withTimeoutOrNull(5000) { // 5 секунд на ожидание
+            val workInfo = withTimeoutOrNull(LOAD_DECKS_TIMEOUT_MS) {
                 workInfoFlow.firstOrNull { workInfo ->
                     workInfo?.state == WorkInfo.State.SUCCEEDED || workInfo?.state == WorkInfo.State.FAILED
                 }
@@ -52,11 +52,20 @@ internal class LocalDecksViewModel @Inject constructor(
 
             if (workInfo == null) {
                 // Если WorkManager ничего не вернул за 5 сек — проблема с сетью
-                Toast.makeText(context, "Ошибка синхронизации. Проверьте подключение к интернету", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Ошибка синхронизации. Проверьте подключение к интернету",
+                    Toast.LENGTH_SHORT
+                ).show()
             } else if (workInfo.state == WorkInfo.State.FAILED) {
                 // Если вернул, но завершился с ошибкой
                 Toast.makeText(context, "Ошибка синхронизации", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    companion object {
+
+        private const val LOAD_DECKS_TIMEOUT_MS: Long = 5000L
     }
 }

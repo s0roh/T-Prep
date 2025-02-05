@@ -99,7 +99,11 @@ class ReminderSchedulerImpl @Inject constructor(
                 preferredTime = preferredTime,
                 authHeader = token
             )
-            response.reminders.map { it.toLong() * 1000 }
+            response.remindersTimeInSeconds.map { it.toLong() * MILLISECONDS_IN_SECOND }
         }
+    }
+
+    companion object {
+        private const val MILLISECONDS_IN_SECOND = 1000L
     }
 }
