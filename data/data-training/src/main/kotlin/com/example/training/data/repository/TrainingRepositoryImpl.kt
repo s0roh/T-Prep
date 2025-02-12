@@ -144,9 +144,11 @@ class TrainingRepositoryImpl @Inject internal constructor(
         val trainingErrors = database.errorDao.getErrorsForTrainingSession(trainingSessionId)
 
         return trainingErrors.mapNotNull { error ->
-            val correctAnswer =
-                database.cardDao.getCardById(error.cardId)?.answer ?: return@mapNotNull null
-            error.toEntity(trainingSessionTime, correctAnswer)
+            val card = database.cardDao.getCardById(error.cardId) ?: return@mapNotNull null
+            val question = card.question
+            val correctAnswer = card.answer
+
+            error.toEntity(trainingSessionTime, question, correctAnswer)
         }
     }
 

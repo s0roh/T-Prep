@@ -16,6 +16,7 @@ fun AppNavGraph(
     deckDetailsScreenContent: @Composable (String, Source) -> Unit,
     trainingScreenContent: @Composable (String, Source) -> Unit,
     trainingResultsScreenContent: @Composable (String, Boolean) -> Unit,
+    trainingErrorsScreenContent: @Composable (String) -> Unit,
     historyScreenContent: @Composable () -> Unit,
     localDecksScreenContent: @Composable () -> Unit,
     addEditDeckScreenContent: @Composable (String?) -> Unit,
@@ -50,6 +51,10 @@ fun AppNavGraph(
                 trainingResults.trainingSessionId,
                 trainingResults.cameFromHistoryScreen
             )
+        }
+        composable<Screen.TrainingErrors> { backStackEntry ->
+            val trainingErrors: Screen.TrainingErrors = backStackEntry.toRoute()
+            trainingErrorsScreenContent(trainingErrors.trainingSessionId)
         }
         composable<Screen.History> {
             historyScreenContent()

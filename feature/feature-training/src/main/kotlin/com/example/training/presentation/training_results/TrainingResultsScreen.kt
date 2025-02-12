@@ -30,7 +30,6 @@ import com.example.common.ui.AppButton
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
 import com.example.database.models.Source
-import com.example.training.domain.entity.TrainingError
 import com.example.training.presentation.components.AnimatedDonutChart
 import com.example.training.presentation.components.ChartSegment
 import com.example.training.presentation.util.getCardWordForm
@@ -41,8 +40,8 @@ fun TrainingResultsScreen(
     trainingSessionId: String,
     cameFromHistoryScreen: Boolean = false,
     onBackClick: () -> Unit,
-    onNavigateToDeck: (String, Source) -> Unit = { _, _ -> },
-    onErrorsClick: (List<TrainingError>) -> Unit = {},
+    onNavigateToDeck: (String, Source) -> Unit,
+    onErrorsClick: (String) -> Unit,
 ) {
     val viewModel: TrainingResultsViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
@@ -66,6 +65,7 @@ fun TrainingResultsScreen(
 
         is TrainingResultsScreenState.Success -> TrainingResultsContent(
             state = currentState,
+            trainingSessionId = trainingSessionId,
             cameFromHistoryScreen = cameFromHistoryScreen,
             deckId = deckId,
             source = source,
@@ -79,12 +79,13 @@ fun TrainingResultsScreen(
 @Composable
 private fun TrainingResultsContent(
     state: TrainingResultsScreenState.Success,
+    trainingSessionId: String,
     cameFromHistoryScreen: Boolean,
     deckId: String?,
     source: Source?,
     onBackClick: () -> Unit,
     onNavigateToDeck: (String, Source) -> Unit = { _, _ -> },
-    onErrorsClick: (List<TrainingError>) -> Unit,
+    onErrorsClick: (String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -99,7 +100,7 @@ private fun TrainingResultsContent(
         Column(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(horizontal = 30.dp),
+                .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(26.dp))
@@ -130,7 +131,7 @@ private fun TrainingResultsContent(
                     title = "Посмотреть ошибки",
                     shouldShowIcon = true,
                     iconResId = R.drawable.ic_loupe,
-                    onClick = { onErrorsClick(state.errorsList) }
+                    onClick = { onErrorsClick(trainingSessionId) }
                 )
             }
 
