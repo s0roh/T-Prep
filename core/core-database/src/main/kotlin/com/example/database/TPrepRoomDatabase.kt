@@ -7,11 +7,13 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.database.dao.CardDao
 import com.example.database.dao.DeckDao
+import com.example.database.dao.ErrorDao
 import com.example.database.dao.HistoryDao
 import com.example.database.dao.SyncMetadataDao
 import com.example.database.dao.TrainingReminderDao
 import com.example.database.models.CardDBO
 import com.example.database.models.DeckDBO
+import com.example.database.models.ErrorDBO
 import com.example.database.models.HistoryDBO
 import com.example.database.models.SyncMetadataDBO
 import com.example.database.models.TrainingReminderDBO
@@ -20,6 +22,9 @@ import com.example.database.utils.Converters
 class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase) {
     val historyDao: HistoryDao
         get() = database.historyDao()
+
+    val errorDao: ErrorDao
+        get() = database.errorDao()
 
     val deckDao: DeckDao
         get() = database.deckDao()
@@ -39,8 +44,10 @@ class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase
         CardDBO::class,
         DeckDBO::class,
         HistoryDBO::class,
+        ErrorDBO::class,
         SyncMetadataDBO::class,
-        TrainingReminderDBO::class
+        TrainingReminderDBO::class,
+
     ],
     version = 1,
     exportSchema = false
@@ -48,6 +55,7 @@ class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase
 @TypeConverters(Converters::class)
 internal abstract class TPrepRoomDatabase : RoomDatabase() {
     abstract fun historyDao(): HistoryDao
+    abstract fun errorDao(): ErrorDao
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
     abstract fun syncMetadataDao(): SyncMetadataDao

@@ -20,7 +20,7 @@ internal class TrainingViewModel @Inject constructor(
     private val getDeckByIdNetworkUseCase: GetDeckByIdNetworkUseCase,
     private val getDeckByIdLocalUseCase: GetDeckByIdLocalUseCase,
     private val prepareTrainingCardsUseCase: PrepareTrainingCardsUseCase,
-    private val recordAnswerUseCase: RecordAnswerUseCase
+    private val recordAnswerUseCase: RecordAnswerUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<TrainingScreenState>(TrainingScreenState.Initial)
@@ -35,10 +35,13 @@ internal class TrainingViewModel @Inject constructor(
     private lateinit var currentDeck: Deck
     private var correctAnswersCount = 0
     private var cardsCompleted = 0
+    private lateinit var trainingSessionId: String
 
     fun loadTraining(deckId: String, source: Source) {
         currentDeckId = deckId
         currentSource = source
+
+        trainingSessionId = generateTrainingSessionId(currentDeckId)
 
         viewModelScope.launch(exceptionHandler) {
             screenState.value = TrainingScreenState.Loading
@@ -81,7 +84,9 @@ internal class TrainingViewModel @Inject constructor(
                 cardsCount = currentDeck.cards.size,
                 cardId = currentCard.id,
                 isCorrect = isCorrect,
-                source = currentSource
+                incorrectAnswer = selectedAnswer,
+                source = currentSource,
+                trainingSessionId = trainingSessionId
             )
         }
     }
@@ -112,7 +117,12 @@ internal class TrainingViewModel @Inject constructor(
     private fun finishTraining() {
         screenState.value = TrainingScreenState.Finished(
             totalCardsCompleted = cardsCompleted,
-            correctAnswers = correctAnswersCount
+            correctAnswers = correctAnswersCount,
+            trainingSessionId = trainingSessionId
         )
+    }
+
+    private fun generateTrainingSessionId(deckId: String): String {
+        return "$deckId-${System.currentTimeMillis()}"
     }
 }

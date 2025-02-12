@@ -1,6 +1,7 @@
 package com.example.training.domain
 
 import com.example.database.models.Source
+import com.example.training.domain.repository.TrainingRepository
 import javax.inject.Inject
 
 internal class RecordAnswerUseCase @Inject constructor(
@@ -13,7 +14,9 @@ internal class RecordAnswerUseCase @Inject constructor(
         cardsCount: Int,
         cardId: Int,
         isCorrect: Boolean,
+        incorrectAnswer: String? = null,
         source: Source,
+        trainingSessionId: String,
     ) =
         repository.recordAnswer(
             deckId = deckId,
@@ -21,6 +24,8 @@ internal class RecordAnswerUseCase @Inject constructor(
             cardsCount = cardsCount,
             cardId = cardId,
             isCorrect = isCorrect,
-            source = source
+            incorrectAnswer = incorrectAnswer,
+            source = source,
+            trainingSessionId = trainingSessionId
         )
 }

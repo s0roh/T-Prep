@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.AppButton
 import com.example.common.ui.CenteredTopAppBar
+import com.example.common.ui.NavigationIconType
 import com.example.data.reminder.domain.entity.Reminder
 import com.example.database.models.Source
 import com.example.feature.reminder.R
@@ -58,8 +59,8 @@ fun ReminderScreen(
         topBar = {
             CenteredTopAppBar(
                 title = stringResource(R.string.training_plan),
-                shouldShowArrowBack = true,
-                onBackClick = onBackClick
+                navigationIconType = NavigationIconType.BACK,
+                onNavigationClick = onBackClick
             )
         }
     ) { paddingValues ->
@@ -173,7 +174,7 @@ private fun ReminderList(
                     }
                 )
             }
-            item {
+            item(key = "footer") {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()

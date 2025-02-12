@@ -55,14 +55,6 @@ class ReminderSchedulerImpl @Inject constructor(
         alarmManager.cancel(pendingIntent)
     }
 
-    override suspend fun getReminder(
-        deckId: String,
-        source: Source,
-    ): Reminder? {
-        return database.trainingReminderDao.getReminder(deckId = deckId, source = source)
-            ?.toEntity()
-    }
-
     override suspend fun getRemindersForDeck(
         deckId: String,
         source: Source,
@@ -99,7 +91,11 @@ class ReminderSchedulerImpl @Inject constructor(
                 preferredTime = preferredTime,
                 authHeader = token
             )
-            response.reminders.map { it.toLong() * 1000 }
+            response.remindersTimeInSeconds.map { it.toLong() * MILLISECONDS_IN_SECOND }
         }
+    }
+
+    companion object {
+        private const val MILLISECONDS_IN_SECOND = 1000L
     }
 }

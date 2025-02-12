@@ -63,6 +63,7 @@ class SyncDeckRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 Log.d("SyncWorker", "Колода удалена успешно: ${metadata.deckId}")
                 database.syncMetadataDao.deleteDeckSyncMetadata(metadata.deckId)
+                database.errorDao.deleteErrorForDeck(metadata.deckId)
                 database.historyDao.deleteHistoryForDeck(metadata.deckId)
                 database.deckDao.deleteDeck(metadataInfo)
             } else {
@@ -73,6 +74,7 @@ class SyncDeckRepositoryImpl @Inject constructor(
                         "Колода с ID ${metadata.deckId} не существует на сервере. Удаление из базы данных."
                     )
                     database.syncMetadataDao.deleteDeckSyncMetadata(metadata.deckId)
+                    database.errorDao.deleteErrorForDeck(metadata.deckId)
                     database.historyDao.deleteHistoryForDeck(metadata.deckId)
                     database.deckDao.deleteDeck(metadataInfo)
                 }
@@ -111,6 +113,7 @@ class SyncDeckRepositoryImpl @Inject constructor(
                         "Колода с ID ${metadata.deckId} не существует на сервере. Удаление из базы данных."
                     )
                     database.syncMetadataDao.deleteDeckSyncMetadata(metadata.deckId)
+                    database.errorDao.deleteErrorForDeck(metadata.deckId)
                     database.historyDao.deleteHistoryForDeck(metadata.deckId)
                     database.deckDao.deleteDeck(metadataInfo)
                 }

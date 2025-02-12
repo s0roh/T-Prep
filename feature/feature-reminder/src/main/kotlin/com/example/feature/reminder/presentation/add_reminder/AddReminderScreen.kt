@@ -35,6 +35,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.AppButton
 import com.example.common.ui.CenteredTopAppBar
+import com.example.common.ui.NavigationIconType
 import com.example.database.models.Source
 import com.example.feature.reminder.R
 import com.example.feature.reminder.presentation.componets.DatePickerDialogComposable
@@ -86,8 +87,8 @@ fun AddReminderScreen(
         topBar = {
             CenteredTopAppBar(
                 title = if (isAutoGeneration) stringResource(R.string.auto) else stringResource(R.string.manual),
-                shouldShowArrowBack = true,
-                onBackClick = onBackClick
+                navigationIconType = NavigationIconType.BACK,
+                onNavigationClick = onBackClick
             )
         }
     ) { paddingValues ->

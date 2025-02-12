@@ -3,7 +3,7 @@ package com.example.history.data.mapper
 import com.example.database.models.HistoryDBO
 import com.example.history.domain.entity.TrainingHistory
 
-internal fun HistoryDBO.toEntity(): TrainingHistory =
+internal fun HistoryDBO.toEntity(incorrectAnswer: String? = null): TrainingHistory =
     TrainingHistory(
         id = id,
         deckId = deckId,
@@ -12,21 +12,9 @@ internal fun HistoryDBO.toEntity(): TrainingHistory =
         cardId = cardId,
         timestamp = timestamp,
         isCorrect = isCorrect,
+        incorrectAnswer = incorrectAnswer,
         source = source,
-        coefficient = coefficient,
-        userID = userId
-    )
+        userID = userId,
+        trainingSessionId = trainingSessionId
 
-internal fun TrainingHistory.toDBO(): HistoryDBO =
-    HistoryDBO(
-        id = id,
-        deckId = deckId,
-        deckName = deckName,
-        cardsCount = cardsCount,
-        cardId = cardId,
-        timestamp = timestamp,
-        isCorrect = isCorrect,
-        source = source,
-        coefficient = coefficient,
-        userId = userID
     )

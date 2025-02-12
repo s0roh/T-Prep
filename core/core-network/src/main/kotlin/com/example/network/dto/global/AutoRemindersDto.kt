@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AutoRemindersDto(
     @SerialName("count") val count: Int,
-    @SerialName("items") val reminders: List<Int>,
+    @SerialName("items") val remindersTimeInSeconds: List<Int>,
 )

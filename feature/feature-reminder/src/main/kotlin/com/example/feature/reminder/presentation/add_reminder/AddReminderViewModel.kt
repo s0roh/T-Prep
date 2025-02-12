@@ -77,7 +77,7 @@ internal class AddReminderViewModel @Inject constructor(
         val (adjustedStartDate, adjustedEndDate, adjustedPreferredTime) =
             calculateAdjustedDates(startDate, endDate, preferredTime)
 
-        if (adjustedEndDate - adjustedStartDate < 24 * 60 * 60 * 1000L) {
+        if (adjustedEndDate - adjustedStartDate < MILLISECONDS_IN_DAY) {
             return "Разница между датой начала и окончания должна быть не менее суток"
         }
 
@@ -86,8 +86,8 @@ internal class AddReminderViewModel @Inject constructor(
         }
 
         val remindersTime = loadTrainingPlan(
-            (adjustedStartDate / 1000).toInt(),
-            (adjustedEndDate / 1000).toInt(),
+            (adjustedStartDate / MILLISECONDS_IN_SECOND).toInt(),
+            (adjustedEndDate / MILLISECONDS_IN_SECOND).toInt(),
             adjustedPreferredTime
         )
 
@@ -117,5 +117,11 @@ internal class AddReminderViewModel @Inject constructor(
         scheduleReminder(reminderId, dateTimeInMillis)
 
         return null
+    }
+
+    companion object {
+
+        private const val MILLISECONDS_IN_SECOND = 1000L
+        private const val MILLISECONDS_IN_DAY = 24 * 60 * 60 * MILLISECONDS_IN_SECOND
     }
 }

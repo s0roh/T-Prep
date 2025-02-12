@@ -10,7 +10,8 @@ data class TrainingHistory(
     val cardId: Int,
     val timestamp: Long,
     val isCorrect: Boolean,
+    val incorrectAnswer: String?,
     val source: Source,
-    val coefficient: Double,
-    val userID: String
+    val userID: String,
+    val trainingSessionId: String
 )
