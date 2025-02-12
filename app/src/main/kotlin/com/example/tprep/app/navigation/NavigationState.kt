@@ -31,6 +31,15 @@ class NavigationState(
         }
     }
 
+    fun <T : Any> navigateToRemovePreviousScreen(route: T) {
+        navHostController.navigate(route) {
+            popUpTo(navHostController.currentBackStackEntry?.destination?.id ?: return@navigate) {
+                inclusive = true
+            }
+            launchSingleTop = true
+        }
+    }
+
     fun <T : Any> navigateWithSaveState(route: T) {
         navHostController.navigate(route) {
             popUpTo(navHostController.graph.startDestinationId) {

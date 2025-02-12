@@ -1,6 +1,5 @@
 package com.example.history.data.mapper
 
-import com.example.database.models.ErrorDBO
 import com.example.database.models.HistoryDBO
 import com.example.history.domain.entity.TrainingHistory
 

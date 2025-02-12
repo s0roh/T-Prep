@@ -1,12 +1,12 @@
-package com.example.training.presentation.finish
+package com.example.training.presentation.training_results
 
 import com.example.training.domain.entity.TrainingError
 
-interface FinishTrainingScreenState {
+interface TrainingResultsScreenState {
 
-    data object Initial : FinishTrainingScreenState
+    data object Initial : TrainingResultsScreenState
 
-    data object Loading : FinishTrainingScreenState
+    data object Loading : TrainingResultsScreenState
 
     data class Success(
         val deckName: String,
@@ -17,7 +17,7 @@ interface FinishTrainingScreenState {
         val correctPercentage: Int,
         val nextTrainingTime: Long?,
         val errorsList: List<TrainingError>,
-    ) : FinishTrainingScreenState
+    ) : TrainingResultsScreenState
 
-    data class Error(val message: String) : FinishTrainingScreenState
+    data class Error(val message: String) : TrainingResultsScreenState
 }

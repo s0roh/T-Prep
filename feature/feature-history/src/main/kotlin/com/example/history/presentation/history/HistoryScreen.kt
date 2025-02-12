@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.CenteredTopAppBar
-import com.example.database.models.Source
 import com.example.history.domain.entity.TrainingHistoryItem
 import com.example.history.util.getFormattedDateForItem
 import com.example.history.util.groupHistoryByDate
@@ -42,7 +41,7 @@ import com.example.history.util.groupHistoryByDate
 @Composable
 fun HistoryScreen(
     paddingValues: PaddingValues,
-    onHistoryClick: (deckId: String, source: Source) -> Unit,
+    onHistoryClick: (trainingSessionId: String) -> Unit,
 ) {
     val viewModel: HistoryViewModel = hiltViewModel()
     val trainingHistory by viewModel.historyGroups.collectAsState()
@@ -94,7 +93,7 @@ private fun EmptyHistoryMessage(modifier: Modifier = Modifier) {
 @Composable
 private fun HistoryList(
     groupedHistory: Map<String, List<TrainingHistoryItem>>,
-    onHistoryClick: (String, Source) -> Unit,
+    onHistoryClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -131,7 +130,7 @@ private fun TimePeriodHeader(header: String, modifier: Modifier = Modifier) {
 private fun TrainingHistoryCard(
     modifier: Modifier = Modifier,
     trainingHistoryItem: TrainingHistoryItem,
-    onHistoryClick: (String, Source) -> Unit,
+    onHistoryClick: (String) -> Unit,
 ) {
     Card(
         modifier = modifier
@@ -139,8 +138,7 @@ private fun TrainingHistoryCard(
             .clip(MaterialTheme.shapes.medium)
             .clickable {
                 onHistoryClick(
-                    trainingHistoryItem.trainingHistories.first().deckId,
-                    trainingHistoryItem.trainingHistories.first().source
+                    trainingHistoryItem.trainingHistories.first().trainingSessionId
                 )
             }
     ) {

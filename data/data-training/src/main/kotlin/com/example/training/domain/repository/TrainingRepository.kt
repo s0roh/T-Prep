@@ -26,4 +26,6 @@ interface TrainingRepository {
     suspend fun getErrorsList(trainingSessionId: String): List<TrainingError>
 
     suspend fun getDeckNameAndTrainingSessionTime(trainingSessionId: String): Pair<String, Long>
+
+    suspend fun getInfoForNavigationToDeck(trainingSessionId: String): Pair<String, Source>
 }

@@ -1,4 +1,4 @@
-package com.example.training.presentation.finish
+package com.example.training.presentation.training_results
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +29,7 @@ import com.example.common.R
 import com.example.common.ui.AppButton
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
+import com.example.database.models.Source
 import com.example.training.domain.entity.TrainingError
 import com.example.training.presentation.components.AnimatedDonutChart
 import com.example.training.presentation.components.ChartSegment
@@ -33,33 +37,53 @@ import com.example.training.presentation.util.getCardWordForm
 import com.example.training.presentation.util.getFormattedTime
 
 @Composable
-fun FinishTrainingScreen(
+fun TrainingResultsScreen(
     trainingSessionId: String,
+    cameFromHistoryScreen: Boolean = false,
     onBackClick: () -> Unit,
+    onNavigateToDeck: (String, Source) -> Unit = { _, _ -> },
     onErrorsClick: (List<TrainingError>) -> Unit = {},
 ) {
-    val viewModel: FinishTrainingViewModel = hiltViewModel()
+    val viewModel: TrainingResultsViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
+
+    var deckId: String? by rememberSaveable { mutableStateOf(null) }
+    var source: Source? by rememberSaveable { mutableStateOf(null) }
 
     LaunchedEffect(trainingSessionId) {
         viewModel.loadTrainingData(trainingSessionId)
+
+        if (cameFromHistoryScreen) {
+            viewModel.getInfoForNavigationToDeck(trainingSessionId) { result ->
+                deckId = result.first
+                source = result.second
+            }
+        }
     }
 
     when (val currentState = screenState) {
-        is FinishTrainingScreenState.Loading -> LoadingScreen()
+        is TrainingResultsScreenState.Loading -> LoadingScreen()
 
-        is FinishTrainingScreenState.Success -> FinishTrainingContent(
-            currentState,
-            onBackClick,
-            onErrorsClick
+        is TrainingResultsScreenState.Success -> TrainingResultsContent(
+            state = currentState,
+            cameFromHistoryScreen = cameFromHistoryScreen,
+            deckId = deckId,
+            source = source,
+            onBackClick = onBackClick,
+            onNavigateToDeck = onNavigateToDeck,
+            onErrorsClick = onErrorsClick
         )
     }
 }
 
 @Composable
-private fun FinishTrainingContent(
-    state: FinishTrainingScreenState.Success,
+private fun TrainingResultsContent(
+    state: TrainingResultsScreenState.Success,
+    cameFromHistoryScreen: Boolean,
+    deckId: String?,
+    source: Source?,
     onBackClick: () -> Unit,
+    onNavigateToDeck: (String, Source) -> Unit = { _, _ -> },
     onErrorsClick: (List<TrainingError>) -> Unit,
 ) {
     Scaffold(
@@ -98,7 +122,7 @@ private fun FinishTrainingContent(
             )
             Spacer(modifier = Modifier.height(45.dp))
 
-            state.nextTrainingTime?.let { NextTrainingInfo(it) }
+            state.nextTrainingTime?.let { NextTrainingReminderInfo(it) }
 
             if (state.errorsList.isNotEmpty()) {
                 AppButton(
@@ -109,12 +133,20 @@ private fun FinishTrainingContent(
                     onClick = { onErrorsClick(state.errorsList) }
                 )
             }
+
+            if (cameFromHistoryScreen && deckId != null && source != null) {
+                AppButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = "Перейти к колоде",
+                    onClick = { onNavigateToDeck(deckId, source) }
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun NextTrainingInfo(time: Long) {
+private fun NextTrainingReminderInfo(time: Long) {
     Text(
         text = "Следующая тренировка",
         style = MaterialTheme.typography.titleMedium,

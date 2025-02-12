@@ -34,6 +34,7 @@ import com.example.tprep.app.presentation.ui.theme.TPrepTheme
 import com.example.tprep.app.presentation.utils.currentRoute
 import com.example.tprep.app.presentation.utils.shouldShowBottomNavigation
 import com.example.training.presentation.training.TrainingScreen
+import com.example.training.presentation.training_results.TrainingResultsScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
@@ -109,8 +110,13 @@ fun MainScreen(navController: NavHostController) {
             historyScreenContent = {
                 HistoryScreen(
                     paddingValues = paddingValues,
-                    onHistoryClick = { deckId, source ->
-                        navigationState.navigateWithSaveState(Screen.DeckDetails(deckId, source))
+                    onHistoryClick = { trainingSessionId ->
+                        navigationState.navigateWithSaveState(
+                            Screen.TrainingResults(
+                                trainingSessionId = trainingSessionId,
+                                cameFromHistoryScreen = true
+                            )
+                        )
                     }
                 )
             },
@@ -178,7 +184,31 @@ fun MainScreen(navController: NavHostController) {
                     paddingValues = paddingValues,
                     deckId = deckId,
                     source = source,
-                    onFinishClick = { navigationState.navHostController.popBackStack() }
+                    onTrainingResultsClick = { trainingSessionId ->
+                        navigationState.navigateToRemovePreviousScreen(
+                            Screen.TrainingResults(
+                                trainingSessionId,
+                                false
+                            )
+                        )
+                    },
+                    onBackClick = { navigationState.navHostController.popBackStack() }
+                )
+            },
+            trainingResultsScreenContent = { trainingSessionId, cameFromHistoryScreen ->
+                TrainingResultsScreen(
+                    trainingSessionId = trainingSessionId,
+                    cameFromHistoryScreen = cameFromHistoryScreen,
+                    onBackClick = { navigationState.navHostController.popBackStack() },
+                    onNavigateToDeck = { deckId, source ->
+                        navigationState.navigateToRemovePreviousScreen(
+                            Screen.DeckDetails(
+                                deckId = deckId,
+                                source = source
+                            )
+                        )
+                    },
+                    onErrorsClick = {}
                 )
             },
             localDecksScreenContent = {

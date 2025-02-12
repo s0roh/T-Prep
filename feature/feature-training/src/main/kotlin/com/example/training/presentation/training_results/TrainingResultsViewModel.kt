@@ -1,9 +1,11 @@
-package com.example.training.presentation.finish
+package com.example.training.presentation.training_results
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.database.models.Source
 import com.example.training.domain.GetDeckNameAndTrainingSessionTimeUseCase
 import com.example.training.domain.GetErrorsListUseCase
+import com.example.training.domain.GetInfoForNavigationToDeckUseCase
 import com.example.training.domain.GetNextTrainingTimeUseCase
 import com.example.training.domain.GetTotalAndCorrectCountAnswersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,23 +15,25 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-internal class FinishTrainingViewModel @Inject constructor(
+internal class TrainingResultsViewModel @Inject constructor(
     private val getErrorsListUseCase: GetErrorsListUseCase,
     private val getNextTrainingTimeUseCase: GetNextTrainingTimeUseCase,
     private val getTotalAndCorrectCountAnswersUseCase: GetTotalAndCorrectCountAnswersUseCase,
     private val getDeckNameAndTrainingSessionTimeUseCase: GetDeckNameAndTrainingSessionTimeUseCase,
+    private val getInfoForNavigationToDeckUseCase: GetInfoForNavigationToDeckUseCase
 ) : ViewModel() {
 
-    var screenState = MutableStateFlow<FinishTrainingScreenState>(FinishTrainingScreenState.Initial)
+    var screenState =
+        MutableStateFlow<TrainingResultsScreenState>(TrainingResultsScreenState.Initial)
         private set
 
     private val exceptionHandler = CoroutineExceptionHandler { _, message ->
-        screenState.value = FinishTrainingScreenState.Error(message.toString())
+        screenState.value = TrainingResultsScreenState.Error(message.toString())
     }
 
     fun loadTrainingData(trainingSessionId: String) {
         viewModelScope.launch(exceptionHandler) {
-            screenState.value = FinishTrainingScreenState.Loading
+            screenState.value = TrainingResultsScreenState.Loading
 
             val (totalAnswers, correctAnswers) =
                 getTotalAndCorrectCountAnswersUseCase(trainingSessionId)
@@ -45,7 +49,7 @@ internal class FinishTrainingViewModel @Inject constructor(
 
             val errorsList = getErrorsListUseCase(trainingSessionId)
 
-            screenState.value = FinishTrainingScreenState.Success(
+            screenState.value = TrainingResultsScreenState.Success(
                 deckName = deckName,
                 trainingSessionTime = trainingSessionTime,
                 totalAnswers = totalAnswers,
@@ -55,6 +59,16 @@ internal class FinishTrainingViewModel @Inject constructor(
                 nextTrainingTime = nextTrainingTime,
                 errorsList = errorsList
             )
+        }
+    }
+
+    fun getInfoForNavigationToDeck(
+        trainingSessionId: String,
+        onResult: (Pair<String, Source>) -> Unit
+    ) {
+        viewModelScope.launch(exceptionHandler) {
+            val result = getInfoForNavigationToDeckUseCase(trainingSessionId = trainingSessionId)
+            onResult(result)
         }
     }
 }

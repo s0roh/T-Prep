@@ -150,6 +150,14 @@ class TrainingRepositoryImpl @Inject internal constructor(
         }
     }
 
+    override suspend fun getInfoForNavigationToDeck(trainingSessionId: String): Pair<String, Source> {
+        val trainingHistory = database.historyDao.getHistoryForTrainingSession(trainingSessionId)
+        val firstEntry = trainingHistory.firstOrNull()
+            ?: throw IllegalStateException("No history found for session $trainingSessionId")
+
+        return firstEntry.deckId to firstEntry.source
+    }
+
     private fun calculateCoefficientFromHistory(historyList: List<HistoryDBO>): Double {
         var coefficient = DEFAULT_COEFFICIENT
         historyList.forEach {

@@ -36,14 +36,14 @@ import com.example.common.ui.NavigationIconType
 import com.example.database.models.Source
 import com.example.training.R
 import com.example.training.presentation.components.QuestionArea
-import com.example.training.presentation.finish.FinishTrainingScreen
 
 @Composable
 fun TrainingScreen(
     paddingValues: PaddingValues,
     deckId: String,
     source: Source,
-    onFinishClick: () -> Unit,
+    onTrainingResultsClick: (String) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     val viewModel: TrainingViewModel = hiltViewModel()
     val screenState = viewModel.screenState.collectAsState()
@@ -68,12 +68,9 @@ fun TrainingScreen(
 
         is TrainingScreenState.Finished -> {
             if (currentState.totalCardsCompleted != 0) {
-                FinishTrainingScreen(
-                    trainingSessionId = currentState.trainingSessionId,
-                    onBackClick = onFinishClick
-                )
+                onTrainingResultsClick(currentState.trainingSessionId)
             } else {
-                onFinishClick()
+                onBackClick()
             }
 
         }
