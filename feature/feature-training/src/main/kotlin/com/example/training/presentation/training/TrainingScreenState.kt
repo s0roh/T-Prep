@@ -17,7 +17,8 @@ sealed interface TrainingScreenState {
 
     data class Finished(
         val totalCardsCompleted: Int,
-        val correctAnswers: Int
+        val correctAnswers: Int,
+        val trainingSessionId: String
     ) : TrainingScreenState
 
     data class Error(val message: String) : TrainingScreenState

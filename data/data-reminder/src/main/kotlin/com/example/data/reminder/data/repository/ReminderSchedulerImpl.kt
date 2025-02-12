@@ -55,14 +55,6 @@ class ReminderSchedulerImpl @Inject constructor(
         alarmManager.cancel(pendingIntent)
     }
 
-    override suspend fun getReminder(
-        deckId: String,
-        source: Source,
-    ): Reminder? {
-        return database.trainingReminderDao.getReminder(deckId = deckId, source = source)
-            ?.toEntity()
-    }
-
     override suspend fun getRemindersForDeck(
         deckId: String,
         source: Source,

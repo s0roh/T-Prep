@@ -11,6 +11,7 @@ import androidx.room.PrimaryKey
         Index(value = ["deckId"]),
         Index(value = ["timestamp"]),
         Index(value = ["cardId", "deckId", "source"]),
+        Index(value = ["trainingSessionId"])
     ]
 )
 data class HistoryDBO(
@@ -22,8 +23,8 @@ data class HistoryDBO(
     @ColumnInfo("timestamp") val timestamp: Long,
     @ColumnInfo("isCorrect") val isCorrect: Boolean,
     @ColumnInfo("source") val source: Source,
-    @ColumnInfo("coefficient") val coefficient: Double,
-    @ColumnInfo("userId") val userId: String
+    @ColumnInfo("trainingSessionId") val trainingSessionId: String,
+    @ColumnInfo("userId") val userId: String,
 )
 
 enum class Source {

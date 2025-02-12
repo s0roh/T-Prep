@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.CenteredTopAppBar
+import com.example.common.ui.NavigationIconType
 import com.example.localdecks.presentation.components.TextFieldWithError
 
 @Composable
@@ -44,8 +45,8 @@ fun AddEditCardScreen(
         topBar = {
             CenteredTopAppBar(
                 title = "Редактировать карточку",
-                shouldShowArrowBack = true,
-                onBackClick = onBackClick
+                navigationIconType = NavigationIconType.BACK,
+                onNavigationClick = onBackClick
             )
         }
     ) { paddingValues ->

@@ -27,8 +27,8 @@ import com.example.preferences.AuthPreferencesImpl
 import com.example.preferences.AuthRequestWrapper
 import com.example.tprep.app.reminder.AppRouteNavigator
 import com.example.tprep.app.utils.getApiBaseUrl
-import com.example.training.data.TrainingRepositoryImpl
-import com.example.training.domain.TrainingRepository
+import com.example.training.data.repository.TrainingRepositoryImpl
+import com.example.training.domain.repository.TrainingRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

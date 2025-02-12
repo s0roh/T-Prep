@@ -32,17 +32,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.ErrorState
 import com.example.common.ui.LoadingState
+import com.example.common.ui.NavigationIconType
 import com.example.database.models.Source
 import com.example.training.R
-import com.example.training.presentation.components.FinishTrainingScreen
 import com.example.training.presentation.components.QuestionArea
+import com.example.training.presentation.finish.FinishTrainingScreen
 
 @Composable
 fun TrainingScreen(
     paddingValues: PaddingValues,
     deckId: String,
     source: Source,
-    onFinishClick: () -> Unit
+    onFinishClick: () -> Unit,
 ) {
     val viewModel: TrainingViewModel = hiltViewModel()
     val screenState = viewModel.screenState.collectAsState()
@@ -59,19 +60,22 @@ fun TrainingScreen(
             TrainingCardsContent(
                 currentState = currentState,
                 onAnswer = { isCorrect, answer -> viewModel.recordAnswer(isCorrect, answer) },
-                onSkip = { viewModel.recordAnswer(false) },
+                onSkip = { viewModel.recordAnswer(false, "") },
                 onExit = { viewModel.exitTraining() },
                 onNextCard = { viewModel.moveToNextCardOrFinish() }
             )
         }
 
         is TrainingScreenState.Finished -> {
-            FinishTrainingScreen(
-                paddingValues = paddingValues,
-                totalCardsCompleted = currentState.totalCardsCompleted,
-                correctAnswers = currentState.correctAnswers,
-                onFinishClick = onFinishClick
-            )
+            if (currentState.totalCardsCompleted != 0) {
+                FinishTrainingScreen(
+                    trainingSessionId = currentState.trainingSessionId,
+                    onBackClick = onFinishClick
+                )
+            } else {
+                onFinishClick()
+            }
+
         }
 
         is TrainingScreenState.Error -> ErrorState(message = currentState.message)
@@ -89,7 +93,7 @@ private fun TrainingCardsContent(
     onAnswer: (Boolean, String?) -> Unit,
     onSkip: () -> Unit,
     onExit: () -> Unit,
-    onNextCard: () -> Unit
+    onNextCard: () -> Unit,
 ) {
     val currentCard = currentState.cards[currentState.currentCardIndex]
     var selectedAnswer by remember(currentState.selectedAnswer) {
@@ -108,8 +112,8 @@ private fun TrainingCardsContent(
         topBar = {
             CenteredTopAppBar(
                 title = "Тренировка",
-                shouldShowArrowBack = true,
-                onBackClick = onExit
+                navigationIconType = NavigationIconType.BACK,
+                onNavigationClick = onExit
             )
         }
     ) { paddingValues ->
@@ -133,7 +137,8 @@ private fun TrainingCardsContent(
 
                 items(shuffledAnswers.size) { index ->
                     val answer = shuffledAnswers[index]
-                    val color = getAnswerColor(isAnswered, answer, currentCard.answer, selectedAnswer)
+                    val color =
+                        getAnswerColor(isAnswered, answer, currentCard.answer, selectedAnswer)
 
                     AnswerButton(
                         answer = answer,
@@ -166,7 +171,7 @@ private fun TrainingCardsContent(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end= 16.dp, bottom = 20.dp)
+                    .padding(start = 16.dp, end = 16.dp, bottom = 20.dp)
             ) {
                 Text(text = stringResource(if (showNextButton) R.string.next else R.string.skip))
             }
@@ -264,7 +269,7 @@ private fun AnswerOptions(
     selectedAnswer: String?,
     isAnswered: Boolean,
     correctAnswer: String,
-    onAnswerSelected: (String) -> Unit
+    onAnswerSelected: (String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         shuffledAnswers.forEach { answer ->
@@ -316,7 +321,7 @@ private fun getAnswerColor(
     isAnswered: Boolean,
     answer: String,
     correctAnswer: String,
-    selectedAnswer: String?
+    selectedAnswer: String?,
 ): Color {
     return when {
         isAnswered && answer == correctAnswer -> Color.Green
