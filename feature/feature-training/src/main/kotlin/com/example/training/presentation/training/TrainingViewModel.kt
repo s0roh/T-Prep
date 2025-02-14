@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
 import com.example.database.models.Source
+import com.example.training.domain.CheckFillInTheBlankAnswerUseCase
 import com.example.training.domain.GetDeckByIdLocalUseCase
 import com.example.training.domain.GetDeckByIdNetworkUseCase
 import com.example.training.domain.PrepareTrainingCardsUseCase
@@ -21,6 +22,7 @@ internal class TrainingViewModel @Inject constructor(
     private val getDeckByIdLocalUseCase: GetDeckByIdLocalUseCase,
     private val prepareTrainingCardsUseCase: PrepareTrainingCardsUseCase,
     private val recordAnswerUseCase: RecordAnswerUseCase,
+    private val checkFillInTheBlankAnswerUseCase: CheckFillInTheBlankAnswerUseCase
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<TrainingScreenState>(TrainingScreenState.Initial)
@@ -47,7 +49,6 @@ internal class TrainingViewModel @Inject constructor(
             screenState.value = TrainingScreenState.Loading
 
             val cards = loadCardsForTraining(source)
-
             screenState.value = TrainingScreenState.Success(cards = cards)
         }
     }
@@ -68,6 +69,20 @@ internal class TrainingViewModel @Inject constructor(
             cards = currentDeck.cards,
             source = currentSource
         )
+    }
+
+    fun checkFillInTheBlankAnswer(
+        userInput: String,
+        correctWords: List<String>,
+        onResult: (Boolean) -> Unit
+    ) {
+        viewModelScope.launch(exceptionHandler) {
+            val result = checkFillInTheBlankAnswerUseCase(
+                userInput = userInput,
+                correctWords = correctWords
+            )
+            onResult(result)
+        }
     }
 
     fun recordAnswer(isCorrect: Boolean, selectedAnswer: String? = null) {

@@ -1,17 +1,23 @@
 package com.example.training.data.repository
 
 import com.example.common.domain.entity.Card
+import com.example.common.domain.entity.TrainingMode
 import com.example.database.TPrepDatabase
 import com.example.database.models.ErrorDBO
 import com.example.database.models.HistoryDBO
 import com.example.database.models.Source
 import com.example.preferences.AuthPreferences
 import com.example.training.data.mapper.toEntity
+import com.example.training.data.util.generatePartialAnswer
+import com.example.training.data.util.levenshteinDistance
+import com.example.training.data.util.normalizeText
 import com.example.training.domain.entity.TrainingError
 import com.example.training.domain.repository.TrainingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.math.max
+
 
 class TrainingRepositoryImpl @Inject internal constructor(
     private val database: TPrepDatabase,
@@ -22,10 +28,15 @@ class TrainingRepositoryImpl @Inject internal constructor(
         deckId: String,
         cards: List<Card>,
         source: Source,
+        modes: Set<TrainingMode>
     ): List<Card> {
+        require(modes.isNotEmpty()) { "At least one training mode must be selected" }
+
         return withContext(Dispatchers.IO) {
             val userId = preferences.getUserId()
                 ?: throw IllegalStateException("User ID not found in preferences")
+
+            // Сортировка карт по истории и коэффициентам
             val cardsWithSortingData = cards.map { card ->
                 val historyList = database.historyDao.getHistoryForCard(
                     cardId = card.id,
@@ -39,6 +50,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 card to Pair(isNew, coefficient)
             }
 
+            // Сортировка карт по приоритету и коэффициенту
             val sortedCards = cardsWithSortingData
                 .sortedWith(compareBy(
                     { if (it.second.first) NEW_CARD_PRIORITY else EXISTING_CARD_PRIORITY },
@@ -46,10 +58,64 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 ))
                 .map { it.first }
 
+            // Применение выбранного режима тренировки к каждой карте
             sortedCards.map { card ->
-                val wrongAnswers = generateWrongAnswers(card, sortedCards)
-                card.copy(wrongAnswers = wrongAnswers)
+                val selectedMode = modes.random() // Выбираем случайный режим
+                assignModeSpecificFields(card, selectedMode, sortedCards)
             }
+        }
+    }
+
+    private fun assignModeSpecificFields(
+        card: Card,
+        mode: TrainingMode,
+        allCards: List<Card>
+    ): Card {
+        return when (mode) {
+            TrainingMode.MULTIPLE_CHOICE -> card.copy(
+                trainingMode = mode,
+                wrongAnswers = generateWrongAnswers(card, allCards)
+            )
+
+            TrainingMode.TRUE_FALSE -> {
+                val isCorrect = (0..1).random() == 1
+                val displayedAnswer = if (isCorrect) card.answer else generateWrongAnswers(
+                    card,
+                    allCards
+                ).firstOrNull() ?: card.answer
+                card.copy(
+                    trainingMode = mode,
+                    displayedAnswer = displayedAnswer,
+                )
+            }
+
+            TrainingMode.FILL_IN_THE_BLANK -> {
+                val (partialAnswer, missingWords) = generatePartialAnswer(card.answer)
+                card.copy(
+                    trainingMode = mode,
+                    partialAnswer = partialAnswer,
+                    missingWords = missingWords
+                )
+            }
+        }
+    }
+
+    override suspend fun checkFillInTheBlankAnswer(
+        userInput: String,
+        correctWords: List<String>
+    ): Boolean {
+        return withContext(Dispatchers.IO) {
+            val normalizedInput = normalizeText(userInput)
+            val normalizedCorrectText = normalizeText(correctWords.joinToString(" "))
+
+            if (normalizedInput.length < normalizedCorrectText.length * MIN_INPUT_LENGTH_PERCENT) {
+                return@withContext false
+            }
+
+            val maxAllowedErrors = max(1, (normalizedCorrectText.length * MAX_ALLOWED_ERROR_PERCENT).toInt())
+
+            // Проверяем расстояние Левенштейна
+            levenshteinDistance(normalizedInput, normalizedCorrectText) <= maxAllowedErrors
         }
     }
 
@@ -171,13 +237,15 @@ class TrainingRepositoryImpl @Inject internal constructor(
 
     companion object {
 
-        const val NEW_CARD_PRIORITY = 0
-        const val EXISTING_CARD_PRIORITY = 1
-        const val DEFAULT_COEFFICIENT = 2.5
-        const val MIN_COEFFICIENT = 1.3
-        const val MAX_COEFFICIENT = 2.5
-        const val COEFFICIENT_INCREMENT = 0.1
-        const val COEFFICIENT_DECREMENT = -0.2
-        const val WRONG_ANSWERS_COUNT = 3
+        private const val NEW_CARD_PRIORITY = 0
+        private const val EXISTING_CARD_PRIORITY = 1
+        private const val DEFAULT_COEFFICIENT = 2.5
+        private const val MIN_COEFFICIENT = 1.3
+        private const val MAX_COEFFICIENT = 2.5
+        private const val COEFFICIENT_INCREMENT = 0.1
+        private const val COEFFICIENT_DECREMENT = -0.2
+        private const val WRONG_ANSWERS_COUNT = 3
+        private const val MIN_INPUT_LENGTH_PERCENT = 0.5
+        private const val MAX_ALLOWED_ERROR_PERCENT = 0.3
     }
 }

@@ -1,20 +1,32 @@
 package com.example.training.presentation.training
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -22,20 +34,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.common.domain.entity.Card
+import com.example.common.domain.entity.TrainingMode
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.ErrorState
 import com.example.common.ui.LoadingState
 import com.example.common.ui.NavigationIconType
 import com.example.database.models.Source
-import com.example.training.R
+import com.example.training.presentation.components.NextOrSkipButton
 import com.example.training.presentation.components.QuestionArea
+import com.example.training.presentation.components.getAnswerColor
+import com.example.training.presentation.components.getContainerColor
+import com.example.training.R
+import com.example.training.presentation.components.getBorderColor
 
 @Composable
 fun TrainingScreen(
@@ -62,7 +86,8 @@ fun TrainingScreen(
                 onAnswer = { isCorrect, answer -> viewModel.recordAnswer(isCorrect, answer) },
                 onSkip = { viewModel.recordAnswer(false, "") },
                 onExit = { viewModel.exitTraining() },
-                onNextCard = { viewModel.moveToNextCardOrFinish() }
+                onNextCard = { viewModel.moveToNextCardOrFinish() },
+                viewModel = viewModel
             )
         }
 
@@ -91,17 +116,9 @@ private fun TrainingCardsContent(
     onSkip: () -> Unit,
     onExit: () -> Unit,
     onNextCard: () -> Unit,
+    viewModel: TrainingViewModel
 ) {
     val currentCard = currentState.cards[currentState.currentCardIndex]
-    var selectedAnswer by remember(currentState.selectedAnswer) {
-        mutableStateOf(currentState.selectedAnswer)
-    }
-    var isAnswered by remember { mutableStateOf(currentState.selectedAnswer != null) }
-    var showNextButton by remember { mutableStateOf(currentState.selectedAnswer != null) }
-
-    val shuffledAnswers = remember(currentCard.id) {
-        (listOf(currentCard.answer) + currentCard.wrongAnswers).shuffled()
-    }
 
     BackHandler(onBack = onExit)
 
@@ -114,170 +131,50 @@ private fun TrainingCardsContent(
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            LazyColumn(
+        AnimatedContent(
+            targetState = currentCard.id,
+            transitionSpec = {
+                slideInHorizontally { it } + fadeIn() togetherWith
+                        slideOutHorizontally { -it } + fadeOut()
+            },
+            label = "CardTransition"
+        ) { targetKey  ->
+            val card = currentState.cards.first { it.id == targetKey }
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+                    .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
-                contentPadding = PaddingValues(vertical = 16.dp)
             ) {
-                item {
-                    //Spacer(modifier = Modifier.height(20.dp))
-                    QuestionArea(question = currentCard.question)
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
+                QuestionArea(
+                    question = card.question,
+                    modifier = Modifier.padding(horizontal = 25.dp)
+                )
+                Spacer(modifier = Modifier.height(20.dp))
 
-                items(shuffledAnswers.size) { index ->
-                    val answer = shuffledAnswers[index]
-                    val color =
-                        getAnswerColor(isAnswered, answer, currentCard.answer, selectedAnswer)
-
-                    AnswerButton(
-                        answer = answer,
-                        color = color,
-                        isEnabled = !isAnswered,
-                        onClick = {
-                            if (!isAnswered) {
-                                selectedAnswer = answer
-                                isAnswered = true
-                                showNextButton = true
-                                onAnswer(answer == currentCard.answer, answer)
-                            }
-                        }
+                when (card.trainingMode) {
+                    TrainingMode.MULTIPLE_CHOICE -> MultipleChoiceContent(
+                        currentState,
+                        onAnswer,
+                        onSkip,
+                        onNextCard
                     )
+
+                    TrainingMode.TRUE_FALSE -> TrueFalseContent(
+                        card,
+                        onAnswer,
+                        onSkip,
+                        onNextCard
+                    )
+
+                    TrainingMode.FILL_IN_THE_BLANK -> FillInTheBlankContent(
+                        card,
+                        onAnswer,
+                        viewModel
+                    )
+
+                    else -> Text("Неизвестный режим")
                 }
             }
-
-            Button(
-                onClick = {
-                    if (showNextButton) {
-                        selectedAnswer = null
-                        isAnswered = false
-                        showNextButton = false
-                        onNextCard()
-                    } else {
-                        onSkip()
-                        isAnswered = true
-                        showNextButton = true
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 20.dp)
-            ) {
-                Text(text = stringResource(if (showNextButton) R.string.next else R.string.skip))
-            }
-        }
-    }
-}
-
-
-//@Composable
-//private fun TrainingCardsContent(
-//    currentState: TrainingScreenState.Success,
-//    onAnswer: (Boolean, String?) -> Unit,
-//    onSkip: () -> Unit,
-//    onExit: () -> Unit,
-//    onNextCard: () -> Unit
-//) {
-//    val currentCard = currentState.cards[currentState.currentCardIndex]
-//    var selectedAnswer by remember(currentState.selectedAnswer) {
-//        mutableStateOf(currentState.selectedAnswer)
-//    }
-//    var isAnswered by remember { mutableStateOf(currentState.selectedAnswer != null) }
-//    var showNextButton by remember { mutableStateOf(currentState.selectedAnswer != null) }
-//
-//    val shuffledAnswers = remember(currentCard.id) {
-//        (listOf(currentCard.answer) + currentCard.wrongAnswers).shuffled()
-//    }
-//
-//    BackHandler(onBack = onExit)
-//
-//    Scaffold(
-//        topBar = {
-//            CenteredTopAppBar(
-//                title = "Тренировка",
-//                shouldShowArrowBack = true,
-//                onBackClick = onExit
-//            )
-//        }
-//    ) { paddingValues ->
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(paddingValues)
-//                .padding(horizontal = 16.dp),
-//        ) {
-//            Spacer(modifier = Modifier.height(20.dp))
-//
-//            QuestionArea(question = currentCard.question)
-//
-//            Spacer(modifier = Modifier.weight(1f))
-//
-//            AnswerOptions(
-//                shuffledAnswers = shuffledAnswers,
-//                selectedAnswer = selectedAnswer,
-//                isAnswered = isAnswered,
-//                correctAnswer = currentCard.answer,
-//                onAnswerSelected = {
-//                    if (!isAnswered) {
-//                        selectedAnswer = it
-//                        isAnswered = true
-//                        showNextButton = true
-//                        onAnswer(it == currentCard.answer, it)
-//                    }
-//                }
-//            )
-//
-//            Spacer(modifier = Modifier.weight(2f))
-//
-//            Button(
-//                onClick = {
-//                    if (showNextButton) {
-//                        selectedAnswer = null
-//                        isAnswered = false
-//                        showNextButton = false
-//                        onNextCard()
-//                    } else {
-//                        onSkip()
-//                        isAnswered = true
-//                        showNextButton = true
-//                    }
-//                },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 20.dp)
-//            ) {
-//                Text(text = stringResource(if (showNextButton) R.string.next else R.string.skip))
-//            }
-//        }
-//    }
-//}
-
-
-@Composable
-private fun AnswerOptions(
-    shuffledAnswers: List<String>,
-    selectedAnswer: String?,
-    isAnswered: Boolean,
-    correctAnswer: String,
-    onAnswerSelected: (String) -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        shuffledAnswers.forEach { answer ->
-            val color = getAnswerColor(isAnswered, answer, correctAnswer, selectedAnswer)
-
-            AnswerButton(
-                answer = answer,
-                color = color,
-                isEnabled = !isAnswered,
-                onClick = { onAnswerSelected(answer) }
-            )
         }
     }
 }
@@ -303,8 +200,6 @@ private fun AnswerButton(answer: String, color: Color, isEnabled: Boolean, onCli
     ) {
         Text(
             text = answer,
-//            maxLines = 4,
-//            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(8.dp),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
@@ -313,16 +208,281 @@ private fun AnswerButton(answer: String, color: Color, isEnabled: Boolean, onCli
     }
 }
 
+
 @Composable
-private fun getAnswerColor(
-    isAnswered: Boolean,
-    answer: String,
-    correctAnswer: String,
-    selectedAnswer: String?,
-): Color {
-    return when {
-        isAnswered && answer == correctAnswer -> Color.Green
-        isAnswered && answer == selectedAnswer -> MaterialTheme.colorScheme.error
-        else -> MaterialTheme.colorScheme.onBackground
+fun MultipleChoiceContent(
+    state: TrainingScreenState.Success,
+    onAnswer: (Boolean, String?) -> Unit,
+    onSkip: () -> Unit,
+    onNextCard: () -> Unit,
+) {
+    val currentCard = state.cards[state.currentCardIndex]
+    val shuffledAnswers = rememberSaveable (currentCard.id) {
+        (listOf(currentCard.answer) + currentCard.wrongAnswers).shuffled()
+    }
+    var selectedAnswer by remember {
+        mutableStateOf(state.selectedAnswer)
+    }
+    var isAnswered by remember { mutableStateOf(state.selectedAnswer != null) }
+    var showNextButton by remember { mutableStateOf(state.selectedAnswer != null) }
+
+    LaunchedEffect(currentCard.id) {
+        selectedAnswer = null
+        isAnswered = false
+        showNextButton = false
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = 16.dp),
+            contentPadding = PaddingValues(vertical = 16.dp)
+        ) {
+            items(shuffledAnswers.size) { index ->
+                val answer = shuffledAnswers[index]
+                val color = getAnswerColor(isAnswered, answer, currentCard.answer, selectedAnswer)
+
+                AnswerButton(
+                    answer = answer,
+                    color = color,
+                    isEnabled = !isAnswered,
+                    onClick = {
+                        if (!isAnswered) {
+                            selectedAnswer = answer
+                            isAnswered = true
+                            showNextButton = true
+                            onAnswer(answer == currentCard.answer, answer)
+                        }
+                    }
+                )
+            }
+        }
+
+        NextOrSkipButton(
+            showNextButton = showNextButton,
+            onNextCard = {
+                isAnswered = false
+                selectedAnswer = null
+                showNextButton = false
+                onNextCard()
+            },
+            onSkip = {
+                onSkip()
+                isAnswered = true
+                showNextButton = true
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, bottom = 20.dp)
+        )
+    }
+}
+
+@Composable
+fun TrueFalseContent(
+    card: Card,
+    onAnswer: (Boolean, String?) -> Unit,
+    onSkip: () -> Unit,
+    onNextCard: () -> Unit
+) {
+    var isAnswered by rememberSaveable { mutableStateOf(false) }
+    var selectedAnswer by rememberSaveable { mutableStateOf<Boolean?>(null) }
+    var showNextButton by rememberSaveable { mutableStateOf(false) }
+
+    val correctAnswer = card.displayedAnswer == card.answer
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 25.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "Возможный ответ:",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = card.displayedAnswer ?: "Ошибка отображения",
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp)
+            )
+        }
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                val falseContainerColor =
+                    getContainerColor(isAnswered, selectedAnswer, false, correctAnswer)
+                val trueContainerColor =
+                    getContainerColor(isAnswered, selectedAnswer, true, correctAnswer)
+
+                val falseBorderColor =
+                    getBorderColor(isAnswered, selectedAnswer, false, correctAnswer)
+                val trueBorderColor =
+                    getBorderColor(isAnswered, selectedAnswer, true, correctAnswer)
+
+                TrueFalseButton(
+                    text = "ЛОЖЬ",
+                    containerColor = falseContainerColor,
+                    borderColor = falseBorderColor,
+                    onClick = {
+                        if (!isAnswered) {
+                            isAnswered = true
+                            showNextButton = true
+                            selectedAnswer = false
+                            onAnswer(!correctAnswer, card.displayedAnswer)
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                )
+
+                TrueFalseButton(
+                    text = "ИСТИНА",
+                    containerColor = trueContainerColor,
+                    borderColor = trueBorderColor,
+                    onClick = {
+                        if (!isAnswered) {
+                            isAnswered = true
+                            showNextButton = true
+                            selectedAnswer = true
+                            onAnswer(correctAnswer, card.displayedAnswer)
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(50.dp))
+
+            NextOrSkipButton(
+                showNextButton = showNextButton,
+                onNextCard = {
+                    isAnswered = false
+                    selectedAnswer = null
+                    showNextButton = false
+                    onNextCard()
+                },
+                onSkip = {
+                    isAnswered = true
+                    showNextButton = true
+                    onSkip()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun TrueFalseButton(
+    text: String,
+    containerColor: Color,
+    borderColor: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = text,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+        Card(
+            onClick = onClick,
+            shape = MaterialTheme.shapes.medium,
+            border = BorderStroke(2.dp, borderColor),
+            colors = CardDefaults.cardColors(containerColor = containerColor)
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(150.dp)
+            ) {
+                Icon(
+                    painter = painterResource(
+                        id = if (text == "ИСТИНА") R.drawable.ic_true
+                        else R.drawable.ic_false
+                    ),
+                    contentDescription = null,
+                    tint = if (text == "ИСТИНА") MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.error,
+                    modifier = if (text == "ИСТИНА") Modifier.size(100.dp) else Modifier.size((70.dp))
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FillInTheBlankContent(
+    card: Card,
+    onAnswer: (Boolean, String?) -> Unit,
+    viewModel: TrainingViewModel
+) {
+    var userInput by remember(card.id) { mutableStateOf("") }
+    var isAnswered by remember(card.id) { mutableStateOf(false) }
+    var isCorrect by remember(card.id) { mutableStateOf(false) }
+
+    if (card.partialAnswer != null) {
+        Text(text = "${card.partialAnswer}")
+    }
+
+
+    OutlinedTextField(
+        value = userInput,
+        onValueChange = { userInput = it },
+        label = { Text("Введите ответ") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    )
+
+    Button(
+        onClick = {
+            if (!isAnswered) {
+                viewModel.checkFillInTheBlankAnswer(
+                    userInput = userInput,
+                    correctWords = card.missingWords
+                ) { result ->
+                    isCorrect = result
+                    isAnswered = true
+                    onAnswer(result, userInput)
+                }
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(text = "Проверить")
+    }
+
+    if (isAnswered) {
+        Text(
+            text = if (isCorrect) "Верно!" else "Неверно!",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (isCorrect) Color.Green else MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
