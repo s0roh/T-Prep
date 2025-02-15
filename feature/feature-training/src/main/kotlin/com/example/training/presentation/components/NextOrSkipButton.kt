@@ -9,14 +9,14 @@ import com.example.training.R
 
 @Composable
 internal fun NextOrSkipButton(
-    showNextButton: Boolean,
+    isAnswered: Boolean,
     onNextCard: () -> Unit,
     onSkip: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Button(
         onClick = {
-            if (showNextButton) {
+            if (isAnswered) {
                 onNextCard()
             } else {
                 onSkip()
@@ -24,6 +24,6 @@ internal fun NextOrSkipButton(
         },
         modifier = modifier
     ) {
-        Text(text = stringResource(if (showNextButton) R.string.next else R.string.skip))
+        Text(text = stringResource(if (isAnswered) R.string.next else R.string.skip))
     }
 }

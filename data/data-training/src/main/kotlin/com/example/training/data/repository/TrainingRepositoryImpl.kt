@@ -7,6 +7,7 @@ import com.example.database.models.ErrorDBO
 import com.example.database.models.HistoryDBO
 import com.example.database.models.Source
 import com.example.preferences.AuthPreferences
+import com.example.training.data.mapper.toDbo
 import com.example.training.data.mapper.toEntity
 import com.example.training.data.util.generatePartialAnswer
 import com.example.training.data.util.levenshteinDistance
@@ -142,6 +143,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
         incorrectAnswer: String?,
         source: Source,
         trainingSessionId: String,
+        trainingMode: TrainingMode
     ) {
         val userId = preferences.getUserId()
             ?: throw IllegalStateException("User ID not found in preferences")
@@ -167,7 +169,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 trainingSessionId = trainingSessionId,
                 deckId = deckId,
                 cardId = cardId,
-                incorrectAnswer = incorrectAnswer
+                incorrectAnswer = incorrectAnswer,
+                trainingMode = trainingMode.toDbo()
             )
             database.errorDao.insertError(error)
         }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
+import com.example.common.domain.entity.TrainingMode
 import com.example.database.models.Source
 import com.example.training.domain.CheckFillInTheBlankAnswerUseCase
 import com.example.training.domain.GetDeckByIdLocalUseCase
@@ -85,7 +86,7 @@ internal class TrainingViewModel @Inject constructor(
         }
     }
 
-    fun recordAnswer(isCorrect: Boolean, selectedAnswer: String? = null) {
+    fun recordAnswer(isCorrect: Boolean, selectedAnswer: String? = null, trainingMode: TrainingMode) {
         val currentState = screenState.value as? TrainingScreenState.Success ?: return
         screenState.value = currentState.copy(selectedAnswer = selectedAnswer)
         val currentCard = currentState.cards[currentState.currentCardIndex]
@@ -101,7 +102,8 @@ internal class TrainingViewModel @Inject constructor(
                 isCorrect = isCorrect,
                 incorrectAnswer = selectedAnswer,
                 source = currentSource,
-                trainingSessionId = trainingSessionId
+                trainingSessionId = trainingSessionId,
+                trainingMode = trainingMode
             )
         }
     }

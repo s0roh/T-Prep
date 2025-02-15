@@ -182,7 +182,6 @@ fun MainScreen(navController: NavHostController) {
             },
             trainingScreenContent = { deckId, source ->
                 TrainingScreen(
-                    paddingValues = paddingValues,
                     deckId = deckId,
                     source = source,
                     onTrainingResultsClick = { trainingSessionId ->

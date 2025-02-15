@@ -17,4 +17,11 @@ data class ErrorDBO(
     @ColumnInfo("deckId") val deckId: String,
     @ColumnInfo("cardId") val cardId: Int,
     @ColumnInfo("incorrectAnswer") val incorrectAnswer: String,
+    @ColumnInfo("trainingMode") val trainingMode: TrainingMode,
 )
+
+enum class TrainingMode {
+    MULTIPLE_CHOICE,
+    TRUE_FALSE,
+    FILL_IN_THE_BLANK
+}

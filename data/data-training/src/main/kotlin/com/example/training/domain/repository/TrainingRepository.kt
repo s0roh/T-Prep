@@ -24,6 +24,7 @@ interface TrainingRepository {
         incorrectAnswer: String? = null,
         source: Source,
         trainingSessionId: String,
+        trainingMode: TrainingMode
     )
 
     suspend fun checkFillInTheBlankAnswer(userInput: String, correctWords: List<String>): Boolean
