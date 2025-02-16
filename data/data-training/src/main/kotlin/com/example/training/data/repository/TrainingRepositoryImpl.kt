@@ -5,13 +5,22 @@ import com.example.database.TPrepDatabase
 import com.example.database.models.ErrorDBO
 import com.example.database.models.HistoryDBO
 import com.example.database.models.Source
+import com.example.database.models.TrainingMode
 import com.example.preferences.AuthPreferences
+import com.example.training.data.mapper.toDbo
 import com.example.training.data.mapper.toEntity
+import com.example.training.data.util.generatePartialAnswer
+import com.example.training.data.util.levenshteinDistance
+import com.example.training.data.util.normalizeText
+import com.example.training.domain.entity.TrainingCard
 import com.example.training.domain.entity.TrainingError
+import com.example.training.domain.entity.TrainingModes
 import com.example.training.domain.repository.TrainingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.math.max
+
 
 class TrainingRepositoryImpl @Inject internal constructor(
     private val database: TPrepDatabase,
@@ -22,10 +31,15 @@ class TrainingRepositoryImpl @Inject internal constructor(
         deckId: String,
         cards: List<Card>,
         source: Source,
-    ): List<Card> {
+        modes: Set<TrainingMode>
+    ): List<TrainingCard> {
+        require(modes.isNotEmpty()) { "At least one training mode must be selected" }
+
         return withContext(Dispatchers.IO) {
             val userId = preferences.getUserId()
                 ?: throw IllegalStateException("User ID not found in preferences")
+
+            // Сортировка карт по истории и коэффициентам
             val cardsWithSortingData = cards.map { card ->
                 val historyList = database.historyDao.getHistoryForCard(
                     cardId = card.id,
@@ -39,6 +53,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 card to Pair(isNew, coefficient)
             }
 
+            // Сортировка карт по приоритету и коэффициенту
             val sortedCards = cardsWithSortingData
                 .sortedWith(compareBy(
                     { if (it.second.first) NEW_CARD_PRIORITY else EXISTING_CARD_PRIORITY },
@@ -46,10 +61,74 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 ))
                 .map { it.first }
 
+            // Применение выбранного режима тренировки к каждой карте
             sortedCards.map { card ->
-                val wrongAnswers = generateWrongAnswers(card, sortedCards)
-                card.copy(wrongAnswers = wrongAnswers)
+                val selectedMode = modes.random() // Выбираем случайный режим
+                assignModeSpecificFields(card, selectedMode, sortedCards)
             }
+        }
+    }
+
+    private fun assignModeSpecificFields(
+        card: Card,
+        mode: TrainingMode,
+        allCards: List<Card>
+    ): TrainingCard {
+        return when (mode) {
+            TrainingMode.MULTIPLE_CHOICE -> TrainingCard(
+                id = card.id,
+                trainingMode = mode,
+                question = card.question,
+                answer = card.answer,
+                wrongAnswers = generateWrongAnswers(card, allCards)
+            )
+
+            TrainingMode.TRUE_FALSE -> {
+                val isCorrect = (0..1).random() == 1
+                val displayedAnswer = if (isCorrect) card.answer else generateWrongAnswers(
+                    card,
+                    allCards
+                ).firstOrNull() ?: card.answer
+                TrainingCard(
+                    id = card.id,
+                    trainingMode = mode,
+                    question = card.question,
+                    answer = card.answer,
+                    displayedAnswer = displayedAnswer,
+                )
+            }
+
+            TrainingMode.FILL_IN_THE_BLANK -> {
+                val (partialAnswer, missingWords) = generatePartialAnswer(card.answer)
+                TrainingCard(
+                    id = card.id,
+                    trainingMode = mode,
+                    question = card.question,
+                    answer = card.answer,
+                    partialAnswer = partialAnswer,
+                    missingWords = missingWords
+                )
+            }
+        }
+    }
+
+    override suspend fun checkFillInTheBlankAnswer(
+        userInput: String,
+        correctWords: List<String>
+    ): Boolean {
+        return withContext(Dispatchers.IO) {
+            val normalizedInput = normalizeText(userInput)
+            val normalizedCorrectText = normalizeText(correctWords.joinToString(" "))
+
+            if (normalizedInput.length < normalizedCorrectText.length * MIN_INPUT_LENGTH_PERCENT) {
+                return@withContext false
+            }
+
+            val maxAllowedErrors =
+                max(1, (normalizedCorrectText.length * MAX_ALLOWED_ERROR_PERCENT).toInt())
+
+            // Проверяем расстояние Левенштейна
+            levenshteinDistance(normalizedInput, normalizedCorrectText) <= maxAllowedErrors
         }
     }
 
@@ -76,6 +155,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
         incorrectAnswer: String?,
         source: Source,
         trainingSessionId: String,
+        trainingMode: TrainingMode
     ) {
         val userId = preferences.getUserId()
             ?: throw IllegalStateException("User ID not found in preferences")
@@ -101,10 +181,23 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 trainingSessionId = trainingSessionId,
                 deckId = deckId,
                 cardId = cardId,
-                incorrectAnswer = incorrectAnswer
+                incorrectAnswer = incorrectAnswer,
+                trainingMode = trainingMode
             )
             database.errorDao.insertError(error)
         }
+    }
+
+    override suspend fun saveTrainingModes(trainingModes: TrainingModes) {
+        database.trainingModesHistoryDao.saveTrainingModes(trainingModes.toDbo())
+    }
+
+    override suspend fun getTrainingModes(deckId: String): TrainingModes {
+        return database.trainingModesHistoryDao.getTrainingModes(deckId)?.toEntity()
+            ?: TrainingModes(
+                deckId,
+                TrainingMode.entries
+            )
     }
 
     override suspend fun getDeckNameAndTrainingSessionTime(trainingSessionId: String): Pair<String, Long> {
@@ -171,13 +264,15 @@ class TrainingRepositoryImpl @Inject internal constructor(
 
     companion object {
 
-        const val NEW_CARD_PRIORITY = 0
-        const val EXISTING_CARD_PRIORITY = 1
-        const val DEFAULT_COEFFICIENT = 2.5
-        const val MIN_COEFFICIENT = 1.3
-        const val MAX_COEFFICIENT = 2.5
-        const val COEFFICIENT_INCREMENT = 0.1
-        const val COEFFICIENT_DECREMENT = -0.2
-        const val WRONG_ANSWERS_COUNT = 3
+        private const val NEW_CARD_PRIORITY = 0
+        private const val EXISTING_CARD_PRIORITY = 1
+        private const val DEFAULT_COEFFICIENT = 2.5
+        private const val MIN_COEFFICIENT = 1.3
+        private const val MAX_COEFFICIENT = 2.5
+        private const val COEFFICIENT_INCREMENT = 0.1
+        private const val COEFFICIENT_DECREMENT = -0.2
+        private const val WRONG_ANSWERS_COUNT = 3
+        private const val MIN_INPUT_LENGTH_PERCENT = 0.5
+        private const val MAX_ALLOWED_ERROR_PERCENT = 0.3
     }
 }

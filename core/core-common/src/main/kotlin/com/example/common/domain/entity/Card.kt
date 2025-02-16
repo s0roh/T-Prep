@@ -1,5 +1,6 @@
 package com.example.common.domain.entity
 
+
 /**
  * Represents a flashcard used in the spaced repetition system.
  *

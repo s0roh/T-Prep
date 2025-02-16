@@ -93,6 +93,7 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
                     cardId = card.id
                 )
             }
+            database.trainingModesHistoryDao.deleteTrainingModes(deck.id)
             database.errorDao.deleteErrorForDeck(deck.id)
             database.historyDao.deleteHistoryForDeck(deck.id)
             if (existingDeck.serverDeckId == null) {

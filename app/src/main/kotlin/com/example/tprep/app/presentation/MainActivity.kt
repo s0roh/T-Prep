@@ -35,6 +35,7 @@ import com.example.tprep.app.presentation.utils.currentRoute
 import com.example.tprep.app.presentation.utils.shouldShowBottomNavigation
 import com.example.training.presentation.training.TrainingScreen
 import com.example.training.presentation.training_errors.TrainingErrorsScreen
+import com.example.training.presentation.training_mode_settings.TrainingModeSettingsScreen
 import com.example.training.presentation.training_results.TrainingResultsScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -177,12 +178,18 @@ fun MainScreen(navController: NavHostController) {
                                 deckName = deckName
                             )
                         )
+                    },
+                    onTrainingModeSettingsClick = { deckId ->
+                        navigationState.navigateWithSaveState(
+                            Screen.TrainingModeSettings(
+                                deckId = deckId
+                            )
+                        )
                     }
                 )
             },
             trainingScreenContent = { deckId, source ->
                 TrainingScreen(
-                    paddingValues = paddingValues,
                     deckId = deckId,
                     source = source,
                     onTrainingResultsClick = { trainingSessionId ->
@@ -210,7 +217,11 @@ fun MainScreen(navController: NavHostController) {
                         )
                     },
                     onErrorsClick = { trainingSessionId ->
-                        navigationState.navigateWithSaveState(Screen.TrainingErrors(trainingSessionId))
+                        navigationState.navigateWithSaveState(
+                            Screen.TrainingErrors(
+                                trainingSessionId
+                            )
+                        )
                     }
                 )
             },
@@ -219,6 +230,11 @@ fun MainScreen(navController: NavHostController) {
                     trainingSessionId = trainingSessionId,
                     onBackClick = { navigationState.navHostController.popBackStack() }
                 )
+            },
+            trainingModeSettingsScreenContent = { deckId ->
+                TrainingModeSettingsScreen(
+                    deckId = deckId,
+                    onBackClick = { navigationState.navHostController.popBackStack() })
             },
             localDecksScreenContent = {
                 LocalDecksScreen(

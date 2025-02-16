@@ -2,13 +2,16 @@ package com.example.training.presentation.training
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
 import com.example.database.models.Source
+import com.example.database.models.TrainingMode
+import com.example.training.domain.CheckFillInTheBlankAnswerUseCase
 import com.example.training.domain.GetDeckByIdLocalUseCase
 import com.example.training.domain.GetDeckByIdNetworkUseCase
+import com.example.training.domain.GetTrainingModesUseCase
 import com.example.training.domain.PrepareTrainingCardsUseCase
 import com.example.training.domain.RecordAnswerUseCase
+import com.example.training.domain.entity.TrainingCard
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +24,8 @@ internal class TrainingViewModel @Inject constructor(
     private val getDeckByIdLocalUseCase: GetDeckByIdLocalUseCase,
     private val prepareTrainingCardsUseCase: PrepareTrainingCardsUseCase,
     private val recordAnswerUseCase: RecordAnswerUseCase,
+    private val checkFillInTheBlankAnswerUseCase: CheckFillInTheBlankAnswerUseCase,
+    private val getTrainingModesUseCase: GetTrainingModesUseCase
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<TrainingScreenState>(TrainingScreenState.Initial)
@@ -47,12 +52,11 @@ internal class TrainingViewModel @Inject constructor(
             screenState.value = TrainingScreenState.Loading
 
             val cards = loadCardsForTraining(source)
-
             screenState.value = TrainingScreenState.Success(cards = cards)
         }
     }
 
-    private suspend fun loadCardsForTraining(source: Source): List<Card> {
+    private suspend fun loadCardsForTraining(source: Source): List<TrainingCard> {
         currentDeck = when (source) {
             Source.LOCAL -> {
                 getDeckByIdLocalUseCase(currentDeckId)
@@ -63,14 +67,37 @@ internal class TrainingViewModel @Inject constructor(
             }
         }
 
+        val trainingModes: Set<TrainingMode> = getTrainingModesUseCase(deckId =  currentDeckId)
+            .modes
+            .toSet()
+
         return prepareTrainingCardsUseCase(
             deckId = currentDeck.id,
             cards = currentDeck.cards,
-            source = currentSource
+            source = currentSource,
+            modes = trainingModes
         )
     }
 
-    fun recordAnswer(isCorrect: Boolean, selectedAnswer: String? = null) {
+    fun checkFillInTheBlankAnswer(
+        userInput: String,
+        correctWords: List<String>,
+        onResult: (Boolean) -> Unit
+    ) {
+        viewModelScope.launch(exceptionHandler) {
+            val result = checkFillInTheBlankAnswerUseCase(
+                userInput = userInput,
+                correctWords = correctWords
+            )
+            onResult(result)
+        }
+    }
+
+    fun recordAnswer(
+        isCorrect: Boolean,
+        selectedAnswer: String? = null,
+        trainingMode: TrainingMode
+    ) {
         val currentState = screenState.value as? TrainingScreenState.Success ?: return
         screenState.value = currentState.copy(selectedAnswer = selectedAnswer)
         val currentCard = currentState.cards[currentState.currentCardIndex]
@@ -86,7 +113,8 @@ internal class TrainingViewModel @Inject constructor(
                 isCorrect = isCorrect,
                 incorrectAnswer = selectedAnswer,
                 source = currentSource,
-                trainingSessionId = trainingSessionId
+                trainingSessionId = trainingSessionId,
+                trainingMode = trainingMode
             )
         }
     }

@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
+import com.example.database.models.TrainingMode
 import com.example.training.domain.entity.TrainingError
 import com.example.training.presentation.util.getFormattedTime
 
@@ -150,11 +151,19 @@ private fun ErrorItem(error: TrainingError) {
         val userAnswer = if (error.incorrectAnswer.isBlank()) "Вы не ответили на данный вопрос"
         else error.incorrectAnswer
 
-        AnswerSection(
-            title = "Ваш ответ:",
-            answer = userAnswer,
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        )
+        when(error.trainingMode) {
+            TrainingMode.MULTIPLE_CHOICE ->  {
+                AnswerSection(
+                    title = "Ваш ответ:",
+                    answer = userAnswer,
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            }
+            TrainingMode.TRUE_FALSE -> {}
+            TrainingMode.FILL_IN_THE_BLANK -> {}
+        }
+
+
     }
 }
 

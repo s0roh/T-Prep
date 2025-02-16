@@ -1,6 +1,7 @@
 package com.example.training.domain
 
 import com.example.database.models.Source
+import com.example.database.models.TrainingMode
 import com.example.training.domain.repository.TrainingRepository
 import javax.inject.Inject
 
@@ -17,6 +18,7 @@ internal class RecordAnswerUseCase @Inject constructor(
         incorrectAnswer: String? = null,
         source: Source,
         trainingSessionId: String,
+        trainingMode: TrainingMode
     ) =
         repository.recordAnswer(
             deckId = deckId,
@@ -26,6 +28,7 @@ internal class RecordAnswerUseCase @Inject constructor(
             isCorrect = isCorrect,
             incorrectAnswer = incorrectAnswer,
             source = source,
-            trainingSessionId = trainingSessionId
+            trainingSessionId = trainingSessionId,
+            trainingMode = trainingMode
         )
 }

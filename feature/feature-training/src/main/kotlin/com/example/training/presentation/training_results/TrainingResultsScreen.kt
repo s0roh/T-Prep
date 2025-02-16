@@ -26,7 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.R
-import com.example.common.ui.AppButton
+import com.example.common.ui.AppElevatedButton
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
 import com.example.database.models.Source
@@ -126,8 +126,8 @@ private fun TrainingResultsContent(
             state.nextTrainingTime?.let { NextTrainingReminderInfo(it) }
 
             if (state.errorsList.isNotEmpty()) {
-                AppButton(
-                    modifier = Modifier.fillMaxWidth(),
+                AppElevatedButton(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                     title = "Посмотреть ошибки",
                     shouldShowIcon = true,
                     iconResId = R.drawable.ic_loupe,
@@ -136,9 +136,11 @@ private fun TrainingResultsContent(
             }
 
             if (cameFromHistoryScreen && deckId != null && source != null) {
-                AppButton(
+                AppElevatedButton(
                     modifier = Modifier.fillMaxWidth(),
                     title = "Перейти к колоде",
+                    shouldShowIcon = true,
+                    iconResId = R.drawable.ic_inbox,
                     onClick = { onNavigateToDeck(deckId, source) }
                 )
             }

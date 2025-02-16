@@ -69,6 +69,11 @@ sealed interface Screen {
     ) : Screen
 
     @Serializable
+    data class TrainingModeSettings(
+        val deckId: String
+    ) : Screen
+
+    @Serializable
     data class Reminder(
         val deckId: String,
         val deckName: String,
