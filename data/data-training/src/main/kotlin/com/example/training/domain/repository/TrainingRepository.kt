@@ -1,19 +1,19 @@
 package com.example.training.domain.repository
 
 import com.example.common.domain.entity.Card
-import com.example.common.domain.entity.TrainingMode
 import com.example.database.models.Source
+import com.example.database.models.TrainingMode
+import com.example.training.domain.entity.TrainingCard
 import com.example.training.domain.entity.TrainingError
 
 interface TrainingRepository {
-
 
     suspend fun prepareTrainingCards(
         deckId: String,
         cards: List<Card>,
         source: Source,
         modes: Set<TrainingMode>
-    ): List<Card>
+    ): List<TrainingCard>
 
     suspend fun recordAnswer(
         deckId: String,

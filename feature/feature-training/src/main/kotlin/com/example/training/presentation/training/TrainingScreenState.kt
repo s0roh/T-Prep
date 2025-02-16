@@ -1,6 +1,6 @@
 package com.example.training.presentation.training
 
-import com.example.common.domain.entity.Card
+import com.example.training.domain.entity.TrainingCard
 
 sealed interface TrainingScreenState {
 
@@ -9,7 +9,7 @@ sealed interface TrainingScreenState {
     data object Loading : TrainingScreenState
 
     data class Success(
-        val cards: List<Card>,
+        val cards: List<TrainingCard>,
         val currentCardIndex: Int = 0,
         val correctAnswers: Int = 0,
         val selectedAnswer: String? = null

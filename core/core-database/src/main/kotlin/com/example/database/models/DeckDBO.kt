@@ -2,10 +2,16 @@ package com.example.database.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.UUID
 
-@Entity(tableName = "decks")
+@Entity(
+    tableName = "decks",
+    indices = [
+        Index(value = ["isDeleted"])
+    ]
+)
 data class DeckDBO(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     @ColumnInfo("serverDeckId") val serverDeckId: String?,

@@ -1,17 +1,17 @@
 package com.example.training.data.repository
 
 import com.example.common.domain.entity.Card
-import com.example.common.domain.entity.TrainingMode
 import com.example.database.TPrepDatabase
 import com.example.database.models.ErrorDBO
 import com.example.database.models.HistoryDBO
 import com.example.database.models.Source
+import com.example.database.models.TrainingMode
 import com.example.preferences.AuthPreferences
-import com.example.training.data.mapper.toDbo
 import com.example.training.data.mapper.toEntity
 import com.example.training.data.util.generatePartialAnswer
 import com.example.training.data.util.levenshteinDistance
 import com.example.training.data.util.normalizeText
+import com.example.training.domain.entity.TrainingCard
 import com.example.training.domain.entity.TrainingError
 import com.example.training.domain.repository.TrainingRepository
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +30,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
         cards: List<Card>,
         source: Source,
         modes: Set<TrainingMode>
-    ): List<Card> {
+    ): List<TrainingCard> {
         require(modes.isNotEmpty()) { "At least one training mode must be selected" }
 
         return withContext(Dispatchers.IO) {
@@ -71,10 +71,13 @@ class TrainingRepositoryImpl @Inject internal constructor(
         card: Card,
         mode: TrainingMode,
         allCards: List<Card>
-    ): Card {
+    ): TrainingCard {
         return when (mode) {
-            TrainingMode.MULTIPLE_CHOICE -> card.copy(
+            TrainingMode.MULTIPLE_CHOICE -> TrainingCard(
+                id = card.id,
                 trainingMode = mode,
+                question = card.question,
+                answer = card.answer,
                 wrongAnswers = generateWrongAnswers(card, allCards)
             )
 
@@ -84,16 +87,22 @@ class TrainingRepositoryImpl @Inject internal constructor(
                     card,
                     allCards
                 ).firstOrNull() ?: card.answer
-                card.copy(
+                TrainingCard(
+                    id = card.id,
                     trainingMode = mode,
+                    question = card.question,
+                    answer = card.answer,
                     displayedAnswer = displayedAnswer,
                 )
             }
 
             TrainingMode.FILL_IN_THE_BLANK -> {
                 val (partialAnswer, missingWords) = generatePartialAnswer(card.answer)
-                card.copy(
+                TrainingCard(
+                    id = card.id,
                     trainingMode = mode,
+                    question = card.question,
+                    answer = card.answer,
                     partialAnswer = partialAnswer,
                     missingWords = missingWords
                 )
@@ -170,7 +179,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 deckId = deckId,
                 cardId = cardId,
                 incorrectAnswer = incorrectAnswer,
-                trainingMode = trainingMode.toDbo()
+                trainingMode = trainingMode
             )
             database.errorDao.insertError(error)
         }

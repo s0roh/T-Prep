@@ -19,6 +19,7 @@ import com.example.localdecks.domain.usecase.SyncUpdateDeckUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @HiltWorker
@@ -38,6 +39,7 @@ class SyncWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         return try {
             Log.d("SyncWorker", "Запущена синхронизация данных")
+            delay(500L)
             val syncMetadataList = getSyncMetadataList()
             syncMetadataList.forEach { metadata ->
                 withContext(Dispatchers.IO) {

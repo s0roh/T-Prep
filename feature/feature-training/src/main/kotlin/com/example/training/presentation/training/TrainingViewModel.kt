@@ -2,15 +2,15 @@ package com.example.training.presentation.training
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
-import com.example.common.domain.entity.TrainingMode
 import com.example.database.models.Source
+import com.example.database.models.TrainingMode
 import com.example.training.domain.CheckFillInTheBlankAnswerUseCase
 import com.example.training.domain.GetDeckByIdLocalUseCase
 import com.example.training.domain.GetDeckByIdNetworkUseCase
 import com.example.training.domain.PrepareTrainingCardsUseCase
 import com.example.training.domain.RecordAnswerUseCase
+import com.example.training.domain.entity.TrainingCard
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,7 +54,7 @@ internal class TrainingViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadCardsForTraining(source: Source): List<Card> {
+    private suspend fun loadCardsForTraining(source: Source): List<TrainingCard> {
         currentDeck = when (source) {
             Source.LOCAL -> {
                 getDeckByIdLocalUseCase(currentDeckId)

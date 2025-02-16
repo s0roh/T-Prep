@@ -1,5 +1,6 @@
 package com.example.training.presentation.training
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
@@ -7,18 +8,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -38,20 +34,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.common.domain.entity.Card
-import com.example.common.domain.entity.TrainingMode
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.ErrorState
 import com.example.common.ui.LoadingState
 import com.example.common.ui.NavigationIconType
 import com.example.database.models.Source
-import com.example.training.presentation.components.MultipleChoiceButton
+import com.example.database.models.TrainingMode
+import com.example.training.domain.entity.TrainingCard
+import com.example.training.presentation.components.MultipleChoiceAnswerList
 import com.example.training.presentation.components.NextOrSkipButton
 import com.example.training.presentation.components.QuestionArea
-import com.example.training.presentation.components.TrueFalseButton
-import com.example.training.presentation.components.getAnswerColor
-import com.example.training.presentation.components.getBorderColor
-import com.example.training.presentation.components.getContainerColor
+import com.example.training.presentation.components.TrueFalseAnswerSection
+import com.example.training.presentation.components.TrueFalseButtons
+import com.example.training.presentation.util.handleAnswerSelection
 import com.example.training.presentation.util.launchShakeAnimation
 import kotlinx.coroutines.launch
 
@@ -95,6 +90,7 @@ fun TrainingScreen(
                         )
                     },
                     onSkip = { trainingMode -> viewModel.recordAnswer(false, "", trainingMode) },
+                    onExit = { viewModel.exitTraining() },
                     onNextCard = { viewModel.moveToNextCardOrFinish() },
                     viewModel = viewModel
                 )
@@ -125,9 +121,11 @@ private fun TrainingCardsContent(
     currentState: TrainingScreenState.Success,
     onAnswer: (Boolean, String?, TrainingMode) -> Unit,
     onSkip: (TrainingMode) -> Unit,
+    onExit: () -> Unit,
     onNextCard: () -> Unit,
     viewModel: TrainingViewModel
 ) {
+    BackHandler(onBack = onExit)
     val currentCard = currentState.cards[currentState.currentCardIndex]
 
     AnimatedContent(
@@ -177,8 +175,8 @@ private fun TrainingCardsContent(
 }
 
 @Composable
-fun MultipleChoiceContent(
-    card: Card,
+private fun MultipleChoiceContent(
+    card: TrainingCard,
     onAnswer: (Boolean, String?, TrainingMode) -> Unit,
     onSkip: (TrainingMode) -> Unit,
     onNextCard: () -> Unit,
@@ -198,45 +196,24 @@ fun MultipleChoiceContent(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(horizontal = 16.dp),
-            contentPadding = PaddingValues(vertical = 16.dp)
-        ) {
-            items(shuffledAnswers) { answer ->
-
-                MultipleChoiceButton(
-                    modifier = Modifier
-                        .offset(x = shakeOffset.value.dp),
-                    answer = answer,
-                    containerColor = getAnswerColor(
-                        isAnswered,
-                        answer,
-                        card.answer,
-                        selectedAnswer
-                    ),
-                    borderColor = getBorderColor(isAnswered, answer, card.answer, selectedAnswer),
-                    isEnabled = !isAnswered,
-                    onClick = {
-                        if (!isAnswered) {
-                            selectedAnswer = answer
-                            isAnswered = true
-                            onAnswer(answer == card.answer, answer, TrainingMode.MULTIPLE_CHOICE)
-                            if (answer != card.answer) coroutineScope.launch {
-                                launchShakeAnimation(
-                                    shakeOffset
-                                )
-                            }
-                        }
-                    }
+        MultipleChoiceAnswerList(
+            answers = shuffledAnswers,
+            isAnswered = isAnswered,
+            selectedAnswer = selectedAnswer,
+            correctAnswer = card.answer,
+            shakeOffset = shakeOffset,
+            onAnswerSelected = { answer ->
+                handleAnswerSelection(
+                    answer, card.answer, onAnswer, shakeOffset, coroutineScope,
+                    onSelected = { selectedAnswer = it; isAnswered = true }
                 )
-            }
-        }
+            },
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 16.dp)
+        )
 
         NextOrSkipButton(
             isAnswered = isAnswered,
@@ -257,8 +234,8 @@ fun MultipleChoiceContent(
 }
 
 @Composable
-fun TrueFalseContent(
-    card: Card,
+private fun TrueFalseContent(
+    card: TrainingCard,
     onAnswer: (Boolean, String?, TrainingMode) -> Unit,
     onSkip: (TrainingMode) -> Unit,
     onNextCard: () -> Unit
@@ -273,110 +250,57 @@ fun TrueFalseContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 25.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = "Возможный ответ:",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = card.displayedAnswer ?: "Ошибка отображения",
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp)
-            )
-        }
+        TrueFalseAnswerSection(
+            displayedAnswer = card.displayedAnswer,
+            modifier = Modifier.fillMaxWidth()
+        )
 
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .offset(x = shakeOffset.value.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                val falseContainerColor =
-                    getContainerColor(isAnswered, selectedAnswer, false, correctAnswer)
-                val trueContainerColor =
-                    getContainerColor(isAnswered, selectedAnswer, true, correctAnswer)
+        Spacer(modifier = Modifier.weight(1f))
 
-                val falseBorderColor =
-                    getBorderColor(isAnswered, selectedAnswer, false, correctAnswer)
-                val trueBorderColor =
-                    getBorderColor(isAnswered, selectedAnswer, true, correctAnswer)
-
-                TrueFalseButton(
-                    text = "ЛОЖЬ",
-                    containerColor = falseContainerColor,
-                    borderColor = falseBorderColor,
-                    onClick = {
-                        if (!isAnswered) {
-                            isAnswered = true
-                            selectedAnswer = false
-                            val isCorrect = !correctAnswer
-                            onAnswer(isCorrect, card.displayedAnswer, TrainingMode.TRUE_FALSE)
-
-                            if (!isCorrect) {
-                                coroutineScope.launch {
-                                    launchShakeAnimation(shakeOffset)
-                                }
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp)
-                )
-
-                TrueFalseButton(
-                    text = "ИСТИНА",
-                    containerColor = trueContainerColor,
-                    borderColor = trueBorderColor,
-                    onClick = {
-                        if (!isAnswered) {
-                            isAnswered = true
-                            selectedAnswer = true
-                            val isCorrect = correctAnswer
-                            onAnswer(isCorrect, card.displayedAnswer,TrainingMode.TRUE_FALSE)
-
-                            if (!isCorrect) {
-                                coroutineScope.launch {
-                                    launchShakeAnimation(shakeOffset)
-                                }
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(50.dp))
-
-            NextOrSkipButton(
-                isAnswered = isAnswered,
-                onNextCard = {
-                    isAnswered = false
-                    selectedAnswer = null
-                    onNextCard()
-                },
-                onSkip = {
+        TrueFalseButtons(
+            isAnswered = isAnswered,
+            selectedAnswer = selectedAnswer,
+            correctAnswer = correctAnswer,
+            shakeOffset = shakeOffset,
+            onAnswerSelected = { answer ->
+                if (!isAnswered) {
                     isAnswered = true
-                    onSkip(TrainingMode.TRUE_FALSE)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 20.dp)
-            )
-        }
+                    selectedAnswer = answer
+                    val isCorrect = answer == correctAnswer
+                    onAnswer(isCorrect, card.displayedAnswer, TrainingMode.TRUE_FALSE)
+                    if (!isCorrect) {
+                        coroutineScope.launch { launchShakeAnimation(shakeOffset) }
+                    }
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(50.dp))
+
+        NextOrSkipButton(
+            isAnswered = isAnswered,
+            onNextCard = {
+                isAnswered = false
+                selectedAnswer = null
+                onNextCard()
+            },
+            onSkip = {
+                isAnswered = true
+                onSkip(TrainingMode.TRUE_FALSE)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 20.dp)
+        )
     }
 }
 
+
 @Composable
 private fun FillInTheBlankContent(
-    card: Card,
+    card: TrainingCard,
     onAnswer: (Boolean, String?) -> Unit,
     viewModel: TrainingViewModel
 ) {
