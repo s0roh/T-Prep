@@ -15,10 +15,7 @@ internal class PrepareTrainingCardsUseCase @Inject constructor(
         deckId: String,
         cards: List<Card>,
         source: Source,
-        modes: Set<TrainingMode> = setOf<TrainingMode>(
-            TrainingMode.MULTIPLE_CHOICE,
-            TrainingMode.TRUE_FALSE
-        )
+        modes: Set<TrainingMode>
     ): List<TrainingCard> =
         repository.prepareTrainingCards(
             deckId = deckId,

@@ -7,12 +7,14 @@ import com.example.database.models.HistoryDBO
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
 import com.example.preferences.AuthPreferences
+import com.example.training.data.mapper.toDbo
 import com.example.training.data.mapper.toEntity
 import com.example.training.data.util.generatePartialAnswer
 import com.example.training.data.util.levenshteinDistance
 import com.example.training.data.util.normalizeText
 import com.example.training.domain.entity.TrainingCard
 import com.example.training.domain.entity.TrainingError
+import com.example.training.domain.entity.TrainingModes
 import com.example.training.domain.repository.TrainingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -122,7 +124,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 return@withContext false
             }
 
-            val maxAllowedErrors = max(1, (normalizedCorrectText.length * MAX_ALLOWED_ERROR_PERCENT).toInt())
+            val maxAllowedErrors =
+                max(1, (normalizedCorrectText.length * MAX_ALLOWED_ERROR_PERCENT).toInt())
 
             // Проверяем расстояние Левенштейна
             levenshteinDistance(normalizedInput, normalizedCorrectText) <= maxAllowedErrors
@@ -183,6 +186,18 @@ class TrainingRepositoryImpl @Inject internal constructor(
             )
             database.errorDao.insertError(error)
         }
+    }
+
+    override suspend fun saveTrainingModes(trainingModes: TrainingModes) {
+        database.trainingModesHistoryDao.saveTrainingModes(trainingModes.toDbo())
+    }
+
+    override suspend fun getTrainingModes(deckId: String): TrainingModes {
+        return database.trainingModesHistoryDao.getTrainingModes(deckId)?.toEntity()
+            ?: TrainingModes(
+                deckId,
+                TrainingMode.entries
+            )
     }
 
     override suspend fun getDeckNameAndTrainingSessionTime(trainingSessionId: String): Pair<String, Long> {

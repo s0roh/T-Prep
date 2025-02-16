@@ -10,12 +10,14 @@ import com.example.database.dao.DeckDao
 import com.example.database.dao.ErrorDao
 import com.example.database.dao.HistoryDao
 import com.example.database.dao.SyncMetadataDao
+import com.example.database.dao.TrainingModesHistoryDao
 import com.example.database.dao.TrainingReminderDao
 import com.example.database.models.CardDBO
 import com.example.database.models.DeckDBO
 import com.example.database.models.ErrorDBO
 import com.example.database.models.HistoryDBO
 import com.example.database.models.SyncMetadataDBO
+import com.example.database.models.TrainingModesHistoryDBO
 import com.example.database.models.TrainingReminderDBO
 import com.example.database.utils.Converters
 
@@ -37,6 +39,9 @@ class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase
 
     val trainingReminderDao: TrainingReminderDao
         get() = database.trainingReminderDao()
+
+    val trainingModesHistoryDao: TrainingModesHistoryDao
+        get() = database.trainingModesHistoryDao()
 }
 
 @Database(
@@ -47,9 +52,9 @@ class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase
         ErrorDBO::class,
         SyncMetadataDBO::class,
         TrainingReminderDBO::class,
-
+        TrainingModesHistoryDBO::class
     ],
-    version = 1,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -60,6 +65,7 @@ internal abstract class TPrepRoomDatabase : RoomDatabase() {
     abstract fun cardDao(): CardDao
     abstract fun syncMetadataDao(): SyncMetadataDao
     abstract fun trainingReminderDao(): TrainingReminderDao
+    abstract fun trainingModesHistoryDao(): TrainingModesHistoryDao
 }
 
 fun TPrepDatabase(applicationContext: Context): TPrepDatabase {

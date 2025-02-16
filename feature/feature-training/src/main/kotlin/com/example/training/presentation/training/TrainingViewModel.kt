@@ -8,6 +8,7 @@ import com.example.database.models.TrainingMode
 import com.example.training.domain.CheckFillInTheBlankAnswerUseCase
 import com.example.training.domain.GetDeckByIdLocalUseCase
 import com.example.training.domain.GetDeckByIdNetworkUseCase
+import com.example.training.domain.GetTrainingModesUseCase
 import com.example.training.domain.PrepareTrainingCardsUseCase
 import com.example.training.domain.RecordAnswerUseCase
 import com.example.training.domain.entity.TrainingCard
@@ -23,7 +24,8 @@ internal class TrainingViewModel @Inject constructor(
     private val getDeckByIdLocalUseCase: GetDeckByIdLocalUseCase,
     private val prepareTrainingCardsUseCase: PrepareTrainingCardsUseCase,
     private val recordAnswerUseCase: RecordAnswerUseCase,
-    private val checkFillInTheBlankAnswerUseCase: CheckFillInTheBlankAnswerUseCase
+    private val checkFillInTheBlankAnswerUseCase: CheckFillInTheBlankAnswerUseCase,
+    private val getTrainingModesUseCase: GetTrainingModesUseCase
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<TrainingScreenState>(TrainingScreenState.Initial)
@@ -65,10 +67,15 @@ internal class TrainingViewModel @Inject constructor(
             }
         }
 
+        val trainingModes: Set<TrainingMode> = getTrainingModesUseCase(deckId =  currentDeckId)
+            .modes
+            .toSet()
+
         return prepareTrainingCardsUseCase(
             deckId = currentDeck.id,
             cards = currentDeck.cards,
-            source = currentSource
+            source = currentSource,
+            modes = trainingModes
         )
     }
 
@@ -86,7 +93,11 @@ internal class TrainingViewModel @Inject constructor(
         }
     }
 
-    fun recordAnswer(isCorrect: Boolean, selectedAnswer: String? = null, trainingMode: TrainingMode) {
+    fun recordAnswer(
+        isCorrect: Boolean,
+        selectedAnswer: String? = null,
+        trainingMode: TrainingMode
+    ) {
         val currentState = screenState.value as? TrainingScreenState.Success ?: return
         screenState.value = currentState.copy(selectedAnswer = selectedAnswer)
         val currentCard = currentState.cards[currentState.currentCardIndex]

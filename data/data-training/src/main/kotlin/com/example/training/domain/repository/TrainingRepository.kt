@@ -5,6 +5,7 @@ import com.example.database.models.Source
 import com.example.database.models.TrainingMode
 import com.example.training.domain.entity.TrainingCard
 import com.example.training.domain.entity.TrainingError
+import com.example.training.domain.entity.TrainingModes
 
 interface TrainingRepository {
 
@@ -26,6 +27,10 @@ interface TrainingRepository {
         trainingSessionId: String,
         trainingMode: TrainingMode
     )
+
+    suspend fun saveTrainingModes(trainingModes: TrainingModes)
+
+    suspend fun getTrainingModes(deckId: String): TrainingModes
 
     suspend fun checkFillInTheBlankAnswer(userInput: String, correctWords: List<String>): Boolean
 
