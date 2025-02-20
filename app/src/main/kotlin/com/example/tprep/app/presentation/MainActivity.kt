@@ -15,15 +15,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.auth.presentation.auth.AuthScreen
 import com.example.database.models.Source
-import com.example.decks.presentation.details.DeckDetailScreen
-import com.example.decks.presentation.publicdecks.PublicDecksScreen
+import com.example.feature.decks.presentation.details.DeckDetailScreen
+import com.example.feature.decks.presentation.publicdecks.PublicDecksScreen
 import com.example.feature.profile.presentation.ProfileScreen
 import com.example.feature.reminder.presentation.add_reminder.AddReminderScreen
 import com.example.feature.reminder.presentation.reminder.ReminderScreen
-import com.example.history.presentation.history.HistoryScreen
-import com.example.localdecks.presentation.add_edit_card.AddEditCardScreen
-import com.example.localdecks.presentation.add_edit_deck.AddEditDeckScreen
-import com.example.localdecks.presentation.local_decks.LocalDecksScreen
+import com.example.feature.history.history.HistoryScreen
+import com.example.feature.localdecks.presentation.add_edit_card.AddEditCardScreen
+import com.example.feature.localdecks.presentation.add_edit_deck.AddEditDeckScreen
+import com.example.feature.localdecks.presentation.local_decks.LocalDecksScreen
 import com.example.localdecks.util.startSyncWork
 import com.example.tprep.app.navigation.AppNavGraph
 import com.example.tprep.app.navigation.Screen
@@ -33,10 +33,10 @@ import com.example.tprep.app.presentation.components.AppBottomNavigation
 import com.example.tprep.app.presentation.ui.theme.TPrepTheme
 import com.example.tprep.app.presentation.utils.currentRoute
 import com.example.tprep.app.presentation.utils.shouldShowBottomNavigation
-import com.example.training.presentation.training.TrainingScreen
-import com.example.training.presentation.training_errors.TrainingErrorsScreen
-import com.example.training.presentation.training_mode_settings.TrainingModeSettingsScreen
-import com.example.training.presentation.training_results.TrainingResultsScreen
+import com.example.feature.training.presentation.training.TrainingScreen
+import com.example.feature.training.presentation.training_errors.TrainingErrorsScreen
+import com.example.feature.training.presentation.training_mode_settings.TrainingModeSettingsScreen
+import com.example.feature.training.presentation.training_results.TrainingResultsScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
