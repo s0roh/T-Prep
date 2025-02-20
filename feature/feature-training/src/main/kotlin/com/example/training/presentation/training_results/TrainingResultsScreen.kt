@@ -32,8 +32,8 @@ import com.example.common.ui.NavigationIconType
 import com.example.database.models.Source
 import com.example.training.presentation.components.AnimatedDonutChart
 import com.example.training.presentation.components.ChartSegment
-import com.example.training.presentation.util.getCardWordForm
-import com.example.training.presentation.util.getFormattedTime
+import com.example.common.util.getCardWordForm
+import com.example.common.util.getFormattedTime
 
 @Composable
 fun TrainingResultsScreen(

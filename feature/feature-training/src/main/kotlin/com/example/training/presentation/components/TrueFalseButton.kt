@@ -35,7 +35,9 @@ internal fun TrueFalseButtons(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().offset(x = shakeOffset.value.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .offset(x = shakeOffset.value.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         TrueFalseButtonItem(
@@ -44,7 +46,9 @@ internal fun TrueFalseButtons(
             selectedAnswer = selectedAnswer,
             correctAnswer = correctAnswer,
             onClick = { onAnswerSelected(false) },
-            modifier = Modifier.padding(horizontal = 8.dp)
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .weight(1f)
         )
         TrueFalseButtonItem(
             text = "ИСТИНА",
@@ -52,7 +56,9 @@ internal fun TrueFalseButtons(
             selectedAnswer = selectedAnswer,
             correctAnswer = correctAnswer,
             onClick = { onAnswerSelected(true) },
-            modifier = Modifier.padding(horizontal = 8.dp)
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .weight(1f)
         )
     }
 }
@@ -66,7 +72,8 @@ private fun TrueFalseButtonItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val containerColor = getContainerColor(isAnswered, selectedAnswer, text == "ИСТИНА", correctAnswer)
+    val containerColor =
+        getContainerColor(isAnswered, selectedAnswer, text == "ИСТИНА", correctAnswer)
     val borderColor = getBorderColor(isAnswered, selectedAnswer, text == "ИСТИНА", correctAnswer)
 
     Column(

@@ -3,30 +3,35 @@ package com.example.decks.presentation.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.domain.entity.Card
-import com.example.common.domain.entity.Deck
 import com.example.database.models.Source
 import com.example.decks.domain.usecase.DeleteCardUseCase
 import com.example.decks.domain.usecase.DeleteDeckUseCase
 import com.example.decks.domain.usecase.GetDeckByIdFromLocalUseCase
 import com.example.decks.domain.usecase.GetDeckByIdFromNetworkUseCase
+import com.example.decks.domain.usecase.GetNextTrainingTimeUseCase
+import com.example.decks.domain.usecase.UpdateDeckUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("CAST_NEVER_SUCCEEDS")
 @HiltViewModel
 internal class DeckDetailViewModel @Inject constructor(
     private val getDeckByIdFromNetworkUseCase: GetDeckByIdFromNetworkUseCase,
     private val getDeckByIdFromLocalUseCase: GetDeckByIdFromLocalUseCase,
     private val deleteDeckUseCase: DeleteDeckUseCase,
-    private val deleteCardUseCase: DeleteCardUseCase
+    private val deleteCardUseCase: DeleteCardUseCase,
+    private val getNextTrainingTimeUseCase: GetNextTrainingTimeUseCase,
+    private val updateDeckUseCase: UpdateDeckUseCase
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<DeckDetailScreenState>(DeckDetailScreenState.Loading)
         private set
 
     private var currentDeckId: String? = null
+    private var nextTrainingTime: Long? = null
 
     private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
         screenState.value = DeckDetailScreenState.Error
@@ -37,25 +42,59 @@ internal class DeckDetailViewModel @Inject constructor(
             Source.LOCAL -> {
                 currentDeckId = deckId
                 viewModelScope.launch {
-                    getDeckByIdFromLocalUseCase(deckId)?.also {
-                        screenState.value = DeckDetailScreenState.Success(it)
+                    nextTrainingTime = getNextTrainingTimeUseCase(
+                        deckId = deckId,
+                        source = source
+                    )
+                    getDeckByIdFromLocalUseCase(deckId)?.also { deck ->
+                        screenState.value = DeckDetailScreenState.Success(
+                            deck = deck,
+                            nextTrainingTime = nextTrainingTime
+                        )
                     }
                 }
             }
 
             Source.NETWORK -> {
                 viewModelScope.launch(exceptionHandler) {
-                    getDeckByIdFromNetworkUseCase(deckId).also {
-                        screenState.value = DeckDetailScreenState.Success(it)
+                    nextTrainingTime = getNextTrainingTimeUseCase(
+                        deckId = deckId,
+                        source = source
+                    )
+                    getDeckByIdFromNetworkUseCase(deckId).also { deck ->
+                        screenState.value = DeckDetailScreenState.Success(
+                            deck = deck,
+                            nextTrainingTime = nextTrainingTime
+                        )
                     }
                 }
             }
         }
     }
 
-    fun deleteDeck(deck: Deck) {
+    fun changeDeckPrivacy() {
+        val currentState = screenState.value
+        if (currentState !is DeckDetailScreenState.Success) {
+            throw IllegalStateException("deleteDeck called in an invalid state")
+        }
+
+        val updatedDeck = currentState.deck.copy(isPublic = !currentState.deck.isPublic)
+
         viewModelScope.launch(exceptionHandler) {
-            deleteDeckUseCase(deck)
+            updateDeckUseCase(deck = updatedDeck)
+            screenState.value = currentState.copy(deck = updatedDeck)
+        }
+    }
+
+
+    fun deleteDeck() {
+        val currentState = screenState.value
+        if (currentState !is DeckDetailScreenState.Success) {
+            throw IllegalStateException("deleteDeck called in an invalid state")
+        }
+
+        viewModelScope.launch(exceptionHandler) {
+            deleteDeckUseCase(currentState.deck)
         }
     }
 
@@ -63,8 +102,11 @@ internal class DeckDetailViewModel @Inject constructor(
         viewModelScope.launch(exceptionHandler) {
             deleteCardUseCase(card)
             currentDeckId?.also {
-                getDeckByIdFromLocalUseCase(it)?.also {
-                    screenState.value = DeckDetailScreenState.Success(it)
+                getDeckByIdFromLocalUseCase(it)?.also { deck ->
+                    screenState.value = DeckDetailScreenState.Success(
+                        deck = deck,
+                        nextTrainingTime = nextTrainingTime
+                    )
                 }
             }
         }

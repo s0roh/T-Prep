@@ -140,7 +140,7 @@ fun MainScreen(navController: NavHostController) {
                 DeckDetailScreen(
                     deckId = temporaryDeckId,
                     source = source,
-                    paddingValues = paddingValues,
+                    onBackClick = { navigationState.navHostController.popBackStack() },
                     onStartTraining = { deckId ->
                         navigationState.navigateWithSaveState(
                             Screen.Training(
@@ -149,7 +149,6 @@ fun MainScreen(navController: NavHostController) {
                             )
                         )
                     },
-                    onDeleteDeck = { navigationState.navHostController.popBackStack() },
                     onEditDeck = { deckId ->
                         navigationState.navigateWithSaveState(Screen.AddEditDeck(deckId = deckId))
                     },

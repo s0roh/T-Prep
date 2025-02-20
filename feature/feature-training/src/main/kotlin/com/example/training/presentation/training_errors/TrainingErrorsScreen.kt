@@ -42,7 +42,7 @@ import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
 import com.example.database.models.TrainingMode
 import com.example.training.domain.entity.TrainingError
-import com.example.training.presentation.util.getFormattedTime
+import com.example.common.util.getFormattedTime
 
 @Composable
 fun TrainingErrorsScreen(

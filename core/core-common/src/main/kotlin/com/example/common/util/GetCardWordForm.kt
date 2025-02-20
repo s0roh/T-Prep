@@ -1,7 +1,6 @@
-package com.example.training.presentation.util
+package com.example.common.util
 
-
-internal fun getCardWordForm(count: Int): String {
+fun getCardWordForm(count: Int): String {
     val lastDigit = count % 10
     val lastTwoDigits = count % 100
 
