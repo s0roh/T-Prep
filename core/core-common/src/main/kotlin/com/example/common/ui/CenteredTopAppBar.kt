@@ -89,7 +89,7 @@ fun CenteredTopAppBar(
                 }
 
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    showActions?.let {
+                    if (showActions == true) {
                         onRenameDeck?.let {
                             DropdownMenuItem(
                                 text = { Text("Изменить название") },
@@ -103,7 +103,7 @@ fun CenteredTopAppBar(
                             )
                         }
                     }
-                    showActions?.let {
+                    if (showActions == true) {
                         onChangePrivacy?.let {
                             DropdownMenuItem(
                                 text = {
@@ -139,7 +139,7 @@ fun CenteredTopAppBar(
                             }
                         )
                     }
-                    showActions?.let {
+                    if (showActions == true) {
                         onDeleteDeck?.let {
                             DropdownMenuItem(
                                 text = { Text("Удалить") },

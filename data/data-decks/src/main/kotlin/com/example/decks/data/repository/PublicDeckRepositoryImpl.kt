@@ -4,9 +4,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.common.domain.entity.Deck
-import com.example.database.TPrepDatabase
-import com.example.database.models.Source
 import com.example.decks.data.mapper.toEntity
+import com.example.decks.domain.entity.PublicDeck
 import com.example.decks.domain.repository.PublicDeckRepository
 import com.example.network.api.ApiService
 import com.example.preferences.AuthRequestWrapper
@@ -24,7 +23,7 @@ class PublicDeckRepositoryImpl @Inject internal constructor(
         }
     }
 
-    override fun getPublicDecks(): Flow<PagingData<Deck>> {
+    override fun getPublicDecks(): Flow<PagingData<PublicDeck>> {
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -32,7 +31,12 @@ class PublicDeckRepositoryImpl @Inject internal constructor(
                 prefetchDistance = PREFETCH_DISTANCE,
                 initialLoadSize = INITIAL_LOAD_SIZE
             ),
-            pagingSourceFactory = { PublicDecksPagingSource(apiService) }
+            pagingSourceFactory = {
+                PublicDecksPagingSource(
+                    apiService = apiService,
+                    authRequestWrapper = authRequestWrapper
+                )
+            }
         ).flow
     }
 

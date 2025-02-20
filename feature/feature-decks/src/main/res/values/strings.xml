@@ -16,4 +16,10 @@
     <string name="cancel">Отмена</string>
     <string name="confirm_delete_deck">Вы уверены, что хотите удалить эту колоду?</string>
     <string name="confirm_delete_card">Вы уверены, что хотите удалить эту карточку?</string>
+    <string name="alert_dialog_private_title">Сделать колоду приватной?</string>
+    <string name="alert_dialog_private_message">После изменения приватности только Вы сможете видеть и использовать эту колоду. Другие пользователи потеряют доступ к ней.</string>
+    <string name="alert_dialog_public_title">Опубликовать колоду?</string>
+    <string name="alert_dialog_public_message">После публикации все пользователи смогут видеть содержимое Вашей колоды и запланировать тренировку на ней.</string>
+    <string name="delete_deck_title">Удалить колоду?</string>
+    <string name="delete_deck_message">В случае удаления, колода не сможет быть восстановлена</string>
 </resources>

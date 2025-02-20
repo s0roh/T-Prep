@@ -131,14 +131,8 @@ fun MainScreen(navController: NavHostController) {
                 )
             },
             deckDetailsScreenContent = { deckId, source ->
-                // TODO Заменить временное значение deckId = 2 на реальный идентификатор,
-                // получаемый из параметра deckId. Сейчас используется константа для тестирования.
-                var temporaryDeckId: String = deckId
-                if (source == Source.NETWORK) temporaryDeckId =
-                    "eff199f9-da03-4468-9f36-82e819ea516c"
-
                 DeckDetailScreen(
-                    deckId = temporaryDeckId,
+                    deckId = deckId,
                     source = source,
                     onBackClick = { navigationState.navHostController.popBackStack() },
                     onStartTraining = { deckId ->
@@ -168,11 +162,10 @@ fun MainScreen(navController: NavHostController) {
                             )
                         )
                     },
-                    // TODO поменять temporaryDeckId на deckId
                     onRemindClick = { deckName ->
                         navigationState.navigateWithSaveState(
                             Screen.Reminder(
-                                deckId = temporaryDeckId,
+                                deckId = deckId,
                                 source = source,
                                 deckName = deckName
                             )

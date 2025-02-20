@@ -53,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -127,7 +128,6 @@ fun DeckDetailScreen(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DeckDetailContent(
@@ -155,8 +155,8 @@ private fun DeckDetailContent(
 
     if (showDeleteDialog) {
         AppAlertDialog(
-            title = "Удалить колоду?",
-            message = "В случае удаления, колода не сможет быть восстановлена",
+            title = stringResource(R.string.delete_deck_title),
+            message = stringResource(R.string.delete_deck_message),
             onConfirm = {
                 showDeleteDialog = false
                 onDeleteDeck()
@@ -167,11 +167,11 @@ private fun DeckDetailContent(
 
     if (showPrivacyDialog) {
         val (title, message) = if (deck.isPublic) {
-            "Сделать колоду приватной?" to
-                    "После изменения приватности только Вы сможете видеть и использовать эту колоду. Другие пользователи потеряют доступ к ней."
+            stringResource(R.string.alert_dialog_private_title) to
+                    stringResource(R.string.alert_dialog_private_message)
         } else {
-            "Опубликовать колоду?" to
-                    "После публикации все пользователи смогут видеть содержимое Вашей колоды и запланировать тренировку на ней."
+            stringResource(R.string.alert_dialog_public_title) to
+                    stringResource(R.string.alert_dialog_public_message)
         }
         AppAlertDialog(
             title = title,
@@ -262,6 +262,7 @@ private fun DeckDetailContent(
     if (isBottomSheetOpen) {
         CardListBottomSheet(
             deck = deck,
+            source = source,
             expandedCardId = expandedCardId,
             sheetState = sheetState,
             coroutineScope = coroutineScope,
@@ -284,6 +285,7 @@ private fun DeckDetailContent(
 @Composable
 private fun CardListBottomSheet(
     deck: Deck,
+    source: Source,
     expandedCardId: MutableState<Int?>,
     sheetState: SheetState,
     coroutineScope: CoroutineScope,
@@ -328,6 +330,7 @@ private fun CardListBottomSheet(
                             card = card,
                             deckId = deck.id,
                             expandedCardId = expandedCardId,
+                            source = source,
                             isMenuExpanded = isMenuExpanded,
                             sheetState = sheetState,
                             coroutineScope = coroutineScope,
@@ -362,6 +365,7 @@ private fun ExpandableCardItem(
     card: Card,
     deckId: String,
     expandedCardId: MutableState<Int?>,
+    source: Source,
     isMenuExpanded: MutableState<Boolean>,
     sheetState: SheetState,
     coroutineScope: CoroutineScope,
@@ -395,31 +399,33 @@ private fun ExpandableCardItem(
                     modifier = Modifier.weight(1f)
                 )
 
-                Box {
-                    IconButton(onClick = { isMenuExpanded.value = true }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Меню"
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = isMenuExpanded.value,
-                        onDismissRequest = { isMenuExpanded.value = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Изменить") },
-                            onClick = {
-                                isMenuExpanded.value = false
-                                coroutineScope.launch {
-                                    sheetState.hide()
-                                    onEditCard(deckId, card.id)
+                if (source == Source.LOCAL) {
+                    Box {
+                        IconButton(onClick = { isMenuExpanded.value = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "Меню"
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = isMenuExpanded.value,
+                            onDismissRequest = { isMenuExpanded.value = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Изменить") },
+                                onClick = {
+                                    isMenuExpanded.value = false
+                                    coroutineScope.launch {
+                                        sheetState.hide()
+                                        onEditCard(deckId, card.id)
+                                    }
                                 }
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Удалить") },
-                            onClick = { onDeleteCard(card) }
-                        )
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Удалить") },
+                                onClick = { onDeleteCard(card) }
+                            )
+                        }
                     }
                 }
             }
@@ -472,8 +478,10 @@ private fun DeckTitle(deck: Deck) {
         text = deck.name,
         style = MaterialTheme.typography.headlineLarge.copy(
             fontSize = 32.sp,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+            color = MaterialTheme.colorScheme.onSurface,
+        ),
+        modifier = Modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center
     )
 }
 

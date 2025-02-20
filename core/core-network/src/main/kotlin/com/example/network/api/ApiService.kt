@@ -52,6 +52,14 @@ interface ApiService {
         @Query("offset") nextFrom: Int = 0,
     ): PublicDecksDto
 
+    @GET("collection/search")
+    suspend fun getPublicDecksOrSearch(
+        @Query("name") name: String? = null,
+        @Query("count") count: Int = 10,
+        @Query("offset") nextFrom: Int = 0,
+        @Header("Authorization") authHeader: String? = null,
+    ): PublicDecksDto
+
     @GET("collection/{id}")
     suspend fun getDeckById(
         @Path("id") deckId: String,
