@@ -7,7 +7,9 @@ import com.example.data.reminder.data.repository.ReminderSchedulerImpl
 import com.example.data.reminder.data.util.RouteNavigator
 import com.example.data.reminder.domain.repository.ReminderScheduler
 import com.example.database.TPrepDatabase
+import com.example.decks.data.repository.DeckDetailsRepositoryImpl
 import com.example.decks.data.repository.PublicDeckRepositoryImpl
+import com.example.decks.domain.repository.DeckDetailsRepository
 import com.example.decks.domain.repository.PublicDeckRepository
 import com.example.history.data.repository.HistoryRepositoryImpl
 import com.example.history.domain.repository.HistoryRepository
@@ -82,6 +84,11 @@ interface AppModule {
     @Singleton
     @Suppress("unused")
     fun bindSyncUserDataRepository(syncUserDataRepositoryImpl: SyncUserDataRepositoryImpl): SyncUserDataRepository
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
+    fun bindDeckDetailsRepository(deckDetailsRepositoryImpl: DeckDetailsRepositoryImpl): DeckDetailsRepository
 
     @Binds
     @Singleton

@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.history"
+    namespace = "com.example.feature.history"
 }
 
 dependencies {

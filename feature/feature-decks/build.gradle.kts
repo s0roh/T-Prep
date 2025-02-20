@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.decks"
+    namespace = "com.example.feature.decks"
 }
 
 dependencies {

@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.training"
+    namespace = "com.example.feature.training"
 }
 
 dependencies {
