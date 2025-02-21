@@ -16,6 +16,8 @@ data class ErrorDBO(
     @ColumnInfo("trainingSessionId") val trainingSessionId: String,
     @ColumnInfo("deckId") val deckId: String,
     @ColumnInfo("cardId") val cardId: Int,
+    @ColumnInfo("question") val question: String,
+    @ColumnInfo("correctAnswer") val correctAnswer: String,
     @ColumnInfo("incorrectAnswer") val incorrectAnswer: String,
     @ColumnInfo("trainingMode") val trainingMode: TrainingMode,
 )

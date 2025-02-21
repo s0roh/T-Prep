@@ -22,6 +22,8 @@ interface TrainingRepository {
         cardsCount: Int,
         cardId: Int,
         isCorrect: Boolean,
+        question: String,
+        correctAnswer: String,
         incorrectAnswer: String? = null,
         source: Source,
         trainingSessionId: String,

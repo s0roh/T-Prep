@@ -67,7 +67,7 @@ internal class TrainingViewModel @Inject constructor(
             }
         }
 
-        val trainingModes: Set<TrainingMode> = getTrainingModesUseCase(deckId =  currentDeckId)
+        val trainingModes: Set<TrainingMode> = getTrainingModesUseCase(deckId = currentDeckId)
             .modes
             .toSet()
 
@@ -95,6 +95,8 @@ internal class TrainingViewModel @Inject constructor(
 
     fun recordAnswer(
         isCorrect: Boolean,
+        question: String,
+        correctAnswer: String,
         selectedAnswer: String? = null,
         trainingMode: TrainingMode
     ) {
@@ -111,6 +113,8 @@ internal class TrainingViewModel @Inject constructor(
                 cardsCount = currentDeck.cards.size,
                 cardId = currentCard.id,
                 isCorrect = isCorrect,
+                question = question,
+                correctAnswer = correctAnswer,
                 incorrectAnswer = selectedAnswer,
                 source = currentSource,
                 trainingSessionId = trainingSessionId,

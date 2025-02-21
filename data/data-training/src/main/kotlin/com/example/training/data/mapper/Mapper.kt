@@ -8,8 +8,6 @@ import com.example.training.domain.entity.TrainingModes
 
 internal fun ErrorDBO.toEntity(
     trainingSessionTime: Long,
-    question: String,
-    correctAnswer: String
 ): TrainingError =
     TrainingError(
         id = id,

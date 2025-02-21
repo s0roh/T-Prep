@@ -152,6 +152,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
         cardsCount: Int,
         cardId: Int,
         isCorrect: Boolean,
+        question: String,
+        correctAnswer: String,
         incorrectAnswer: String?,
         source: Source,
         trainingSessionId: String,
@@ -181,6 +183,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 trainingSessionId = trainingSessionId,
                 deckId = deckId,
                 cardId = cardId,
+                question = question,
+                correctAnswer = correctAnswer,
                 incorrectAnswer = incorrectAnswer,
                 trainingMode = trainingMode
             )
@@ -236,12 +240,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
 
         val trainingErrors = database.errorDao.getErrorsForTrainingSession(trainingSessionId)
 
-        return trainingErrors.mapNotNull { error ->
-            val card = database.cardDao.getCardById(error.cardId) ?: return@mapNotNull null
-            val question = card.question
-            val correctAnswer = card.answer
-
-            error.toEntity(trainingSessionTime, question, correctAnswer)
+        return trainingErrors.map { error ->
+            error.toEntity(trainingSessionTime)
         }
     }
 

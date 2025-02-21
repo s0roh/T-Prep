@@ -310,7 +310,7 @@ private fun CardListBottomSheet(
                     state = listState,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(bottom = 60.dp),
+                        .padding(bottom = if (source == Source.LOCAL) 60.dp else 0.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     item {
@@ -342,19 +342,21 @@ private fun CardListBottomSheet(
                 }
             }
 
-            AppButton(
-                title = "Добавить карточку",
-                onClick = {
-                    coroutineScope.launch {
-                        sheetState.hide()
-                        onAddCardClick()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-            )
+            if (source == Source.LOCAL) {
+                AppButton(
+                    title = "Добавить карточку",
+                    onClick = {
+                        coroutineScope.launch {
+                            sheetState.hide()
+                            onAddCardClick()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                )
+            }
         }
     }
 }
