@@ -1,4 +1,4 @@
-package com.example.feature.decks.presentation.publicdecks
+package com.example.feature.decks.presentation.public_decks
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
