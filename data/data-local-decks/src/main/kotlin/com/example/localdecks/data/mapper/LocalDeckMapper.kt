@@ -2,6 +2,7 @@ package com.example.localdecks.data.mapper
 
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
+import com.example.common.ui.entity.DeckUiModel
 import com.example.database.models.CardDBO
 import com.example.database.models.DeckDBO
 import com.example.localdecks.domain.entity.CardRequest
@@ -14,6 +15,13 @@ internal fun DeckDBO.toEntity(cards: List<Card>): Deck = Deck(
     name = name,
     isPublic = isPublic,
     cards = cards
+)
+
+internal fun DeckDBO.toUiModel(cardsCount: Int): DeckUiModel = DeckUiModel(
+    id= id,
+    name = name,
+    isPublic = isPublic,
+    cardsCount = cardsCount
 )
 
 internal fun CardDBO.toEntity(): Card = Card(

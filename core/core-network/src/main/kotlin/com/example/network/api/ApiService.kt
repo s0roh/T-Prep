@@ -46,12 +46,6 @@ interface ApiService {
         @Body refreshRequestDto: RefreshRequestDto,
     ): Response<AuthResponseDto>
 
-    @GET("global/getPublicCollections")
-    suspend fun getPublicDecks(
-        @Query("count") count: Int = 10,
-        @Query("offset") nextFrom: Int = 0,
-    ): PublicDecksDto
-
     @GET("collection/search")
     suspend fun getPublicDecksOrSearch(
         @Query("name") name: String? = null,
