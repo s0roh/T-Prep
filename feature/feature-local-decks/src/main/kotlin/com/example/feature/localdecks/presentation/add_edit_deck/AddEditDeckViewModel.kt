@@ -43,10 +43,6 @@ internal class AddEditDeckViewModel @Inject constructor(
         screenState.value = screenState.value.copy(name = name, nameError = null)
     }
 
-    fun onPublicStateChanged() {
-        screenState.value = screenState.value.copy(isPublic = !screenState.value.isPublic)
-    }
-
     fun saveDeck(): Boolean {
         screenState.value = screenState.value.copy(isSaveButtonEnabled = false)
         val currentState = screenState.value
