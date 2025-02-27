@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.example.common.domain.entity.Deck
+import com.example.common.ui.entity.DeckUiModel
 import com.example.feature.localdecks.domain.usecase.GetDecksFlowUseCase
 import com.example.localdecks.util.startSyncWork
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +27,7 @@ internal class LocalDecksViewModel @Inject constructor(
     var isRefreshing = MutableStateFlow<Boolean>(false)
         private set
 
-    val decks: StateFlow<List<Deck>> = getDecksFlowUseCase().stateIn(
+    val decks: StateFlow<List<DeckUiModel>> = getDecksFlowUseCase().stateIn(
         viewModelScope,
         SharingStarted.Lazily,
         emptyList()

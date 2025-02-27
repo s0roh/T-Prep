@@ -5,7 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.common.domain.entity.Deck
 import com.example.decks.data.mapper.toEntity
-import com.example.decks.domain.entity.PublicDeck
+import com.example.common.ui.entity.DeckUiModel
 import com.example.decks.domain.repository.PublicDeckRepository
 import com.example.network.api.ApiService
 import com.example.preferences.AuthRequestWrapper
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 class PublicDeckRepositoryImpl @Inject internal constructor(
     private val apiService: ApiService,
-    private val authRequestWrapper: AuthRequestWrapper
+    private val authRequestWrapper: AuthRequestWrapper,
 ) : PublicDeckRepository {
 
     override suspend fun getDeckById(id: String): Deck {
@@ -23,7 +23,7 @@ class PublicDeckRepositoryImpl @Inject internal constructor(
         }
     }
 
-    override fun getPublicDecks(): Flow<PagingData<PublicDeck>> {
+    override fun getPublicDecks(query: String?): Flow<PagingData<DeckUiModel>> {
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -34,7 +34,8 @@ class PublicDeckRepositoryImpl @Inject internal constructor(
             pagingSourceFactory = {
                 PublicDecksPagingSource(
                     apiService = apiService,
-                    authRequestWrapper = authRequestWrapper
+                    authRequestWrapper = authRequestWrapper,
+                    query = query
                 )
             }
         ).flow

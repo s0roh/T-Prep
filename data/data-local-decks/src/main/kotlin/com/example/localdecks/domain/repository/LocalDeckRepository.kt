@@ -2,13 +2,14 @@ package com.example.localdecks.domain.repository
 
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
+import com.example.common.ui.entity.DeckUiModel
 import kotlinx.coroutines.flow.Flow
 
 interface LocalDeckRepository {
 
     // DeckDao
 
-    fun getDecks(): Flow<List<Deck>>
+    fun getDecks(): Flow<List<DeckUiModel>>
 
     suspend fun getDeckById(deckId: String): Deck?
 

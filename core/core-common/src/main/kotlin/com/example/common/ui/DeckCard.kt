@@ -1,77 +1,70 @@
 package com.example.common.ui
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.common.ui.entity.DeckUiModel
+import com.example.common.util.getCardWordForm
 import com.example.common.R
-import com.example.common.domain.entity.Deck
 
 @Composable
 fun DeckCard(
-    deck: Deck,
+    deck: DeckUiModel,
     onDeckClickListener: (String) -> Unit,
     modifier: Modifier = Modifier,
-    showActions: Boolean = false,
-    onEdit: () -> Unit = {},
-    onDelete: () -> Unit = {}
 ) {
     Card(
-        modifier = modifier
-            .padding(8.dp)
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         onClick = { onDeckClickListener(deck.id) },
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(3.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
             Text(
                 text = deck.name,
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 4.dp),
+                style = MaterialTheme.typography.titleLarge,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = if (deck.isPublic) stringResource(R.string.public_deck)
-                else stringResource(R.string.private_deck),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 4.dp)
+                text = "${deck.cardsCount} ${getCardWordForm(deck.cardsCount)}",
+                style = MaterialTheme.typography.bodySmall,
             )
-            Text(
-                text = stringResource(R.string.count_of_decks, deck.cards.size),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            if (showActions) {
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    IconButton(onClick = onEdit) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit")
-                    }
-                    IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
-                    }
-                }
+            Spacer(modifier = Modifier.height(20.dp))
+            Row {
+                Icon(
+                    painter = painterResource(
+                        if (deck.isPublic) R.drawable.ic_public_card
+                        else R.drawable.ic_private_card
+                    ),
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = if (deck.isPublic) "Публичкая"
+                    else "Приватная",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
             }
         }
     }

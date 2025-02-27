@@ -2,10 +2,12 @@ package com.example.localdecks.data.repository
 
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
+import com.example.common.ui.entity.DeckUiModel
 import com.example.database.TPrepDatabase
 import com.example.database.models.EntityType
 import com.example.localdecks.data.mapper.toDBO
 import com.example.localdecks.data.mapper.toEntity
+import com.example.localdecks.data.mapper.toUiModel
 import com.example.localdecks.domain.repository.LocalDeckRepository
 import com.example.localdecks.domain.repository.SyncHelper
 import com.example.preferences.AuthPreferences
@@ -25,19 +27,17 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
 ) : LocalDeckRepository {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getDecks(): Flow<List<Deck>> {
+    override fun getDecks(): Flow<List<DeckUiModel>> {
         return database.deckDao.getDecks().flatMapLatest { dboList ->
 
             if (dboList.isEmpty()) {
                 return@flatMapLatest flowOf(emptyList())
             }
 
-            // Получаем карты для каждой колоды
             combine(
                 dboList.map { dbo ->
                     database.cardDao.getCardsForDeck(dbo.id).map { cardDboList ->
-                        val cards = cardDboList.map { it.toEntity() }
-                        dbo.toEntity(cards)
+                        dbo.toUiModel(cardDboList.size)
                     }
                 }
             ) { decks ->

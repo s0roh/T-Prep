@@ -101,7 +101,6 @@ fun MainScreen(navController: NavHostController) {
                 )
             },
             publicDecksScreenContent = {
-                startSyncWork(context)
                 PublicDecksScreen(
                     paddingValues = paddingValues,
                     onDeckClickListener = {
@@ -229,6 +228,7 @@ fun MainScreen(navController: NavHostController) {
                     onBackClick = { navigationState.navHostController.popBackStack() })
             },
             localDecksScreenContent = {
+                startSyncWork(context)
                 LocalDecksScreen(
                     onDeckClick = { deckId ->
                         navigationState.navigateWithSaveState(

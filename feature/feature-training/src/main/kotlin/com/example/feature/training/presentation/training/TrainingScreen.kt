@@ -40,7 +40,6 @@ import com.example.common.ui.LoadingState
 import com.example.common.ui.NavigationIconType
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
-import com.example.training.domain.entity.TrainingCard
 import com.example.feature.training.presentation.components.MultipleChoiceAnswerList
 import com.example.feature.training.presentation.components.NextOrSkipButton
 import com.example.feature.training.presentation.components.QuestionArea
@@ -48,6 +47,7 @@ import com.example.feature.training.presentation.components.TrueFalseAnswerSecti
 import com.example.feature.training.presentation.components.TrueFalseButtons
 import com.example.feature.training.presentation.util.handleAnswerSelection
 import com.example.feature.training.presentation.util.launchShakeAnimation
+import com.example.training.domain.entity.TrainingCard
 import kotlinx.coroutines.launch
 
 @Composable
@@ -82,14 +82,24 @@ fun TrainingScreen(
                 TrainingCardsContent(
                     paddingValues = paddingValues,
                     currentState = currentState,
-                    onAnswer = { isCorrect, answer, trainingMode ->
+                    onAnswer = { isCorrect, question, correctAnswer, selectedAnswer, trainingMode ->
                         viewModel.recordAnswer(
-                            isCorrect,
-                            answer,
-                            trainingMode
+                            isCorrect = isCorrect,
+                            question = question,
+                            correctAnswer = correctAnswer,
+                            selectedAnswer = selectedAnswer,
+                            trainingMode = trainingMode
                         )
                     },
-                    onSkip = { trainingMode -> viewModel.recordAnswer(false, "", trainingMode) },
+                    onSkip = { question, correctAnswer, trainingMode ->
+                        viewModel.recordAnswer(
+                            isCorrect = false,
+                            question = question,
+                            correctAnswer = correctAnswer,
+                            selectedAnswer = "",
+                            trainingMode = trainingMode
+                        )
+                    },
                     onExit = { viewModel.exitTraining() },
                     onNextCard = { viewModel.moveToNextCardOrFinish() },
                     viewModel = viewModel
@@ -119,8 +129,8 @@ fun TrainingScreen(
 private fun TrainingCardsContent(
     paddingValues: PaddingValues,
     currentState: TrainingScreenState.Success,
-    onAnswer: (Boolean, String?, TrainingMode) -> Unit,
-    onSkip: (TrainingMode) -> Unit,
+    onAnswer: (Boolean, String, String, String?, TrainingMode) -> Unit,
+    onSkip: (String, String, TrainingMode) -> Unit,
     onExit: () -> Unit,
     onNextCard: () -> Unit,
     viewModel: TrainingViewModel
@@ -177,8 +187,8 @@ private fun TrainingCardsContent(
 @Composable
 private fun MultipleChoiceContent(
     card: TrainingCard,
-    onAnswer: (Boolean, String?, TrainingMode) -> Unit,
-    onSkip: (TrainingMode) -> Unit,
+    onAnswer: (Boolean, String, String, String?, TrainingMode) -> Unit,
+    onSkip: (String, String, TrainingMode) -> Unit,
     onNextCard: () -> Unit,
 ) {
     val shuffledAnswers = rememberSaveable(card.id) {
@@ -206,7 +216,7 @@ private fun MultipleChoiceContent(
             shakeOffset = shakeOffset,
             onAnswerSelected = { answer ->
                 handleAnswerSelection(
-                    answer, card.answer, onAnswer, shakeOffset, coroutineScope,
+                    card, answer, onAnswer, shakeOffset, coroutineScope,
                     onSelected = { selectedAnswer = it; isAnswered = true }
                 )
             },
@@ -223,7 +233,7 @@ private fun MultipleChoiceContent(
                 onNextCard()
             },
             onSkip = {
-                onSkip(TrainingMode.MULTIPLE_CHOICE)
+                onSkip(card.question, card.answer, TrainingMode.MULTIPLE_CHOICE)
                 isAnswered = true
             },
             modifier = Modifier
@@ -236,8 +246,8 @@ private fun MultipleChoiceContent(
 @Composable
 private fun TrueFalseContent(
     card: TrainingCard,
-    onAnswer: (Boolean, String?, TrainingMode) -> Unit,
-    onSkip: (TrainingMode) -> Unit,
+    onAnswer: (Boolean, String, String, String?, TrainingMode) -> Unit,
+    onSkip: (String, String, TrainingMode) -> Unit,
     onNextCard: () -> Unit
 ) {
     var isAnswered by rememberSaveable { mutableStateOf(false) }
@@ -269,7 +279,13 @@ private fun TrueFalseContent(
                     isAnswered = true
                     selectedAnswer = answer
                     val isCorrect = answer == correctAnswer
-                    onAnswer(isCorrect, card.displayedAnswer, TrainingMode.TRUE_FALSE)
+                    onAnswer(
+                        isCorrect,
+                        card.question,
+                        card.answer,
+                        card.displayedAnswer,
+                        TrainingMode.TRUE_FALSE
+                    )
                     if (!isCorrect) {
                         coroutineScope.launch { launchShakeAnimation(shakeOffset) }
                     }
@@ -288,7 +304,7 @@ private fun TrueFalseContent(
             },
             onSkip = {
                 isAnswered = true
-                onSkip(TrainingMode.TRUE_FALSE)
+                onSkip(card.question, card.answer, TrainingMode.TRUE_FALSE)
             },
             modifier = Modifier
                 .fillMaxWidth()

@@ -1,6 +1,6 @@
-package com.example.decks.domain.entity
+package com.example.common.ui.entity
 
-data class PublicDeck(
+data class DeckUiModel(
     val id: String,
     val name: String,
     val isPublic: Boolean,
