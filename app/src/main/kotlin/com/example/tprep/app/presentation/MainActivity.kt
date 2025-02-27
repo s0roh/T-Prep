@@ -16,7 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.auth.presentation.auth.AuthScreen
 import com.example.database.models.Source
 import com.example.feature.decks.presentation.details.DeckDetailScreen
-import com.example.feature.decks.presentation.publicdecks.PublicDecksScreen
+import com.example.feature.decks.presentation.public_decks.PublicDecksScreen
 import com.example.feature.profile.presentation.ProfileScreen
 import com.example.feature.reminder.presentation.add_reminder.AddReminderScreen
 import com.example.feature.reminder.presentation.reminder.ReminderScreen
@@ -230,6 +230,7 @@ fun MainScreen(navController: NavHostController) {
             localDecksScreenContent = {
                 startSyncWork(context)
                 LocalDecksScreen(
+                    paddingValues = paddingValues,
                     onDeckClick = { deckId ->
                         navigationState.navigateWithSaveState(
                             Screen.DeckDetails(

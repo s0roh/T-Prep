@@ -1,4 +1,4 @@
-package com.example.feature.decks.presentation.publicdecks
+package com.example.feature.decks.presentation.public_decks
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
@@ -96,8 +96,8 @@ fun PublicDecksScreen(
                 LazyColumn(
                     modifier = Modifier.padding(
                         bottom = paddingValues.calculateBottomPadding(),
-                        start = 26.dp,
-                        end = 26.dp
+                        start = 16.dp,
+                        end = 16.dp
                     ),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
@@ -249,7 +249,7 @@ fun SearchBarComponent(
                 Text("Нет результатов", modifier = Modifier.padding(16.dp))
             } else {
                 LazyColumn(
-                    modifier = Modifier.padding(horizontal = 26.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     item {

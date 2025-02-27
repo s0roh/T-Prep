@@ -51,7 +51,7 @@ internal class LocalDecksViewModel @Inject constructor(
             isRefreshing.value = false
 
             if (workInfo == null) {
-                // Если WorkManager ничего не вернул за 5 сек — проблема с сетью
+                // Если WorkManager ничего не вернул за 10 сек — проблема с сетью
                 Toast.makeText(
                     context,
                     "Ошибка синхронизации. Проверьте подключение к интернету",
@@ -66,6 +66,6 @@ internal class LocalDecksViewModel @Inject constructor(
 
     companion object {
 
-        private const val LOAD_DECKS_TIMEOUT_MS: Long = 5000L
+        private const val LOAD_DECKS_TIMEOUT_MS: Long = 10_000L
     }
 }

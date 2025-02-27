@@ -2,34 +2,36 @@ package com.example.feature.localdecks.presentation.add_edit_deck
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.common.ui.AppButton
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
-import com.example.feature.localdecks.presentation.components.PrivacyToggleButton
 import com.example.feature.localdecks.presentation.components.TextFieldWithError
 
 @Composable
 fun AddEditDeckScreen(
     deckId: String?,
     onBackClick: () -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
 ) {
     val viewModel: AddEditDeckViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
@@ -43,17 +45,19 @@ fun AddEditDeckScreen(
     Scaffold(
         topBar = {
             CenteredTopAppBar(
-                title = "Редактировать колоду",
+                title = if (deckId == null) "Создание колоды" else "Изменить колоду",
                 navigationIconType = NavigationIconType.BACK,
                 onNavigationClick = onBackClick
             )
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues)) {
+        Column(modifier = Modifier
+            .padding(paddingValues)
+            .imePadding()) {
             AddEditDeckForm(
+                deckId = deckId,
                 screenState = screenState,
                 onNameChange = { viewModel.onNameChanged(it) },
-                onPublicToggle = { viewModel.onPublicStateChanged() },
                 onSave = {
                     viewModel.saveDeck()
                     if (screenState.name.isNotBlank()) {
@@ -68,12 +72,20 @@ fun AddEditDeckScreen(
 
 @Composable
 private fun AddEditDeckForm(
+    deckId: String?,
     screenState: AddEditDeckScreenState,
     onNameChange: (String) -> Unit,
-    onPublicToggle: () -> Unit,
     onSave: () -> Unit,
-    focusManager: FocusManager
+    focusManager: FocusManager,
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,27 +95,25 @@ private fun AddEditDeckForm(
         TextFieldWithError(
             value = screenState.name,
             onValueChange = onNameChange,
-            label = "Название колоды",
+            label = "Название",
             error = screenState.nameError,
             imeAction = ImeAction.Done,
-            onImeAction = { focusManager.clearFocus() },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        PrivacyToggleButton(
-            isPublic = screenState.isPublic,
-            onToggle = onPublicToggle,
+            onImeAction = {
+                focusManager.clearFocus()
+                keyboardController?.hide()
+            },
             modifier = Modifier
-                .wrapContentWidth()
-                .align(Alignment.Start)
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
         )
 
-        Button(
+        Spacer(modifier = Modifier.weight(1f))
+
+        AppButton(
+            title = if (deckId == null) "Добавить колоду" else "Изменить колоду",
             onClick = onSave,
             enabled = screenState.isSaveButtonEnabled,
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("Сохранить")
-        }
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

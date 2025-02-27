@@ -16,12 +16,14 @@ fun AppButton(
     title: String,
     shouldShowIcon: Boolean = false,
     iconResId: Int? = null,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     Button(
         modifier = modifier,
-        onClick = onClick
+        onClick = onClick,
+        enabled = enabled
     ) {
         if (shouldShowIcon && iconResId != null) {
             Icon(

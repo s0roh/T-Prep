@@ -62,7 +62,7 @@ fun DeckCard(
                 Text(
                     text = if (deck.isPublic) "Публичкая"
                     else "Приватная",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
             }
