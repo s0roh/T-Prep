@@ -15,6 +15,7 @@ internal fun ErrorDBO.toEntity(
         trainingSessionTime = trainingSessionTime,
         question = question,
         correctAnswer = correctAnswer,
+        fillInTheBlankAnswer = fillInTheBlankAnswer,
         incorrectAnswer = incorrectAnswer,
         trainingMode = trainingMode
     )

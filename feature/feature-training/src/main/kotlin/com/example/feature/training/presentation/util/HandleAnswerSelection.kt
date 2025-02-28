@@ -10,13 +10,13 @@ import kotlinx.coroutines.launch
 internal fun handleAnswerSelection(
     card: TrainingCard,
     selected: String,
-    onAnswer: (Boolean, String, String, String?, TrainingMode) -> Unit,
+    onAnswer: (Boolean, String, String, String?, String?, TrainingMode) -> Unit,
     shakeOffset: Animatable<Float, AnimationVector1D>,
     coroutineScope: CoroutineScope,
     onSelected: (String) -> Unit
 ) {
     onSelected(selected)
     val isCorrect = selected == card.answer
-    onAnswer(isCorrect, card.question, card.answer, selected, TrainingMode.MULTIPLE_CHOICE)
+    onAnswer(isCorrect, card.question, card.answer, null, selected, TrainingMode.MULTIPLE_CHOICE)
     if (!isCorrect) coroutineScope.launch { launchShakeAnimation(shakeOffset) }
 }

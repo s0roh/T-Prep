@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -29,10 +32,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.ErrorState
@@ -82,20 +89,22 @@ fun TrainingScreen(
                 TrainingCardsContent(
                     paddingValues = paddingValues,
                     currentState = currentState,
-                    onAnswer = { isCorrect, question, correctAnswer, selectedAnswer, trainingMode ->
+                    onAnswer = { isCorrect, question, correctAnswer, fillInTheBlankAnswer, selectedAnswer, trainingMode ->
                         viewModel.recordAnswer(
                             isCorrect = isCorrect,
                             question = question,
                             correctAnswer = correctAnswer,
+                            fillInTheBlankAnswer = fillInTheBlankAnswer,
                             selectedAnswer = selectedAnswer,
                             trainingMode = trainingMode
                         )
                     },
-                    onSkip = { question, correctAnswer, trainingMode ->
+                    onSkip = { question, correctAnswer, fillInTheBlankAnswer, trainingMode ->
                         viewModel.recordAnswer(
                             isCorrect = false,
                             question = question,
                             correctAnswer = correctAnswer,
+                            fillInTheBlankAnswer = fillInTheBlankAnswer,
                             selectedAnswer = "",
                             trainingMode = trainingMode
                         )
@@ -129,11 +138,11 @@ fun TrainingScreen(
 private fun TrainingCardsContent(
     paddingValues: PaddingValues,
     currentState: TrainingScreenState.Success,
-    onAnswer: (Boolean, String, String, String?, TrainingMode) -> Unit,
-    onSkip: (String, String, TrainingMode) -> Unit,
+    onAnswer: (Boolean, String, String, String?, String?, TrainingMode) -> Unit,
+    onSkip: (String, String, String?, TrainingMode) -> Unit,
     onExit: () -> Unit,
     onNextCard: () -> Unit,
-    viewModel: TrainingViewModel
+    viewModel: TrainingViewModel,
 ) {
     BackHandler(onBack = onExit)
     val currentCard = currentState.cards[currentState.currentCardIndex]
@@ -172,11 +181,13 @@ private fun TrainingCardsContent(
                     onNextCard
                 )
 
-//                TrainingMode.FILL_IN_THE_BLANK -> FillInTheBlankContent(
-//                    card,
-//                    onAnswer,
-//                    viewModel
-//                )
+                TrainingMode.FILL_IN_THE_BLANK -> FillInTheBlankContent(
+                    card,
+                    onAnswer,
+                    onSkip,
+                    onNextCard,
+                    viewModel
+                )
 
                 else -> Text("Неизвестный режим")
             }
@@ -187,8 +198,8 @@ private fun TrainingCardsContent(
 @Composable
 private fun MultipleChoiceContent(
     card: TrainingCard,
-    onAnswer: (Boolean, String, String, String?, TrainingMode) -> Unit,
-    onSkip: (String, String, TrainingMode) -> Unit,
+    onAnswer: (Boolean, String, String, String?, String?, TrainingMode) -> Unit,
+    onSkip: (String, String, String?, TrainingMode) -> Unit,
     onNextCard: () -> Unit,
 ) {
     val shuffledAnswers = rememberSaveable(card.id) {
@@ -233,7 +244,7 @@ private fun MultipleChoiceContent(
                 onNextCard()
             },
             onSkip = {
-                onSkip(card.question, card.answer, TrainingMode.MULTIPLE_CHOICE)
+                onSkip(card.question, card.answer, null, TrainingMode.MULTIPLE_CHOICE)
                 isAnswered = true
             },
             modifier = Modifier
@@ -246,9 +257,9 @@ private fun MultipleChoiceContent(
 @Composable
 private fun TrueFalseContent(
     card: TrainingCard,
-    onAnswer: (Boolean, String, String, String?, TrainingMode) -> Unit,
-    onSkip: (String, String, TrainingMode) -> Unit,
-    onNextCard: () -> Unit
+    onAnswer: (Boolean, String, String, String?, String?, TrainingMode) -> Unit,
+    onSkip: (String, String, String?, TrainingMode) -> Unit,
+    onNextCard: () -> Unit,
 ) {
     var isAnswered by rememberSaveable { mutableStateOf(false) }
     var selectedAnswer by rememberSaveable { mutableStateOf<Boolean?>(null) }
@@ -283,6 +294,7 @@ private fun TrueFalseContent(
                         isCorrect,
                         card.question,
                         card.answer,
+                        null,
                         card.displayedAnswer,
                         TrainingMode.TRUE_FALSE
                     )
@@ -304,7 +316,7 @@ private fun TrueFalseContent(
             },
             onSkip = {
                 isAnswered = true
-                onSkip(card.question, card.answer, TrainingMode.TRUE_FALSE)
+                onSkip(card.question, card.answer, null, TrainingMode.TRUE_FALSE)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -313,58 +325,243 @@ private fun TrueFalseContent(
     }
 }
 
-
 @Composable
 private fun FillInTheBlankContent(
     card: TrainingCard,
-    onAnswer: (Boolean, String?) -> Unit,
-    viewModel: TrainingViewModel
+    onAnswer: (Boolean, String, String, String?, String?, TrainingMode) -> Unit,
+    onSkip: (String, String, String?, TrainingMode) -> Unit,
+    onNextCard: () -> Unit,
+    viewModel: TrainingViewModel,
 ) {
     var userInput by remember(card.id) { mutableStateOf("") }
     var isAnswered by remember(card.id) { mutableStateOf(false) }
     var isCorrect by remember(card.id) { mutableStateOf(false) }
 
-    if (card.partialAnswer != null) {
-        Text(text = "${card.partialAnswer}")
-    }
+    val focusRequester = remember { FocusRequester() }
 
-
-    OutlinedTextField(
-        value = userInput,
-        onValueChange = { userInput = it },
-        label = { Text("Введите ответ") },
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-    )
+            .padding(25.dp)
+            .imePadding()
+    ) {
+        if (isAnswered) {
+            AnswerWithHighlight(card.answer, card.missingWords)
 
-    Button(
-        onClick = {
-            if (!isAnswered) {
-                viewModel.checkFillInTheBlankAnswer(
-                    userInput = userInput,
-                    correctWords = card.missingWords
-                ) { result ->
-                    isCorrect = result
-                    isAnswered = true
-                    onAnswer(result, userInput)
+            UserInputWithHighlight(userInput, card.missingWords)
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Логика подсветки правильных/неправильных ответов
+            if (isCorrect) {
+                Text(
+                    text = "Ответ правильный!",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            } else if (userInput.isNotBlank()) {
+                Text(
+                    text = "Ответ неправильный!",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+        } else {
+            if (card.partialAnswer.isNullOrEmpty()) {
+                Text(
+                    text = "Дайте ответ на вопрос:",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            } else {
+                Text(
+                    text = "Дополните ответ:",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                card.partialAnswer?.let { partialAnswerText ->
+                    Text(
+                        text = partialAnswerText,
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
                 }
             }
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(text = "Проверить")
+
+            OutlinedTextField(
+                value = userInput,
+                onValueChange = { userInput = it },
+                label = { Text("Введите ответ") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+                    .focusRequester(focusRequester),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        if (userInput.isNotBlank()) {
+                            viewModel.checkFillInTheBlankAnswer(
+                                userInput = userInput,
+                                correctWords = card.missingWords
+                            ) { result ->
+                                isCorrect = result
+                                isAnswered = true
+                                onAnswer(
+                                    isCorrect,
+                                    card.question,
+                                    card.answer,
+                                    card.missingWords.joinToString(" "),
+                                    userInput,
+                                    TrainingMode.FILL_IN_THE_BLANK
+                                )
+                            }
+                        } else {
+                            isAnswered = true
+                            onSkip(
+                                card.question,
+                                card.answer,
+                                card.missingWords.joinToString(" "),
+                                TrainingMode.FILL_IN_THE_BLANK
+                            )
+                        }
+                    }
+                ),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        val buttonText = when {
+            isAnswered -> "Далее"
+            userInput.isNotBlank() -> "Проверить ответ"
+            else -> "Пропустить"
+        }
+
+        Button(
+            onClick = {
+                when {
+                    isAnswered -> {
+                        isAnswered = false
+                        userInput = ""
+                        onNextCard()
+                    }
+
+                    userInput.isNotBlank() -> {
+                        viewModel.checkFillInTheBlankAnswer(
+                            userInput = userInput,
+                            correctWords = card.missingWords
+                        ) { result ->
+                            isCorrect = result
+                            isAnswered = true
+                            onAnswer(
+                                isCorrect,
+                                card.question,
+                                card.answer,
+                                card.missingWords.joinToString(" "),
+                                userInput,
+                                TrainingMode.FILL_IN_THE_BLANK
+                            )
+                        }
+                    }
+
+                    else -> {
+                        isAnswered = true
+                        onSkip(
+                            card.question,
+                            card.answer,
+                            card.missingWords.joinToString(" "),
+                            TrainingMode.FILL_IN_THE_BLANK
+                        )
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = buttonText)
+        }
     }
 
-    if (isAnswered) {
-        Text(
-            text = if (isCorrect) "Верно!" else "Неверно!",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (isCorrect) Color.Green else MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(16.dp)
-        )
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
+}
+
+@Composable
+private fun AnswerWithHighlight(answer: String, missingWords: List<String>) {
+    Text(
+        text = "Ответ:",
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+
+    // Подсвечиваем слова из missingWords в полном ответе
+    val annotatedAnswer = buildAnnotatedString {
+        val answerWords = answer.split(" ")
+        answerWords.forEachIndexed { index, word ->
+            if (missingWords.contains(word)) {
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                    append(word)
+                }
+            } else {
+                append(word)
+            }
+            if (index < answerWords.size - 1) append(" ")
+        }
+    }
+
+    Text(
+        text = annotatedAnswer,
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier.padding(bottom = 40.dp)
+    )
+}
+
+@Composable
+private fun UserInputWithHighlight(userInput: String, missingWords: List<String>) {
+    Text(
+        text = "Ваш ответ:",
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+
+    val annotatedUserInput = buildAnnotatedString {
+        val userInputWords = userInput.split(" ")
+        if (userInput.isBlank()) {
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
+                append("Вы не дали ответ")
+            }
+        } else {
+            userInputWords.forEachIndexed { index, word ->
+                if (missingWords.contains(word)) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                        append(word)
+                    }
+                } else {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
+                        append(word)
+                    }
+                }
+                if (index < userInputWords.size - 1) append(" ")
+            }
+        }
+    }
+
+    Text(
+        text = annotatedUserInput,
+        style = MaterialTheme.typography.labelLarge,
+        modifier = Modifier.padding(bottom = 16.dp)
+    )
 }

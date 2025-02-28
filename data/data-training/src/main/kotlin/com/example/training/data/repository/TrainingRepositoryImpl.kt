@@ -154,6 +154,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
         isCorrect: Boolean,
         question: String,
         correctAnswer: String,
+        fillInTheBlankAnswer: String?,
         incorrectAnswer: String?,
         source: Source,
         trainingSessionId: String,
@@ -185,6 +186,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 cardId = cardId,
                 question = question,
                 correctAnswer = correctAnswer,
+                fillInTheBlankAnswer = fillInTheBlankAnswer,
                 incorrectAnswer = incorrectAnswer,
                 trainingMode = trainingMode
             )
@@ -273,6 +275,6 @@ class TrainingRepositoryImpl @Inject internal constructor(
         private const val COEFFICIENT_DECREMENT = -0.2
         private const val WRONG_ANSWERS_COUNT = 3
         private const val MIN_INPUT_LENGTH_PERCENT = 0.5
-        private const val MAX_ALLOWED_ERROR_PERCENT = 0.3
+        private const val MAX_ALLOWED_ERROR_PERCENT = 0.2
     }
 }
