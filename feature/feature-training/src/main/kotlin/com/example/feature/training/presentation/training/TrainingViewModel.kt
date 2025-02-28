@@ -25,7 +25,7 @@ internal class TrainingViewModel @Inject constructor(
     private val prepareTrainingCardsUseCase: PrepareTrainingCardsUseCase,
     private val recordAnswerUseCase: RecordAnswerUseCase,
     private val checkFillInTheBlankAnswerUseCase: CheckFillInTheBlankAnswerUseCase,
-    private val getTrainingModesUseCase: GetTrainingModesUseCase
+    private val getTrainingModesUseCase: GetTrainingModesUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<TrainingScreenState>(TrainingScreenState.Initial)
@@ -63,7 +63,7 @@ internal class TrainingViewModel @Inject constructor(
             }
 
             Source.NETWORK -> {
-                val (deck, source) =  getDeckByIdNetworkUseCase(currentDeckId)
+                val (deck, source) = getDeckByIdNetworkUseCase(currentDeckId)
                 currentSource = source
                 currentDeckId = deck.id
                 deck
@@ -85,7 +85,7 @@ internal class TrainingViewModel @Inject constructor(
     fun checkFillInTheBlankAnswer(
         userInput: String,
         correctWords: List<String>,
-        onResult: (Boolean) -> Unit
+        onResult: (Boolean) -> Unit,
     ) {
         viewModelScope.launch(exceptionHandler) {
             val result = checkFillInTheBlankAnswerUseCase(
@@ -100,8 +100,9 @@ internal class TrainingViewModel @Inject constructor(
         isCorrect: Boolean,
         question: String,
         correctAnswer: String,
+        fillInTheBlankAnswer: String? = null,
         selectedAnswer: String? = null,
-        trainingMode: TrainingMode
+        trainingMode: TrainingMode,
     ) {
         val currentState = screenState.value as? TrainingScreenState.Success ?: return
         screenState.value = currentState.copy(selectedAnswer = selectedAnswer)
@@ -118,6 +119,7 @@ internal class TrainingViewModel @Inject constructor(
                 isCorrect = isCorrect,
                 question = question,
                 correctAnswer = correctAnswer,
+                fillInTheBlankAnswer = fillInTheBlankAnswer,
                 incorrectAnswer = selectedAnswer,
                 source = currentSource,
                 trainingSessionId = trainingSessionId,

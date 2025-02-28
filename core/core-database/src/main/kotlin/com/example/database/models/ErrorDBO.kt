@@ -18,6 +18,7 @@ data class ErrorDBO(
     @ColumnInfo("cardId") val cardId: Int,
     @ColumnInfo("question") val question: String,
     @ColumnInfo("correctAnswer") val correctAnswer: String,
+    @ColumnInfo("fillInTheBlankAnswer") val fillInTheBlankAnswer: String?,
     @ColumnInfo("incorrectAnswer") val incorrectAnswer: String,
     @ColumnInfo("trainingMode") val trainingMode: TrainingMode,
 )

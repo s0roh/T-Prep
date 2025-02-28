@@ -24,6 +24,7 @@ interface TrainingRepository {
         isCorrect: Boolean,
         question: String,
         correctAnswer: String,
+        fillInTheBlankAnswer: String? = null,
         incorrectAnswer: String? = null,
         source: Source,
         trainingSessionId: String,

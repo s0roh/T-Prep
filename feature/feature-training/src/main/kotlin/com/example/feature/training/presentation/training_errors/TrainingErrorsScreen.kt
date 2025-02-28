@@ -184,9 +184,19 @@ private fun ErrorItem(error: TrainingError) {
         Text(text = error.question, style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(24.dp))
 
+        if (error.trainingMode == TrainingMode.FILL_IN_THE_BLANK) {
+            AnswerSection(
+                title = "Полный ответ:",
+                answer = error.correctAnswer,
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            )
+            Spacer(modifier = Modifier.height(19.dp))
+        }
+
         AnswerSection(
             title = "Правильный ответ:",
-            answer = error.correctAnswer,
+            answer = error.fillInTheBlankAnswer?.let { error.fillInTheBlankAnswer }
+                ?: error.correctAnswer,
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
         Spacer(modifier = Modifier.height(19.dp))
@@ -204,7 +214,13 @@ private fun ErrorItem(error: TrainingError) {
             }
 
             TrainingMode.TRUE_FALSE -> {}
-            TrainingMode.FILL_IN_THE_BLANK -> {}
+            TrainingMode.FILL_IN_THE_BLANK -> {
+                AnswerSection(
+                    title = "Ваш ответ:",
+                    answer = userAnswer,
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            }
         }
 
 
