@@ -63,7 +63,10 @@ internal class TrainingViewModel @Inject constructor(
             }
 
             Source.NETWORK -> {
-                getDeckByIdNetworkUseCase(currentDeckId)
+                val (deck, source) =  getDeckByIdNetworkUseCase(currentDeckId)
+                currentSource = source
+                currentDeckId = deck.id
+                deck
             }
         }
 

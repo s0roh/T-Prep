@@ -77,12 +77,12 @@ fun DeckDetailScreen(
     deckId: String,
     source: Source,
     onBackClick: () -> Unit,
-    onStartTraining: (deckId: String) -> Unit,
-    onAddCardClick: () -> Unit,
+    onStartTraining: (deckId: String, source: Source) -> Unit,
+    onAddCardClick: (deckId: String) -> Unit,
     onEditDeck: (deckId: String) -> Unit = {},
     onEditCard: (deckId: String, cardId: Int?) -> Unit,
     onRemindClick: (deckName: String) -> Unit,
-    onTrainingModeSettingsClick: (String) -> Unit
+    onTrainingModeSettingsClick: (String) -> Unit,
 ) {
     val viewModel: DeckDetailViewModel = hiltViewModel()
     val screenState = viewModel.screenState.collectAsState()
@@ -103,11 +103,11 @@ fun DeckDetailScreen(
         is DeckDetailScreenState.Success -> {
             DeckDetailContent(
                 deck = currentState.deck,
-                source = source,
+                source = currentState.source,
                 state = currentState,
                 onBackClick = onBackClick,
                 onStartTraining = onStartTraining,
-                onAddCardClick = onAddCardClick,
+                onAddCardClick = { onAddCardClick(currentState.deck.id) },
                 onEditDeckName = onEditDeck,
                 onEditDeckPrivateState = {
                     viewModel.changeDeckPrivacy()
@@ -135,7 +135,7 @@ private fun DeckDetailContent(
     source: Source,
     state: DeckDetailScreenState.Success,
     onBackClick: () -> Unit,
-    onStartTraining: (deckId: String) -> Unit,
+    onStartTraining: (deckId: String, source: Source) -> Unit,
     onAddCardClick: () -> Unit,
     onEditDeckName: (deckId: String) -> Unit,
     onEditDeckPrivateState: () -> Unit,
@@ -143,7 +143,7 @@ private fun DeckDetailContent(
     onEditCard: (deckId: String, cardId: Int?) -> Unit,
     onDeleteCard: (Card) -> Unit,
     onRemindClick: (deckName: String) -> Unit,
-    onTrainingModeSettingsClick: (String) -> Unit
+    onTrainingModeSettingsClick: (String) -> Unit,
 ) {
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -221,8 +221,7 @@ private fun DeckDetailContent(
                 title = if (state.nextTrainingTime == null) "Запланировать тренировку"
                 else "Открыть план тренировок",
                 shouldShowIcon = true,
-                iconResId = if (state.nextTrainingTime == null) com.example.common.R.drawable.ic_calendar
-                else com.example.common.R.drawable.ic_circleclose,
+                iconResId = com.example.common.R.drawable.ic_calendar,
                 onClick = { onRemindClick(deck.name) },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -243,16 +242,18 @@ private fun DeckDetailContent(
                 TrainingScheduledTime(nextTrainingTime = nextTrainingTime)
             }
 
-            AppButton(
-                title = "Начать тренировку",
-                shouldShowIcon = true,
-                iconResId = com.example.common.R.drawable.ic_play,
-                onClick = { onStartTraining(deck.id) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 18.dp)
-                    .height(52.dp)
-            )
+            if (state.deck.cards.isNotEmpty()) {
+                AppButton(
+                    title = "Начать тренировку",
+                    shouldShowIcon = true,
+                    iconResId = com.example.common.R.drawable.ic_play,
+                    onClick = { onStartTraining(deck.id, source) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 18.dp)
+                        .height(52.dp)
+                )
+            }
         }
     }
 
@@ -293,7 +294,7 @@ private fun CardListBottomSheet(
     onEditCard: (deckId: String, cardId: Int) -> Unit,
     onDeleteCard: (Card) -> Unit,
     onAddCardClick: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -373,7 +374,7 @@ private fun ExpandableCardItem(
     coroutineScope: CoroutineScope,
     onEditCard: (deckId: String, cardId: Int) -> Unit,
     onDeleteCard: (Card) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier
@@ -455,7 +456,7 @@ private fun AppAlertDialog(
     title: String,
     message: String,
     onConfirm: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onCancel,
@@ -536,7 +537,7 @@ private fun TrainingScheduledTime(nextTrainingTime: Long) {
 
 @Composable
 fun NoCardsPlaceholder(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
