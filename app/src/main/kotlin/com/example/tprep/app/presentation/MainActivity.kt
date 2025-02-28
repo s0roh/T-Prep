@@ -103,8 +103,8 @@ fun MainScreen(navController: NavHostController) {
             publicDecksScreenContent = {
                 PublicDecksScreen(
                     paddingValues = paddingValues,
-                    onDeckClickListener = {
-                        navigationState.navigateTo(Screen.DeckDetails(it, Source.NETWORK))
+                    onDeckClickListener = { deckId ->
+                        navigationState.navigateTo(Screen.DeckDetails(deckId, Source.NETWORK))
                     }
                 )
             },
@@ -134,7 +134,7 @@ fun MainScreen(navController: NavHostController) {
                     deckId = deckId,
                     source = source,
                     onBackClick = { navigationState.navHostController.popBackStack() },
-                    onStartTraining = { deckId ->
+                    onStartTraining = { deckId, source ->
                         navigationState.navigateWithSaveState(
                             Screen.Training(
                                 deckId = deckId,
@@ -156,7 +156,7 @@ fun MainScreen(navController: NavHostController) {
                     onAddCardClick = {
                         navigationState.navigateWithSaveState(
                             Screen.AddEditCard(
-                                deckId = deckId,
+                                deckId = it,
                                 cardId = null
                             )
                         )

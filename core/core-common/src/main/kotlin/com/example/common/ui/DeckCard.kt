@@ -60,7 +60,7 @@ fun DeckCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (deck.isPublic) "Публичкая"
+                    text = if (deck.isPublic) "Публичная"
                     else "Приватная",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 4.dp)

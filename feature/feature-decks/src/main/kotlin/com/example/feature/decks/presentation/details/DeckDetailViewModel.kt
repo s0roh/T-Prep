@@ -24,7 +24,7 @@ internal class DeckDetailViewModel @Inject constructor(
     private val deleteDeckUseCase: DeleteDeckUseCase,
     private val deleteCardUseCase: DeleteCardUseCase,
     private val getNextTrainingTimeUseCase: GetNextTrainingTimeUseCase,
-    private val updateDeckUseCase: UpdateDeckUseCase
+    private val updateDeckUseCase: UpdateDeckUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<DeckDetailScreenState>(DeckDetailScreenState.Loading)
@@ -49,6 +49,7 @@ internal class DeckDetailViewModel @Inject constructor(
                     getDeckByIdFromLocalUseCase(deckId)?.also { deck ->
                         screenState.value = DeckDetailScreenState.Success(
                             deck = deck,
+                            source = Source.LOCAL,
                             nextTrainingTime = nextTrainingTime
                         )
                     }
@@ -57,13 +58,16 @@ internal class DeckDetailViewModel @Inject constructor(
 
             Source.NETWORK -> {
                 viewModelScope.launch(exceptionHandler) {
-                    nextTrainingTime = getNextTrainingTimeUseCase(
-                        deckId = deckId,
-                        source = source
-                    )
-                    getDeckByIdFromNetworkUseCase(deckId).also { deck ->
+
+                    getDeckByIdFromNetworkUseCase(deckId).also { (deck, source) ->
+                        currentDeckId = deck.id
+                        nextTrainingTime = getNextTrainingTimeUseCase(
+                            deckId = deck.id,
+                            source = source
+                        )
                         screenState.value = DeckDetailScreenState.Success(
                             deck = deck,
+                            source = source,
                             nextTrainingTime = nextTrainingTime
                         )
                     }
@@ -71,6 +75,7 @@ internal class DeckDetailViewModel @Inject constructor(
             }
         }
     }
+
 
     fun changeDeckPrivacy() {
         val currentState = screenState.value
@@ -105,6 +110,7 @@ internal class DeckDetailViewModel @Inject constructor(
                 getDeckByIdFromLocalUseCase(it)?.also { deck ->
                     screenState.value = DeckDetailScreenState.Success(
                         deck = deck,
+                        source = Source.LOCAL,
                         nextTrainingTime = nextTrainingTime
                     )
                 }

@@ -238,7 +238,7 @@ private fun MultipleChoiceContent(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, bottom = 20.dp)
+                .padding(start = 25.dp, end = 25.dp, bottom = 20.dp)
         )
     }
 }
@@ -308,7 +308,7 @@ private fun TrueFalseContent(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 20.dp)
+                .padding(bottom = 4.dp)
         )
     }
 }

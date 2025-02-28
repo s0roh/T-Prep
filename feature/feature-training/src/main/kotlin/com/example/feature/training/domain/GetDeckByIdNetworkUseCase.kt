@@ -1,6 +1,7 @@
 package com.example.feature.training.domain
 
 import com.example.common.domain.entity.Deck
+import com.example.database.models.Source
 import com.example.decks.domain.repository.PublicDeckRepository
 import javax.inject.Inject
 
@@ -12,10 +13,10 @@ import javax.inject.Inject
  * @param repository The repository that provides deck data.
  */
 internal class GetDeckByIdNetworkUseCase @Inject constructor(
-    private val repository: PublicDeckRepository
+    private val repository: PublicDeckRepository,
 ) {
 
-    suspend operator fun invoke(id: String): Deck {
+    suspend operator fun invoke(id: String): Pair<Deck, Source> {
         return repository.getDeckById(id)
     }
 }
