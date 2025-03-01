@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -36,7 +38,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -341,41 +342,17 @@ private fun FillInTheBlankContent(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(25.dp)
+            .verticalScroll(rememberScrollState())
             .imePadding()
     ) {
         if (isAnswered) {
             AnswerWithHighlight(card.answer, card.missingWords)
 
-            UserInputWithHighlight(userInput, card.missingWords)
+            UserInputWithHighlight(userInput, card.missingWords, isCorrect)
 
             Spacer(modifier = Modifier.height(20.dp))
-
-            // Логика подсветки правильных/неправильных ответов
-            if (isCorrect) {
-                Text(
-                    text = "Ответ правильный!",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-            } else if (userInput.isNotBlank()) {
-                Text(
-                    text = "Ответ неправильный!",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-            }
         } else {
             if (card.partialAnswer.isNullOrEmpty()) {
                 Text(
@@ -507,18 +484,34 @@ private fun AnswerWithHighlight(answer: String, missingWords: List<String>) {
         modifier = Modifier.padding(bottom = 8.dp)
     )
 
-    // Подсвечиваем слова из missingWords в полном ответе
+    // Подсвечиваем только слова из missingWords, соединенные в единую строку
     val annotatedAnswer = buildAnnotatedString {
-        val answerWords = answer.split(" ")
-        answerWords.forEachIndexed { index, word ->
-            if (missingWords.contains(word)) {
+        val answerText = answer
+        val missingText = missingWords.joinToString(" ")
+
+        // Индекс для отслеживания начала позиции missingWords в полном ответе
+        var currentIndex = 0
+
+        // Перебираем ответ, подсвечиваем только missingWords
+        while (currentIndex < answerText.length) {
+            // Ищем, где начинается строка, соответствующая missingWords
+            val startIndex = answerText.indexOf(missingText, currentIndex)
+            if (startIndex != -1) {
+                // Если нашли, добавляем до этого места обычный текст
+                append(answerText.substring(currentIndex, startIndex))
+
+                // Подсвечиваем missingWords
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                    append(word)
+                    append(missingText)
                 }
+
+                // Обновляем currentIndex для продолжения после подсвеченной строки
+                currentIndex = startIndex + missingText.length
             } else {
-                append(word)
+                // Если больше нет match, добавляем оставшийся текст
+                append(answerText.substring(currentIndex))
+                break
             }
-            if (index < answerWords.size - 1) append(" ")
         }
     }
 
@@ -530,7 +523,11 @@ private fun AnswerWithHighlight(answer: String, missingWords: List<String>) {
 }
 
 @Composable
-private fun UserInputWithHighlight(userInput: String, missingWords: List<String>) {
+private fun UserInputWithHighlight(
+    userInput: String,
+    missingWords: List<String>,
+    isCorrect: Boolean,
+) {
     Text(
         text = "Ваш ответ:",
         style = MaterialTheme.typography.titleMedium,
@@ -539,22 +536,29 @@ private fun UserInputWithHighlight(userInput: String, missingWords: List<String>
 
     val annotatedUserInput = buildAnnotatedString {
         val userInputWords = userInput.split(" ")
-        if (userInput.isBlank()) {
-            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
-                append("Вы не дали ответ")
+
+        if (isCorrect) {
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                append(userInput)
             }
         } else {
-            userInputWords.forEachIndexed { index, word ->
-                if (missingWords.contains(word)) {
-                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                        append(word)
-                    }
-                } else {
-                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
-                        append(word)
-                    }
+            if (userInput.isBlank()) {
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
+                    append("Вы не дали ответ")
                 }
-                if (index < userInputWords.size - 1) append(" ")
+            } else {
+                userInputWords.forEachIndexed { index, word ->
+                    if (missingWords.any { it.equals(word, ignoreCase = true) }) {
+                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                            append(word)
+                        }
+                    } else {
+                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
+                            append(word)
+                        }
+                    }
+                    if (index < userInputWords.size - 1) append(" ")
+                }
             }
         }
     }

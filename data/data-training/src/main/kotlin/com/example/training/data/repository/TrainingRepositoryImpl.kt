@@ -120,6 +120,11 @@ class TrainingRepositoryImpl @Inject internal constructor(
             val normalizedInput = normalizeText(userInput)
             val normalizedCorrectText = normalizeText(correctWords.joinToString(" "))
 
+            // Если correctWords содержит только одно слово, проверяем полное соответствие
+            if (correctWords.size == 1) {
+                return@withContext normalizedInput == normalizedCorrectText
+            }
+
             if (normalizedInput.length < normalizedCorrectText.length * MIN_INPUT_LENGTH_PERCENT) {
                 return@withContext false
             }

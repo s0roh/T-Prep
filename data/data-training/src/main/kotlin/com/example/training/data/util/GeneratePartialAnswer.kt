@@ -34,7 +34,8 @@ internal fun generatePartialAnswer(answer: String): Pair<String, List<String>> {
     // Генерация частичного ответа с пропусками
     val partialAnswer = words.toMutableList().apply {
         for (i in startIndex until (startIndex + missingWordCount)) {
-            this[i] = "..."
+            //this[i] = "..."
+            this[i] = "_".repeat(this[i].length)
         }
     }.joinToString(" ")
 

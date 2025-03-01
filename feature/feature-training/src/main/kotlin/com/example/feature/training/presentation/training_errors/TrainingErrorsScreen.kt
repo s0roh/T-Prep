@@ -184,7 +184,9 @@ private fun ErrorItem(error: TrainingError) {
         Text(text = error.question, style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (error.trainingMode == TrainingMode.FILL_IN_THE_BLANK) {
+        if (error.trainingMode == TrainingMode.FILL_IN_THE_BLANK &&
+            error.correctAnswer != error.fillInTheBlankAnswer
+        ) {
             AnswerSection(
                 title = "Полный ответ:",
                 answer = error.correctAnswer,
