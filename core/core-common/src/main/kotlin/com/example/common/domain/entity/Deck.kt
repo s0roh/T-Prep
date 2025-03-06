@@ -1,7 +1,5 @@
 package com.example.common.domain.entity
 
-import java.util.UUID
-
 /**
  * Represents a deck of flashcards used in the spaced repetition system.
  *

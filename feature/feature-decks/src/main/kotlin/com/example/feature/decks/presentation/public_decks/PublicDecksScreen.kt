@@ -32,13 +32,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults.InputField
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,6 +52,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.common.ui.DeckCard
 import com.example.common.ui.entity.DeckUiModel
 import com.example.decks.R
+import com.example.feature.decks.presentation.components.AppPullToRefreshBox
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -62,7 +63,7 @@ fun PublicDecksScreen(
     onDeckClickListener: (String) -> Unit,
 ) {
     val viewModel: PublicDecksViewModel = hiltViewModel()
-    val query = remember { mutableStateOf("") }
+    val query = rememberSaveable { mutableStateOf("") }
     val searchBarExpanded = remember { mutableStateOf(false) }
     val decksFlow = remember(query.value) {
         if (query.value.isBlank()) viewModel.publicDecks
@@ -75,9 +76,10 @@ fun PublicDecksScreen(
         label = "searchBarPadding"
     )
 
-    PullToRefreshBox(
+    AppPullToRefreshBox(
         isRefreshing = lazyPagingItems.loadState.refresh is LoadState.Loading,
-        onRefresh = { lazyPagingItems.refresh() }
+        onRefresh = { lazyPagingItems.refresh() },
+        enabled = !searchBarExpanded.value
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -189,7 +191,7 @@ private fun ErrorContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBarComponent(
+private fun SearchBarComponent(
     query: MutableState<String>,
     searchBarExpanded: MutableState<Boolean>,
     lazyPagingItems: LazyPagingItems<DeckUiModel>,

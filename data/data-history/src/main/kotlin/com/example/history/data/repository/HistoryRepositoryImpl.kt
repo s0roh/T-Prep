@@ -35,6 +35,21 @@ class HistoryRepositoryImpl @Inject internal constructor(
             }
     }
 
+    override suspend fun getTrainingStats(): Pair<Int, Int> {
+        val allTrainings = getAllTrainingHistories()
+        val groupedTrainings = allTrainings.groupBy { it.trainingSessionId }
+
+        val totalTrainings = groupedTrainings.size
+
+        val averageAccuracy = if (totalTrainings > 0) {
+            groupedTrainings.values.sumOf { calculatePercentOfCorrectAnswers(it) } / totalTrainings
+        } else {
+            0
+        }
+
+        return totalTrainings to averageAccuracy
+    }
+
     private suspend fun getAllTrainingHistories(): List<TrainingHistory> {
         val userId = preferences.getUserId()
             ?: throw IllegalStateException("User ID not found in preferences")

@@ -2,6 +2,7 @@ package com.example.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -33,6 +34,18 @@ class AuthPreferencesImpl @Inject constructor(
         prefs.edit().putString(USER_ID_KEY, userId).apply()
     }
 
+    override fun saveUserName(username: String) {
+        prefs.edit().putString(USER_NAME_KEY, username).apply()
+    }
+
+    override fun saveUserEmail(email: String) {
+        prefs.edit().putString(USER_EMAIL_KEY, email).apply()
+    }
+
+    override fun saveUserProfileImage(uri: String) {
+        prefs.edit().putString(USER_PROFILE_IMAGE_KEY, uri).apply()
+    }
+
     override fun getAccessToken(): String? = prefs.getString(ACCESS_TOKEN_KEY, null)
 
     override fun getRefreshToken(): String? = prefs.getString(REFRESH_TOKEN_KEY, null)
@@ -45,6 +58,12 @@ class AuthPreferencesImpl @Inject constructor(
 
     override fun getUserId(): String? = prefs.getString(USER_ID_KEY, null)
 
+    override fun getUserName(): String?  = prefs.getString(USER_NAME_KEY, null)
+
+    override fun getUserEmail(): String?  = prefs.getString(USER_EMAIL_KEY, null)
+
+    override fun getUserProfileImage(): String?  = prefs.getString(USER_PROFILE_IMAGE_KEY, null)
+
     override fun clearTokens() {
         prefs.edit()
             .remove(ACCESS_TOKEN_KEY)
@@ -52,6 +71,9 @@ class AuthPreferencesImpl @Inject constructor(
             .remove(ACCESS_TOKEN_EXPIRATION_KEY)
             .remove(REFRESH_TOKEN_EXPIRATION_KEY)
             .remove(USER_ID_KEY)
+            .remove(USER_NAME_KEY)
+            .remove(USER_EMAIL_KEY)
+            .remove(USER_PROFILE_IMAGE_KEY)
             .apply()
     }
 
@@ -83,6 +105,9 @@ class AuthPreferencesImpl @Inject constructor(
         private const val ACCESS_TOKEN_EXPIRATION_KEY = "access_token_expiration"
         private const val REFRESH_TOKEN_EXPIRATION_KEY = "refresh_token_expiration"
         private const val USER_ID_KEY = "user_id"
+        private const val USER_NAME_KEY = "user_name"
+        private const val USER_EMAIL_KEY = "user_email"
+        private const val USER_PROFILE_IMAGE_KEY = "user_profile_image"
         private const val DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS Z 'UTC'"
     }
 }

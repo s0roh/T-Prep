@@ -7,5 +7,10 @@ android {
 }
 
 dependencies {
+    implementation(project(":data-history"))
     implementation(project(":core-preferences"))
+
+    implementation(libs.android.image.cropper)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 }

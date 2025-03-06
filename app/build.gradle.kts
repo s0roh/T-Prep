@@ -71,4 +71,6 @@ dependencies {
     ksp(libs.hilt.work.compiler)
 
     implementation(libs.work.runtime.ktx)
+
+    implementation(libs.android.image.cropper)
 }
