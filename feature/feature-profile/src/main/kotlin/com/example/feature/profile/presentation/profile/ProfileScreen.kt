@@ -1,14 +1,15 @@
 package com.example.feature.profile.presentation.profile
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -16,18 +17,23 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.common.ui.LoadingState
 import com.example.feature.profile.presentation.components.CropImageContract
 import com.example.feature.profile.presentation.components.ProfileHeader
 import com.example.feature.profile.presentation.components.StatisticsSection
@@ -44,6 +50,18 @@ fun ProfileScreen(
     var showDialog = remember { mutableStateOf(false) }
     val themeColors = MaterialTheme.colorScheme
     val screenState by viewModel.screenState.collectAsState()
+
+    LaunchedEffect(screenState) {
+        when (screenState) {
+            is ProfileScreenState.Error -> {
+                val message = (screenState as ProfileScreenState.Error).message
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                viewModel.refreshProfile()
+            }
+
+            else -> Unit
+        }
+    }
 
     LaunchedEffect(navController.currentBackStackEntry) {
         viewModel.refreshProfile()
@@ -77,9 +95,8 @@ fun ProfileScreen(
     }
 
     when (val currentState = screenState) {
-        ProfileScreenState.Error -> {}
         ProfileScreenState.Loading -> {
-            CircularProgressIndicator()
+            LoadingState()
         }
 
         is ProfileScreenState.Success -> {
@@ -90,9 +107,14 @@ fun ProfileScreen(
                 onLogoutClick = {
                     viewModel.logout()
                     onLogoutClick()
+                },
+                onDeleteProfileImage = {
+                    viewModel.deleteProfileImage()
                 }
             )
         }
+
+        else -> Unit
     }
 }
 
@@ -102,6 +124,7 @@ private fun ProfileScreenContent(
     currentState: ProfileScreenState.Success,
     showDialog: MutableState<Boolean>,
     onLogoutClick: () -> Unit,
+    onDeleteProfileImage: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -110,7 +133,7 @@ private fun ProfileScreenContent(
             .fillMaxSize(),
     ) {
 
-        ProfileHeader(currentState, showDialog)
+        ProfileHeader(currentState, showDialog, onDeleteProfileImage)
 
         Spacer(modifier = Modifier.height(41.dp))
 

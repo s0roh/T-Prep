@@ -18,11 +18,13 @@ import com.example.feature.profile.presentation.profile.ProfileScreenState
 internal fun ProfileHeader(
     currentState: ProfileScreenState.Success,
     showDialog: MutableState<Boolean>,
+    onDeleteProfileImage: () -> Unit,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         ProfileImage(
             imageUri = currentState.profileImageUri,
-            onClick = { showDialog.value = true }
+            onClick = { showDialog.value = true },
+            onDelete = { onDeleteProfileImage() }
         )
         Spacer(modifier = Modifier.width(35.dp))
         Column {

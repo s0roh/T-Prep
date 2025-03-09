@@ -19,6 +19,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 import javax.inject.Inject
+import androidx.core.net.toUri
+import com.example.feature.profile.domain.DeleteUserProfileImageUseCase
 
 @HiltViewModel
 internal class ProfileViewModel @Inject constructor(
@@ -27,14 +29,15 @@ internal class ProfileViewModel @Inject constructor(
     private val getUserNameUseCase: GetUserNameUseCase,
     private val getUserEmailUseCase: GetUserEmailUseCase,
     private val saveUserProfileImageUseCase: SaveUserProfileImageUseCase,
+    private val deleteUserProfileImageUseCase: DeleteUserProfileImageUseCase,
     private val getTrainingStatsUseCase: GetTrainingStatsUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<ProfileScreenState>(ProfileScreenState.Loading)
         private set
 
-    private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
-        screenState.value = ProfileScreenState.Error
+    private val exceptionHandler = CoroutineExceptionHandler { _, message ->
+        screenState.value = ProfileScreenState.Error(message = message.toString())
     }
 
     init {
@@ -51,7 +54,7 @@ internal class ProfileViewModel @Inject constructor(
                 ?: throw IllegalArgumentException("User name is missing and cannot be null.")
             val userEmail = getUserEmailUseCase()
                 ?: throw IllegalArgumentException("User email is missing and cannot be null.")
-            val profileImageUri = getUserProfileImageUseCase()?.let { Uri.parse(it) }
+            val profileImageUri = getUserProfileImageUseCase()
 
             val (totalTrainings, averageAccuracy) = getTrainingStatsUseCase()
 
@@ -66,13 +69,24 @@ internal class ProfileViewModel @Inject constructor(
     }
 
     fun setProfileImage(uri: String) {
-        val currentState = screenState.value
-        if (currentState !is ProfileScreenState.Success) {
-            throw IllegalStateException("setProfileImage called in an invalid state")
-        }
         viewModelScope.launch(exceptionHandler) {
+            val currentState = screenState.value
+            if (currentState !is ProfileScreenState.Success) {
+                throw IllegalStateException("setProfileImage called in an invalid state")
+            }
             saveUserProfileImageUseCase(uri)
-            screenState.value = currentState.copy(profileImageUri = Uri.parse(uri))
+            screenState.value = currentState.copy(profileImageUri = uri.toUri())
+        }
+    }
+
+    fun deleteProfileImage() {
+        viewModelScope.launch(exceptionHandler) {
+            val currentState = screenState.value
+            if (currentState !is ProfileScreenState.Success) {
+                throw IllegalStateException("deleteProfileImage called in an invalid state")
+            }
+            deleteUserProfileImageUseCase()
+            screenState.value = currentState.copy(profileImageUri = null)
         }
     }
 

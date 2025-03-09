@@ -41,6 +41,7 @@ includeNested("data-history", "data")
 includeNested("data-training", "data")
 includeNested("data-local-decks", "data")
 includeNested("data-reminder", "data")
+includeNested("data-profile", "data")
 
 includeNested("feature-auth", "feature")
 includeNested("feature-decks", "feature")

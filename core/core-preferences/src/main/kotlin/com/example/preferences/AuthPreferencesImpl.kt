@@ -2,12 +2,12 @@ package com.example.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import androidx.core.content.edit
 
 class AuthPreferencesImpl @Inject constructor(
     @ApplicationContext context: Context,
@@ -22,28 +22,28 @@ class AuthPreferencesImpl @Inject constructor(
         accessTokenExpirationDate: String,
         refreshTokenExpirationDate: String,
     ) {
-        prefs.edit()
-            .putString(ACCESS_TOKEN_KEY, accessToken)
-            .putString(REFRESH_TOKEN_KEY, refreshToken)
-            .putString(ACCESS_TOKEN_EXPIRATION_KEY, accessTokenExpirationDate)
-            .putString(REFRESH_TOKEN_EXPIRATION_KEY, refreshTokenExpirationDate)
-            .apply()
+        prefs.edit {
+            putString(ACCESS_TOKEN_KEY, accessToken)
+                .putString(REFRESH_TOKEN_KEY, refreshToken)
+                .putString(ACCESS_TOKEN_EXPIRATION_KEY, accessTokenExpirationDate)
+                .putString(REFRESH_TOKEN_EXPIRATION_KEY, refreshTokenExpirationDate)
+        }
     }
 
     override fun saveUserId(userId: String) {
-        prefs.edit().putString(USER_ID_KEY, userId).apply()
+        prefs.edit { putString(USER_ID_KEY, userId) }
     }
 
     override fun saveUserName(username: String) {
-        prefs.edit().putString(USER_NAME_KEY, username).apply()
+        prefs.edit { putString(USER_NAME_KEY, username) }
     }
 
     override fun saveUserEmail(email: String) {
-        prefs.edit().putString(USER_EMAIL_KEY, email).apply()
+        prefs.edit { putString(USER_EMAIL_KEY, email) }
     }
 
     override fun saveUserProfileImage(uri: String) {
-        prefs.edit().putString(USER_PROFILE_IMAGE_KEY, uri).apply()
+        prefs.edit { putString(USER_PROFILE_IMAGE_KEY, uri) }
     }
 
     override fun getAccessToken(): String? = prefs.getString(ACCESS_TOKEN_KEY, null)
@@ -58,23 +58,29 @@ class AuthPreferencesImpl @Inject constructor(
 
     override fun getUserId(): String? = prefs.getString(USER_ID_KEY, null)
 
-    override fun getUserName(): String?  = prefs.getString(USER_NAME_KEY, null)
+    override fun getUserName(): String? = prefs.getString(USER_NAME_KEY, null)
 
-    override fun getUserEmail(): String?  = prefs.getString(USER_EMAIL_KEY, null)
+    override fun getUserEmail(): String? = prefs.getString(USER_EMAIL_KEY, null)
 
-    override fun getUserProfileImage(): String?  = prefs.getString(USER_PROFILE_IMAGE_KEY, null)
+    override fun getUserProfileImage(): String? = prefs.getString(USER_PROFILE_IMAGE_KEY, null)
+
+    override fun deleteUserProfileImage() {
+        prefs.edit {
+            remove(USER_PROFILE_IMAGE_KEY)
+        }
+    }
 
     override fun clearTokens() {
-        prefs.edit()
-            .remove(ACCESS_TOKEN_KEY)
-            .remove(REFRESH_TOKEN_KEY)
-            .remove(ACCESS_TOKEN_EXPIRATION_KEY)
-            .remove(REFRESH_TOKEN_EXPIRATION_KEY)
-            .remove(USER_ID_KEY)
-            .remove(USER_NAME_KEY)
-            .remove(USER_EMAIL_KEY)
-            .remove(USER_PROFILE_IMAGE_KEY)
-            .apply()
+        prefs.edit {
+            remove(ACCESS_TOKEN_KEY)
+                .remove(REFRESH_TOKEN_KEY)
+                .remove(ACCESS_TOKEN_EXPIRATION_KEY)
+                .remove(REFRESH_TOKEN_EXPIRATION_KEY)
+                .remove(USER_ID_KEY)
+                .remove(USER_NAME_KEY)
+                .remove(USER_EMAIL_KEY)
+                .remove(USER_PROFILE_IMAGE_KEY)
+        }
     }
 
     override fun isAccessTokenValid(): Boolean {

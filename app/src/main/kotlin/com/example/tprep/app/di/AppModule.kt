@@ -3,6 +3,8 @@ package com.example.tprep.app.di
 import android.content.Context
 import com.example.auth.data.repository.AuthRepositoryImpl
 import com.example.auth.domain.repository.AuthRepository
+import com.example.data.profile.data.ProfileRepositoryImpl
+import com.example.data.profile.domain.ProfileRepository
 import com.example.data.reminder.data.repository.ReminderSchedulerImpl
 import com.example.data.reminder.data.util.RouteNavigator
 import com.example.data.reminder.domain.repository.ReminderScheduler
@@ -149,6 +151,17 @@ interface AppModule {
             authRequestWrapper: AuthRequestWrapper,
         ): ReminderScheduler {
             return ReminderSchedulerImpl(context, database, apiService, authRequestWrapper)
+        }
+
+        @Provides
+        @Singleton
+        fun provideProfileRepository(
+            @ApplicationContext context: Context,
+            apiService: ApiService,
+            preferences: AuthPreferences,
+            authRequestWrapper: AuthRequestWrapper,
+        ): ProfileRepository {
+            return ProfileRepositoryImpl(context, apiService, preferences, authRequestWrapper)
         }
     }
 }

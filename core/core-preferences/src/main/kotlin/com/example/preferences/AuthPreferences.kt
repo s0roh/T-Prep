@@ -25,6 +25,8 @@ interface AuthPreferences {
     fun getUserEmail(): String?
     fun getUserProfileImage(): String?
 
+    fun deleteUserProfileImage()
+
     fun clearTokens()
 
     fun isAccessTokenValid(): Boolean

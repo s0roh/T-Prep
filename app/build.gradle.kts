@@ -31,6 +31,7 @@ dependencies {
     implementation(projects.dataTraining)
     implementation(projects.dataLocalDecks)
     implementation(projects.dataReminder)
+    implementation(projects.dataProfile)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

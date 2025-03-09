@@ -1,11 +1,12 @@
 package com.example.feature.profile.domain
 
-import com.example.preferences.AuthPreferences
+import android.net.Uri
+import com.example.data.profile.domain.ProfileRepository
 import javax.inject.Inject
 
 class GetUserProfileImageUseCase @Inject constructor(
-    private val preferences: AuthPreferences
+    private val repository: ProfileRepository
 ) {
 
-    operator fun invoke(): String? = preferences.getUserProfileImage()
+    suspend operator fun invoke(): Uri? = repository.getUserProfileImage()
 }

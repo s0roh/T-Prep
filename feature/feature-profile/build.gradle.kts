@@ -8,7 +8,9 @@ android {
 
 dependencies {
     implementation(project(":data-history"))
+    implementation(project(":data-profile"))
     implementation(project(":core-preferences"))
+    implementation(project(":core-common"))
 
     implementation(libs.android.image.cropper)
     implementation(libs.coil.compose)
