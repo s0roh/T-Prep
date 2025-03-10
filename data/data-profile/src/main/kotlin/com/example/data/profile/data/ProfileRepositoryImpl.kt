@@ -3,7 +3,7 @@ package com.example.data.profile.data
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import com.example.data.profile.domain.ProfileRepository
+import com.example.data.profile.domain.repository.ProfileRepository
 import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthRequestWrapper
@@ -13,6 +13,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.example.data.profile.domain.entity.ProfileInfo
 
 class ProfileRepositoryImpl @Inject constructor(
     private val context: Context,
@@ -21,25 +22,26 @@ class ProfileRepositoryImpl @Inject constructor(
     private val authRequestWrapper: AuthRequestWrapper,
 ) : ProfileRepository {
 
-    override suspend fun getUserProfileImage(): Uri? {
+    private suspend fun getUserProfileImage(): Uri? {
         return try {
             authRequestWrapper.executeWithAuth { token ->
                 val response = apiService.getUserPicture(token)
                 if (response.isSuccessful) {
                     response.body()?.byteStream()?.let { inputStream ->
-                        val tempFile =
-                            File(context.filesDir, "profile_pic_${System.currentTimeMillis()}.jpg")
+
+                        val tempFile = File(context.filesDir, "profile_pic.jpg")
                         tempFile.outputStream().use { output ->
                             inputStream.copyTo(output)
                         }
+
                         val uri = Uri.fromFile(tempFile)
                         preferences.saveUserProfileImage(uri.toString())
                         uri
                     }
                 } else {
-                    if (response.code()!= 404) {
+                    if (response.code() != 404) {
                         loadProfileImageFromPreferences()
-                    }else{
+                    } else {
                         null
                     }
                 }
@@ -62,16 +64,7 @@ class ProfileRepositoryImpl @Inject constructor(
 
     override suspend fun updateUserProfileImage(imageUri: Uri) {
         return authRequestWrapper.executeWithAuth { token ->
-            val file = File(context.filesDir, "profile_pic_${System.currentTimeMillis()}.jpg")
-
-            if (!file.exists()) {
-                try {
-                    file.createNewFile()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error creating file: ${e.message}")
-                    throw Exception("Error creating file")
-                }
-            }
+            val file = File(context.filesDir, "profile_pic.jpg")
 
             val inputStream = context.contentResolver.openInputStream(imageUri)
             inputStream?.use { input ->
@@ -123,6 +116,63 @@ class ProfileRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun getUserInfo(): ProfileInfo {
+        val cachedName = preferences.getUserName()
+        val cachedEmail = preferences.getUserEmail()
+        val profileImage = getUserProfileImage()
+
+        return if (!cachedName.isNullOrEmpty() && !cachedEmail.isNullOrEmpty()) {
+            ProfileInfo(
+                profileName = cachedName,
+                profileEmail = cachedEmail,
+                profileImage = profileImage
+            )
+        } else {
+            authRequestWrapper.executeWithAuth { token ->
+                val response = apiService.getUserInfo(authHeader = token)
+
+                if (response.isSuccessful) {
+                    response.body()?.let { responseBody ->
+                        val userName = responseBody.userName
+                        val userEmail = responseBody.email
+
+                        preferences.saveUserName(userName)
+                        preferences.saveUserEmail(userEmail)
+
+                        return@executeWithAuth ProfileInfo(
+                            profileName = userName,
+                            profileEmail = userEmail,
+                            profileImage = profileImage
+                        )
+                    }
+                }
+
+                throw IllegalStateException("Failed to fetch user info and no cached data available.")
+            }
+        }
+    }
+
+
+//    override suspend fun getUserInfo(): ProfileInfo {
+//        authRequestWrapper.executeWithAuth { token ->
+//            val response = apiService.getUserInfo(authHeader = token)
+//
+//            if (response.isSuccessful) {
+//                val responseBody = response.body()
+//                if (responseBody == null) {
+//                    Log.e("SyncWorker", "Ответ от сервера пустой.")
+//                    return@executeWithAuth
+//                }
+//
+//                val userName = responseBody.userName
+//                val userEmail = responseBody.email
+//
+//                preferences.saveUserName(userName)
+//                preferences.saveUserEmail(userEmail)
+//            }
+//        }
+//    }
 
     companion object {
 

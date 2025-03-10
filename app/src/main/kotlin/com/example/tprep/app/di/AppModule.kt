@@ -4,7 +4,7 @@ import android.content.Context
 import com.example.auth.data.repository.AuthRepositoryImpl
 import com.example.auth.domain.repository.AuthRepository
 import com.example.data.profile.data.ProfileRepositoryImpl
-import com.example.data.profile.domain.ProfileRepository
+import com.example.data.profile.domain.repository.ProfileRepository
 import com.example.data.reminder.data.repository.ReminderSchedulerImpl
 import com.example.data.reminder.data.util.RouteNavigator
 import com.example.data.reminder.domain.repository.ReminderScheduler

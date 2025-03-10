@@ -23,11 +23,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -47,7 +47,7 @@ fun ProfileScreen(
     val viewModel: ProfileViewModel = hiltViewModel()
     val navController = rememberNavController()
     val context = LocalContext.current
-    var showDialog = remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
     val themeColors = MaterialTheme.colorScheme
     val screenState by viewModel.screenState.collectAsState()
 
@@ -86,9 +86,9 @@ fun ProfileScreen(
             }
         }
 
-    if (showDialog.value) {
+    if (showDialog) {
         ImageSourceDialog(
-            onDismiss = { showDialog.value = false },
+            onDismiss = { showDialog = false },
             onGalleryClick = { pickImageLauncher.launch("image/*") },
             onCameraClick = { captureImageLauncher.launch(null) }
         )
@@ -102,15 +102,13 @@ fun ProfileScreen(
         is ProfileScreenState.Success -> {
             ProfileScreenContent(
                 paddingValues = paddingValues,
-                currentState = currentState,
-                showDialog = showDialog,
+                state = currentState,
                 onLogoutClick = {
                     viewModel.logout()
                     onLogoutClick()
                 },
-                onDeleteProfileImage = {
-                    viewModel.deleteProfileImage()
-                }
+                onDeleteProfileImage = { viewModel.deleteProfileImage() },
+                onChangeImageClick = { showDialog = true }
             )
         }
 
@@ -121,10 +119,10 @@ fun ProfileScreen(
 @Composable
 private fun ProfileScreenContent(
     paddingValues: PaddingValues,
-    currentState: ProfileScreenState.Success,
-    showDialog: MutableState<Boolean>,
+    state: ProfileScreenState.Success,
     onLogoutClick: () -> Unit,
     onDeleteProfileImage: () -> Unit,
+    onChangeImageClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -133,11 +131,15 @@ private fun ProfileScreenContent(
             .fillMaxSize(),
     ) {
 
-        ProfileHeader(currentState, showDialog, onDeleteProfileImage)
+        ProfileHeader(
+            state = state,
+            onChangeImageClick = onChangeImageClick,
+            onDeleteProfileImage = onDeleteProfileImage
+        )
 
         Spacer(modifier = Modifier.height(41.dp))
 
-        StatisticsSection(currentState)
+        StatisticsSection(state)
 
         Spacer(modifier = Modifier.height(32.dp))
 

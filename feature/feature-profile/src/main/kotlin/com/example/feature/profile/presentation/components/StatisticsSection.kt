@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.example.feature.profile.presentation.profile.ProfileScreenState
 
 @Composable
-internal fun StatisticsSection(currentState: ProfileScreenState.Success) {
+internal fun StatisticsSection(state: ProfileScreenState.Success) {
     Text(
         text = "Общая статистика",
         style = MaterialTheme.typography.titleLarge,
@@ -21,14 +21,14 @@ internal fun StatisticsSection(currentState: ProfileScreenState.Success) {
     Column {
         StatisticRow(
             label = "Тренировок завершено",
-            value = currentState.totalTrainings.toString()
+            value = state.totalTrainings.toString()
         )
 
         Spacer(modifier = Modifier.height(9.dp))
 
         StatisticRow(
             label = "Процент правильных ответов",
-            value = "${currentState.averageAccuracy}%"
+            value = "${state.averageAccuracy}%"
         )
     }
 }

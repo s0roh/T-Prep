@@ -3,13 +3,13 @@ package com.example.feature.profile.presentation.profile
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.feature.profile.domain.ClearTokensUseCase
+import com.example.feature.profile.domain.DeleteUserProfileImageUseCase
 import com.example.feature.profile.domain.GetTrainingStatsUseCase
-import com.example.feature.profile.domain.GetUserEmailUseCase
-import com.example.feature.profile.domain.GetUserNameUseCase
-import com.example.feature.profile.domain.GetUserProfileImageUseCase
+import com.example.feature.profile.domain.GetUserInfoUseCase
 import com.example.feature.profile.domain.SaveUserProfileImageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -19,15 +19,11 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 import javax.inject.Inject
-import androidx.core.net.toUri
-import com.example.feature.profile.domain.DeleteUserProfileImageUseCase
 
 @HiltViewModel
 internal class ProfileViewModel @Inject constructor(
     private val clearTokensUseCase: ClearTokensUseCase,
-    private val getUserProfileImageUseCase: GetUserProfileImageUseCase,
-    private val getUserNameUseCase: GetUserNameUseCase,
-    private val getUserEmailUseCase: GetUserEmailUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase,
     private val saveUserProfileImageUseCase: SaveUserProfileImageUseCase,
     private val deleteUserProfileImageUseCase: DeleteUserProfileImageUseCase,
     private val getTrainingStatsUseCase: GetTrainingStatsUseCase,
@@ -50,18 +46,14 @@ internal class ProfileViewModel @Inject constructor(
 
     private fun loadProfile() {
         viewModelScope.launch(exceptionHandler) {
-            val userName = getUserNameUseCase()
-                ?: throw IllegalArgumentException("User name is missing and cannot be null.")
-            val userEmail = getUserEmailUseCase()
-                ?: throw IllegalArgumentException("User email is missing and cannot be null.")
-            val profileImageUri = getUserProfileImageUseCase()
+            val profileInfo = getUserInfoUseCase()
 
             val (totalTrainings, averageAccuracy) = getTrainingStatsUseCase()
 
             screenState.value = ProfileScreenState.Success(
-                userName = userName,
-                userEmail = userEmail,
-                profileImageUri = profileImageUri,
+                userName = profileInfo.profileName,
+                userEmail = profileInfo.profileEmail,
+                profileImageUri = profileInfo.profileImage,
                 totalTrainings = totalTrainings,
                 averageAccuracy = averageAccuracy
             )
