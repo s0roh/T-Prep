@@ -16,8 +16,8 @@ class SyncUserDataRepositoryImpl @Inject constructor(
     private val database: TPrepDatabase,
     private val apiService: ApiService,
     private val authRequestWrapper: AuthRequestWrapper,
-    private val preferences: AuthPreferences
-): SyncUserDataRepository {
+    private val preferences: AuthPreferences,
+) : SyncUserDataRepository {
 
     override suspend fun syncUserData() {
         authRequestWrapper.executeWithAuth { token ->
@@ -36,18 +36,31 @@ class SyncUserDataRepositoryImpl @Inject constructor(
                 }
 
                 val userId = responseBody.userId
+                val userName = responseBody.userName
+                val userEmail = responseBody.email
                 val serverDeckIds = responseBody.collectionsId
 
                 preferences.saveUserId(userId)
+                preferences.saveUserName(userName)
+                preferences.saveUserEmail(userEmail)
 
                 syncDecksWithServer(userId, serverDeckIds, token)
             } else {
-                Log.e("SyncWorker", "Ошибка при получении информации о пользователе: ${response.errorBody()?.string()}")
+                Log.e(
+                    "SyncWorker",
+                    "Ошибка при получении информации о пользователе: ${
+                        response.errorBody()?.string()
+                    }"
+                )
             }
         }
     }
 
-    private suspend fun syncDecksWithServer(userId: String, serverDeckIds: List<String>, token: String) {
+    private suspend fun syncDecksWithServer(
+        userId: String,
+        serverDeckIds: List<String>,
+        token: String,
+    ) {
         val allDecks = database.deckDao.getAllDecks().first()
         val serverDeckIdsSet = serverDeckIds.toSet()
 
@@ -91,7 +104,10 @@ class SyncUserDataRepositoryImpl @Inject constructor(
 
         val deckLocalId = if (existingDeck != null) {
             if (existingDeck.name != deckDto.name || existingDeck.isPublic != deckDto.isPublic) {
-                Log.d("SyncWorker", "Обновление локальной колоды. Старое: $existingDeck, новое: $deckDto")
+                Log.d(
+                    "SyncWorker",
+                    "Обновление локальной колоды. Старое: $existingDeck, новое: $deckDto"
+                )
                 database.deckDao.updateDeck(
                     existingDeck.copy(
                         name = deckDto.name,
@@ -126,7 +142,10 @@ class SyncUserDataRepositoryImpl @Inject constructor(
             )
             if (existingCard != null) {
                 if (existingCard.question != cardDto.question || existingCard.answer != cardDto.answer) {
-                    Log.d("SyncWorker", "Обновление карточки. Старое: $existingCard, новое: $cardDto")
+                    Log.d(
+                        "SyncWorker",
+                        "Обновление карточки. Старое: $existingCard, новое: $cardDto"
+                    )
                     database.cardDao.updateCard(
                         existingCard.copy(
                             question = cardDto.question,

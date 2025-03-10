@@ -6,10 +6,13 @@ interface AuthPreferences {
         accessToken: String,
         refreshToken: String,
         accessTokenExpirationDate: String,
-        refreshTokenExpirationDate: String
+        refreshTokenExpirationDate: String,
     )
 
     fun saveUserId(userId: String)
+    fun saveUserName(username: String)
+    fun saveUserEmail(email: String)
+    fun saveUserProfileImage(uri: String)
 
     fun getAccessToken(): String?
     fun getRefreshToken(): String?
@@ -18,6 +21,11 @@ interface AuthPreferences {
     fun getRefreshTokenExpirationDate(): String?
 
     fun getUserId(): String?
+    fun getUserName(): String?
+    fun getUserEmail(): String?
+    fun getUserProfileImage(): String?
+
+    fun deleteUserProfileImage()
 
     fun clearTokens()
 

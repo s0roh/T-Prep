@@ -13,9 +13,12 @@ import com.example.network.dto.user.SignupRequestDto
 import com.example.network.dto.user.AuthResponseDto
 import com.example.network.dto.user.LoginRequestDto
 import com.example.network.dto.user.UserInfoDto
+import com.example.network.dto.user.UserPictureResponseDto
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -24,8 +27,10 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -105,6 +110,23 @@ interface ApiService {
     suspend fun getUserInfo(
         @Header("Authorization") authHeader: String? = null
     ): Response<UserInfoDto>
+
+    @GET("user/picture")
+    suspend fun getUserPicture(
+        @Header("Authorization") authHeader: String? = null
+    ): Response<ResponseBody>
+
+    @Multipart
+    @PUT("user/picture")
+    suspend fun updateUserPicture(
+        @Header("Authorization") authHeader: String? = null,
+        @Part image: MultipartBody.Part
+    ): Response<UserPictureResponseDto>
+
+    @DELETE("user/picture")
+    suspend fun deleteUserPicture(
+        @Header("Authorization") authHeader: String? = null
+    ): Response<UserPictureResponseDto>
 
     @GET("global/getTrainingPlan")
     suspend fun getTrainingPlan(

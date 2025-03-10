@@ -31,6 +31,7 @@ dependencies {
     implementation(projects.dataTraining)
     implementation(projects.dataLocalDecks)
     implementation(projects.dataReminder)
+    implementation(projects.dataProfile)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -71,4 +72,6 @@ dependencies {
     ksp(libs.hilt.work.compiler)
 
     implementation(libs.work.runtime.ktx)
+
+    implementation(libs.android.image.cropper)
 }

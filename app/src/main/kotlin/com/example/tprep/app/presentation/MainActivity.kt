@@ -17,7 +17,7 @@ import com.example.auth.presentation.auth.AuthScreen
 import com.example.database.models.Source
 import com.example.feature.decks.presentation.details.DeckDetailScreen
 import com.example.feature.decks.presentation.public_decks.PublicDecksScreen
-import com.example.feature.profile.presentation.ProfileScreen
+import com.example.feature.profile.presentation.profile.ProfileScreen
 import com.example.feature.reminder.presentation.add_reminder.AddReminderScreen
 import com.example.feature.reminder.presentation.reminder.ReminderScreen
 import com.example.feature.history.history.HistoryScreen
