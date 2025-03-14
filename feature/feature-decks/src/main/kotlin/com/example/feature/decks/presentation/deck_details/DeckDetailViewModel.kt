@@ -1,4 +1,4 @@
-package com.example.feature.decks.presentation.details
+package com.example.feature.decks.presentation.deck_details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -76,7 +76,6 @@ internal class DeckDetailViewModel @Inject constructor(
         }
     }
 
-
     fun changeDeckPrivacy() {
         val currentState = screenState.value
         if (currentState !is DeckDetailScreenState.Success) {
@@ -90,7 +89,6 @@ internal class DeckDetailViewModel @Inject constructor(
             screenState.value = currentState.copy(deck = updatedDeck)
         }
     }
-
 
     fun deleteDeck() {
         val currentState = screenState.value

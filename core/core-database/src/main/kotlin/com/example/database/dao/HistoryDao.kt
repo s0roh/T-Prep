@@ -14,7 +14,15 @@ interface HistoryDao {
     suspend fun insertHistory(history: HistoryDBO)
 
     @Query("SELECT * FROM history WHERE cardId = :cardId AND deckId = :deckId AND source = :source AND userId = :userId")
-    suspend fun getHistoryForCard(cardId: Int, deckId: String, source: Source, userId: String): List<HistoryDBO>
+    suspend fun getHistoryForCard(
+        cardId: Int,
+        deckId: String,
+        source: Source,
+        userId: String,
+    ): List<HistoryDBO>
+
+    @Query("SELECT * FROM history WHERE deckId = :deckId AND userId = :userId ORDER BY timestamp ASC")
+    suspend fun getHistoryForDeck(deckId: String, userId: String): List<HistoryDBO>
 
     @Query("SELECT * FROM history WHERE trainingSessionId = :trainingSessionId")
     suspend fun getHistoryForTrainingSession(trainingSessionId: String): List<HistoryDBO>

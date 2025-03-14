@@ -136,9 +136,11 @@ class ProfileRepositoryImpl @Inject constructor(
                     response.body()?.let { responseBody ->
                         val userName = responseBody.userName
                         val userEmail = responseBody.email
+                        val userId = responseBody.userId
 
                         preferences.saveUserName(userName)
                         preferences.saveUserEmail(userEmail)
+                        preferences.saveUserId(userId)
 
                         return@executeWithAuth ProfileInfo(
                             profileName = userName,
@@ -152,27 +154,6 @@ class ProfileRepositoryImpl @Inject constructor(
             }
         }
     }
-
-
-//    override suspend fun getUserInfo(): ProfileInfo {
-//        authRequestWrapper.executeWithAuth { token ->
-//            val response = apiService.getUserInfo(authHeader = token)
-//
-//            if (response.isSuccessful) {
-//                val responseBody = response.body()
-//                if (responseBody == null) {
-//                    Log.e("SyncWorker", "Ответ от сервера пустой.")
-//                    return@executeWithAuth
-//                }
-//
-//                val userName = responseBody.userName
-//                val userEmail = responseBody.email
-//
-//                preferences.saveUserName(userName)
-//                preferences.saveUserEmail(userEmail)
-//            }
-//        }
-//    }
 
     companion object {
 

@@ -427,10 +427,13 @@ private fun FillInTheBlankContent(
             else -> "Пропустить"
         }
 
+        var isButtonEnabled by remember { mutableStateOf(true) }
+
         Button(
             onClick = {
                 when {
                     isAnswered -> {
+                        isButtonEnabled = false
                         isAnswered = false
                         userInput = ""
                         onNextCard()
@@ -465,7 +468,8 @@ private fun FillInTheBlankContent(
                     }
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = isButtonEnabled
         ) {
             Text(text = buttonText)
         }

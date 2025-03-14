@@ -36,9 +36,10 @@ fun CenteredTopAppBar(
     onNavigationClick: (() -> Unit)? = null,
     onRenameDeck: (() -> Unit)? = null,
     onChangePrivacy: (() -> Unit)? = null,
+    onDeckStatistic: (() -> Unit)? = null,
     onTrainingSettings: (() -> Unit)? = null,
     onDeleteDeck: (() -> Unit)? = null,
-    isPublic: Boolean? = null
+    isPublic: Boolean? = null,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -123,6 +124,21 @@ fun CenteredTopAppBar(
                                 }
                             )
                         }
+                    }
+                    onDeckStatistic?.let {
+                        DropdownMenuItem(
+                            text = { Text("Статистика") },
+                            onClick = {
+                                expanded = false
+                                it()
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    painterResource(R.drawable.ic_statistic),
+                                    contentDescription = null
+                                )
+                            }
+                        )
                     }
                     onTrainingSettings?.let {
                         DropdownMenuItem(

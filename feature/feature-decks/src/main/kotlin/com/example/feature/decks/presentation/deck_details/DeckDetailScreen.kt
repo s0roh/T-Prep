@@ -1,4 +1,4 @@
-package com.example.feature.decks.presentation.details
+package com.example.feature.decks.presentation.deck_details
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
@@ -83,6 +83,7 @@ fun DeckDetailScreen(
     onEditCard: (deckId: String, cardId: Int?) -> Unit,
     onRemindClick: (deckName: String) -> Unit,
     onTrainingModeSettingsClick: (String) -> Unit,
+    onDeckStatisticClick: (String) -> Unit,
 ) {
     val viewModel: DeckDetailViewModel = hiltViewModel()
     val screenState = viewModel.screenState.collectAsState()
@@ -121,8 +122,8 @@ fun DeckDetailScreen(
                 },
                 onEditCard = onEditCard,
                 onRemindClick = onRemindClick,
-                onTrainingModeSettingsClick = onTrainingModeSettingsClick
-
+                onTrainingModeSettingsClick = onTrainingModeSettingsClick,
+                onDeckStatisticClick = onDeckStatisticClick
             )
         }
     }
@@ -144,6 +145,7 @@ private fun DeckDetailContent(
     onDeleteCard: (Card) -> Unit,
     onRemindClick: (deckName: String) -> Unit,
     onTrainingModeSettingsClick: (String) -> Unit,
+    onDeckStatisticClick: (String) -> Unit,
 ) {
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -192,6 +194,7 @@ private fun DeckDetailContent(
                 showActions = source == Source.LOCAL,
                 onRenameDeck = { onEditDeckName(deck.id) },
                 onChangePrivacy = { showPrivacyDialog = true },
+                onDeckStatistic = { onDeckStatisticClick(deck.id) },
                 onTrainingSettings = { onTrainingModeSettingsClick(deck.id) },
                 onDeleteDeck = { showDeleteDialog = true },
                 isPublic = deck.isPublic,

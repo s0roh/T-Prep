@@ -14,6 +14,7 @@ fun AppNavGraph(
     publicDecksScreenContent: @Composable () -> Unit,
     profileScreenContent: @Composable () -> Unit,
     deckDetailsScreenContent: @Composable (String, Source) -> Unit,
+    deckDetailsStatisticScreenContent: @Composable (String) -> Unit,
     trainingScreenContent: @Composable (String, Source) -> Unit,
     trainingResultsScreenContent: @Composable (String, Boolean) -> Unit,
     trainingErrorsScreenContent: @Composable (String) -> Unit,
@@ -41,6 +42,10 @@ fun AppNavGraph(
         composable<Screen.DeckDetails> { backStackEntry ->
             val deck: Screen.DeckDetails = backStackEntry.toRoute()
             deckDetailsScreenContent(deck.deckId, deck.source)
+        }
+        composable<Screen.DeckDetailsStatistic> { backStackEntry ->
+            val statistic: Screen.DeckDetailsStatistic = backStackEntry.toRoute()
+            deckDetailsStatisticScreenContent(statistic.deckId)
         }
         composable<Screen.Training> { backStackEntry ->
             val training: Screen.Training = backStackEntry.toRoute()

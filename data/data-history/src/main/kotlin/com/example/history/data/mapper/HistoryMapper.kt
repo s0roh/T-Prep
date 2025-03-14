@@ -12,9 +12,9 @@ internal fun HistoryDBO.toEntity(incorrectAnswer: String? = null): TrainingHisto
         cardId = cardId,
         timestamp = timestamp,
         isCorrect = isCorrect,
+        trainingMode = trainingMode,
         incorrectAnswer = incorrectAnswer,
         source = source,
         userID = userId,
         trainingSessionId = trainingSessionId
-
     )

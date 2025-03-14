@@ -52,6 +52,11 @@ sealed interface Screen {
     }
 
     @Serializable
+    data class DeckDetailsStatistic(
+        val deckId: String
+    ): Screen
+
+    @Serializable
     data class Training(
         val deckId: String,
         val source: Source,

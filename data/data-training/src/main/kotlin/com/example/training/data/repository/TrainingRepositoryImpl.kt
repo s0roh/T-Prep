@@ -31,7 +31,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
         deckId: String,
         cards: List<Card>,
         source: Source,
-        modes: Set<TrainingMode>
+        modes: Set<TrainingMode>,
     ): List<TrainingCard> {
         require(modes.isNotEmpty()) { "At least one training mode must be selected" }
 
@@ -55,7 +55,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
 
             // Сортировка карт по приоритету и коэффициенту
             val sortedCards = cardsWithSortingData
-                .sortedWith(compareBy(
+                .sortedWith(
+                    compareBy(
                     { if (it.second.first) NEW_CARD_PRIORITY else EXISTING_CARD_PRIORITY },
                     { it.second.second }
                 ))
@@ -72,7 +73,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
     private fun assignModeSpecificFields(
         card: Card,
         mode: TrainingMode,
-        allCards: List<Card>
+        allCards: List<Card>,
     ): TrainingCard {
         return when (mode) {
             TrainingMode.MULTIPLE_CHOICE -> TrainingCard(
@@ -114,7 +115,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
 
     override suspend fun checkFillInTheBlankAnswer(
         userInput: String,
-        correctWords: List<String>
+        correctWords: List<String>,
     ): Boolean {
         return withContext(Dispatchers.IO) {
             val normalizedInput = normalizeText(userInput)
@@ -163,7 +164,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
         incorrectAnswer: String?,
         source: Source,
         trainingSessionId: String,
-        trainingMode: TrainingMode
+        trainingMode: TrainingMode,
     ) {
         val userId = preferences.getUserId()
             ?: throw IllegalStateException("User ID not found in preferences")
@@ -176,6 +177,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
             cardId = cardId,
             timestamp = System.currentTimeMillis(),
             isCorrect = isCorrect,
+            trainingMode = trainingMode,
             source = source,
             userId = userId,
             trainingSessionId = trainingSessionId
