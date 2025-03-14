@@ -15,7 +15,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.auth.presentation.auth.AuthScreen
 import com.example.database.models.Source
-import com.example.feature.decks.presentation.details.DeckDetailScreen
+import com.example.feature.decks.presentation.deck_details.DeckDetailScreen
+import com.example.feature.decks.presentation.deck_details_statistic.DeckDetailsStatisticScreen
 import com.example.feature.decks.presentation.public_decks.PublicDecksScreen
 import com.example.feature.profile.presentation.profile.ProfileScreen
 import com.example.feature.reminder.presentation.add_reminder.AddReminderScreen
@@ -172,11 +173,20 @@ fun MainScreen(navController: NavHostController) {
                     },
                     onTrainingModeSettingsClick = { deckId ->
                         navigationState.navigateWithSaveState(
-                            Screen.TrainingModeSettings(
-                                deckId = deckId
-                            )
+                            Screen.TrainingModeSettings(deckId = deckId)
+                        )
+                    },
+                    onDeckStatisticClick = { deckId ->
+                        navigationState.navigateWithSaveState(
+                            Screen.DeckDetailsStatistic(deckId = deckId)
                         )
                     }
+                )
+            },
+            deckDetailsStatisticScreenContent = { deckId ->
+                DeckDetailsStatisticScreen(
+                    deckId = deckId,
+                    onBackClick = { navigationState.navHostController.popBackStack() }
                 )
             },
             trainingScreenContent = { deckId, source ->

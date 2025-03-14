@@ -22,6 +22,7 @@ data class HistoryDBO(
     @ColumnInfo("cardId") val cardId: Int,
     @ColumnInfo("timestamp") val timestamp: Long,
     @ColumnInfo("isCorrect") val isCorrect: Boolean,
+    @ColumnInfo("trainingMode") val trainingMode: TrainingMode,
     @ColumnInfo("source") val source: Source,
     @ColumnInfo("trainingSessionId") val trainingSessionId: String,
     @ColumnInfo("userId") val userId: String,
