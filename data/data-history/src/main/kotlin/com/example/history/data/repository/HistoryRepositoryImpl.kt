@@ -54,13 +54,16 @@ class HistoryRepositoryImpl @Inject internal constructor(
 
     override suspend fun getDeckTrainingStats(deckId: String): List<Double> {
         val allTrainings = getDeckTrainingHistories(deckId)
-        val groupedTrainings = allTrainings.groupBy { it.trainingSessionId }
+        if (allTrainings.isEmpty()) return emptyList()
 
-        return groupedTrainings.map { (_, trainings) ->
-            val totalQuestions = trainings.size
-            val correctAnswers = trainings.count { it.isCorrect }
-            if (totalQuestions > 0) (correctAnswers.toDouble() / totalQuestions) * 100 else 0.0
-        }
+        val totalCardsInDeck = allTrainings.firstOrNull()?.cardsCount ?: return emptyList()
+
+        return allTrainings
+            .groupBy { it.trainingSessionId }
+            .map { (_, trainings) ->
+                val correctAnswers = trainings.count { it.isCorrect }
+                (correctAnswers.toDouble() / totalCardsInDeck) * 100
+            }
     }
 
     override suspend fun getDeckTrainingModeStats(deckId: String): List<TrainingModeStats> {

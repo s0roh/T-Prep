@@ -36,6 +36,7 @@ fun CenteredTopAppBar(
     onNavigationClick: (() -> Unit)? = null,
     onRenameDeck: (() -> Unit)? = null,
     onChangePrivacy: (() -> Unit)? = null,
+    onOwner: (() -> Unit)? = null,
     onDeckStatistic: (() -> Unit)? = null,
     onTrainingSettings: (() -> Unit)? = null,
     onDeleteDeck: (() -> Unit)? = null,
@@ -99,7 +100,10 @@ fun CenteredTopAppBar(
                                     it()
                                 },
                                 leadingIcon = {
-                                    Icon(painterResource(R.drawable.ic_edit), contentDescription = null)
+                                    Icon(
+                                        painterResource(R.drawable.ic_edit),
+                                        contentDescription = null
+                                    )
                                 }
                             )
                         }
@@ -119,6 +123,23 @@ fun CenteredTopAppBar(
                                 leadingIcon = {
                                     Icon(
                                         painterResource(R.drawable.ic_outbox),
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                        }
+                    }
+                    if (showActions != true) {
+                        onOwner?.let {
+                            DropdownMenuItem(
+                                text = { Text("Перейти к владельцу") },
+                                onClick = {
+                                    expanded = false
+                                    it()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        painterResource(R.drawable.ic_profile),
                                         contentDescription = null
                                     )
                                 }

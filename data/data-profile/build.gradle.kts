@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":core-preferences"))
 
     implementation(libs.retrofit.core)
+    implementation(libs.coil.compose)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

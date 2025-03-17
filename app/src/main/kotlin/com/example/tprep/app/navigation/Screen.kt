@@ -22,6 +22,11 @@ sealed interface Screen {
     data object LocalDecks : Screen
 
     @Serializable
+    data class OwnerProfile(
+        val ownerId: String,
+    ) : Screen
+
+    @Serializable
     data class AddEditDeck(
         val deckId: String?,
     ) : Screen
