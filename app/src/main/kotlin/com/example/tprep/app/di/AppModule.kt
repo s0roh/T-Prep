@@ -3,7 +3,9 @@ package com.example.tprep.app.di
 import android.content.Context
 import com.example.auth.data.repository.AuthRepositoryImpl
 import com.example.auth.domain.repository.AuthRepository
+import com.example.data.profile.data.OwnerProfileRepositoryImpl
 import com.example.data.profile.data.ProfileRepositoryImpl
+import com.example.data.profile.domain.repository.OwnerProfileRepository
 import com.example.data.profile.domain.repository.ProfileRepository
 import com.example.data.reminder.data.repository.ReminderSchedulerImpl
 import com.example.data.reminder.data.util.RouteNavigator
@@ -91,6 +93,11 @@ interface AppModule {
     @Singleton
     @Suppress("unused")
     fun bindDeckDetailsRepository(deckDetailsRepositoryImpl: DeckDetailsRepositoryImpl): DeckDetailsRepository
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
+    fun bindOwnerProfileRepository(ownerProfileRepositoryImpl: OwnerProfileRepositoryImpl): OwnerProfileRepository
 
     @Binds
     @Singleton

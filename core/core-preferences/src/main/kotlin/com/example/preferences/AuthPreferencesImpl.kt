@@ -2,12 +2,12 @@ package com.example.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
-import androidx.core.content.edit
 
 class AuthPreferencesImpl @Inject constructor(
     @ApplicationContext context: Context,

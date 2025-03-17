@@ -31,7 +31,7 @@ fun DeckCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         onClick = { onDeckClickListener(deck.id) },
-        elevation = CardDefaults.cardElevation(3.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         Column(

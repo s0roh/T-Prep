@@ -42,7 +42,8 @@ class SyncUserDataRepositoryImpl @Inject constructor(
 
                 preferences.saveUserId(userId)
                 preferences.saveUserName(userName)
-                preferences.saveUserEmail(userEmail)
+                userEmail?.let { preferences.saveUserEmail(userEmail) }
+
 
                 syncDecksWithServer(userId, serverDeckIds, token)
             } else {

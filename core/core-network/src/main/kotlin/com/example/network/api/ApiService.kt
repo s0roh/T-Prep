@@ -108,24 +108,26 @@ interface ApiService {
 
     @GET("user")
     suspend fun getUserInfo(
-        @Header("Authorization") authHeader: String? = null
+        @Query("id") userId: String? = null,
+        @Header("Authorization") authHeader: String? = null,
     ): Response<UserInfoDto>
 
     @GET("user/picture")
     suspend fun getUserPicture(
-        @Header("Authorization") authHeader: String? = null
+        @Query("id") userId: String? = null,
+        @Header("Authorization") authHeader: String? = null,
     ): Response<ResponseBody>
 
     @Multipart
     @PUT("user/picture")
     suspend fun updateUserPicture(
         @Header("Authorization") authHeader: String? = null,
-        @Part image: MultipartBody.Part
+        @Part image: MultipartBody.Part,
     ): Response<UserPictureResponseDto>
 
     @DELETE("user/picture")
     suspend fun deleteUserPicture(
-        @Header("Authorization") authHeader: String? = null
+        @Header("Authorization") authHeader: String? = null,
     ): Response<UserPictureResponseDto>
 
     @GET("global/getTrainingPlan")
@@ -133,7 +135,7 @@ interface ApiService {
         @Query("start_date") startDate: Int,
         @Query("end_date") finishDate: Int,
         @Query("preferred_time") preferredTime: Int,
-        @Header("Authorization") authHeader: String? = null
+        @Header("Authorization") authHeader: String? = null,
     ): AutoRemindersDto
 }
 

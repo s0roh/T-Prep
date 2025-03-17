@@ -13,6 +13,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import javax.inject.Inject
 import androidx.core.net.toUri
+import coil3.imageLoader
 import com.example.data.profile.domain.entity.ProfileInfo
 
 class ProfileRepositoryImpl @Inject constructor(
@@ -25,17 +26,19 @@ class ProfileRepositoryImpl @Inject constructor(
     private suspend fun getUserProfileImage(): Uri? {
         return try {
             authRequestWrapper.executeWithAuth { token ->
-                val response = apiService.getUserPicture(token)
+                val response = apiService.getUserPicture(authHeader = token)
                 if (response.isSuccessful) {
                     response.body()?.byteStream()?.let { inputStream ->
 
                         val tempFile = File(context.filesDir, "profile_pic.jpg")
+
                         tempFile.outputStream().use { output ->
                             inputStream.copyTo(output)
                         }
 
                         val uri = Uri.fromFile(tempFile)
                         preferences.saveUserProfileImage(uri.toString())
+
                         uri
                     }
                 } else {
@@ -86,6 +89,8 @@ class ProfileRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 preferences.saveUserProfileImage(imageUri.toString())
+
+                context.imageLoader.memoryCache?.clear()
             } else {
                 Log.e(
                     TAG,
@@ -138,15 +143,17 @@ class ProfileRepositoryImpl @Inject constructor(
                         val userEmail = responseBody.email
                         val userId = responseBody.userId
 
-                        preferences.saveUserName(userName)
-                        preferences.saveUserEmail(userEmail)
-                        preferences.saveUserId(userId)
+                        userEmail?.let {
+                            preferences.saveUserName(userName)
+                            preferences.saveUserEmail(userEmail)
+                            preferences.saveUserId(userId)
 
-                        return@executeWithAuth ProfileInfo(
-                            profileName = userName,
-                            profileEmail = userEmail,
-                            profileImage = profileImage
-                        )
+                            return@executeWithAuth ProfileInfo(
+                                profileName = userName,
+                                profileEmail = userEmail,
+                                profileImage = profileImage
+                            )
+                        }
                     }
                 }
 

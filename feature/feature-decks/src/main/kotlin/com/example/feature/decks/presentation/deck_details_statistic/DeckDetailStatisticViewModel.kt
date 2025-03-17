@@ -24,7 +24,6 @@ internal class DeckDetailStatisticViewModel @Inject constructor(
         screenState.value = DeckDetailsStatisticScreenState.Error
     }
 
-
     fun loadStatistic(deckId: String) {
         viewModelScope.launch(exceptionHandler) {
             val deckTrainingStats = getDeckTrainingStatsUseCase(deckId)

@@ -6,12 +6,14 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil3.imageLoader
 import com.example.feature.profile.domain.ClearTokensUseCase
 import com.example.feature.profile.domain.DeleteUserProfileImageUseCase
 import com.example.feature.profile.domain.GetTrainingStatsUseCase
 import com.example.feature.profile.domain.GetUserInfoUseCase
 import com.example.feature.profile.domain.SaveUserProfileImageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -22,6 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class ProfileViewModel @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val clearTokensUseCase: ClearTokensUseCase,
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val saveUserProfileImageUseCase: SaveUserProfileImageUseCase,
@@ -84,6 +87,8 @@ internal class ProfileViewModel @Inject constructor(
 
     fun logout() {
         clearTokensUseCase()
+        File(appContext.filesDir, "profile_pic.jpg").delete()
+        appContext.imageLoader.memoryCache?.clear()
     }
 
     fun bitmapToUri(context: Context, bitmap: Bitmap): Uri {

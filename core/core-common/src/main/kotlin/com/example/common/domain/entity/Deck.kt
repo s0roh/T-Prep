@@ -16,5 +16,6 @@ data class Deck(
     val id: String,
     val name: String,
     val isPublic: Boolean,
+    val authorId: String? = null,
     val cards: List<Card>,
 )

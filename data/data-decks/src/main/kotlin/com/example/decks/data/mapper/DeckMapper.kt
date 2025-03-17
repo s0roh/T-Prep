@@ -14,6 +14,7 @@ internal fun DeckDto.toEntity(): Deck =
         id = id,
         name = name,
         isPublic = isPublic,
+        authorId = authorId,
         cards = cards.map { it.toEntity() }
     )
 

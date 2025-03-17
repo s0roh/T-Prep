@@ -44,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -57,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.auth.R
 import com.example.auth.presentation.components.AuthTextField
 import com.example.auth.util.isEmailValid
+import com.example.localdecks.util.startSyncWork
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -65,9 +67,11 @@ fun AuthScreen(
 ) {
     val viewModel: AuthViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(screenState) {
         if (screenState is AuthScreenState.Success) {
+            startSyncWork(context)
             onSuccessAuthListener()
         }
     }

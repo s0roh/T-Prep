@@ -84,6 +84,7 @@ fun DeckDetailScreen(
     onRemindClick: (deckName: String) -> Unit,
     onTrainingModeSettingsClick: (String) -> Unit,
     onDeckStatisticClick: (String) -> Unit,
+    onOwnerProfileClick: (String) -> Unit,
 ) {
     val viewModel: DeckDetailViewModel = hiltViewModel()
     val screenState = viewModel.screenState.collectAsState()
@@ -123,7 +124,8 @@ fun DeckDetailScreen(
                 onEditCard = onEditCard,
                 onRemindClick = onRemindClick,
                 onTrainingModeSettingsClick = onTrainingModeSettingsClick,
-                onDeckStatisticClick = onDeckStatisticClick
+                onDeckStatisticClick = onDeckStatisticClick,
+                onOwnerProfileClick = onOwnerProfileClick
             )
         }
     }
@@ -146,6 +148,7 @@ private fun DeckDetailContent(
     onRemindClick: (deckName: String) -> Unit,
     onTrainingModeSettingsClick: (String) -> Unit,
     onDeckStatisticClick: (String) -> Unit,
+    onOwnerProfileClick: (String) -> Unit,
 ) {
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -194,6 +197,12 @@ private fun DeckDetailContent(
                 showActions = source == Source.LOCAL,
                 onRenameDeck = { onEditDeckName(deck.id) },
                 onChangePrivacy = { showPrivacyDialog = true },
+                onOwner = {
+                    onOwnerProfileClick(
+                        deck.authorId
+                            ?: throw IllegalStateException("Author ID is missing in deck: ${deck.id}")
+                    )
+                },
                 onDeckStatistic = { onDeckStatisticClick(deck.id) },
                 onTrainingSettings = { onTrainingModeSettingsClick(deck.id) },
                 onDeleteDeck = { showDeleteDialog = true },

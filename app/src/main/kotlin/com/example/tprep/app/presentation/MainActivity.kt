@@ -25,6 +25,7 @@ import com.example.feature.history.history.HistoryScreen
 import com.example.feature.localdecks.presentation.add_edit_card.AddEditCardScreen
 import com.example.feature.localdecks.presentation.add_edit_deck.AddEditDeckScreen
 import com.example.feature.localdecks.presentation.local_decks.LocalDecksScreen
+import com.example.feature.profile.presentation.owner_profile.OwnerProfileScreen
 import com.example.localdecks.util.startSyncWork
 import com.example.tprep.app.navigation.AppNavGraph
 import com.example.tprep.app.navigation.Screen
@@ -130,6 +131,15 @@ fun MainScreen(navController: NavHostController) {
                     }
                 )
             },
+            ownerProfileScreenContent = { ownerId ->
+                OwnerProfileScreen(
+                    ownerId = ownerId,
+                    onBackClick = { navigationState.navHostController.popBackStack() },
+                    onDeckClickListener = { deckId ->
+                        navigationState.navigateWithSaveState(Screen.DeckDetails(deckId, Source.NETWORK))
+                    }
+                )
+            },
             deckDetailsScreenContent = { deckId, source ->
                 DeckDetailScreen(
                     deckId = deckId,
@@ -179,6 +189,11 @@ fun MainScreen(navController: NavHostController) {
                     onDeckStatisticClick = { deckId ->
                         navigationState.navigateWithSaveState(
                             Screen.DeckDetailsStatistic(deckId = deckId)
+                        )
+                    },
+                    onOwnerProfileClick = { ownerId ->
+                        navigationState.navigateWithSaveState(
+                            Screen.OwnerProfile(ownerId = ownerId)
                         )
                     }
                 )
@@ -238,7 +253,6 @@ fun MainScreen(navController: NavHostController) {
                     onBackClick = { navigationState.navHostController.popBackStack() })
             },
             localDecksScreenContent = {
-                startSyncWork(context)
                 LocalDecksScreen(
                     paddingValues = paddingValues,
                     onDeckClick = { deckId ->
