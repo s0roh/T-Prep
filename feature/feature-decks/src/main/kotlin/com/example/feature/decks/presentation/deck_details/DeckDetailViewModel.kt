@@ -42,10 +42,7 @@ internal class DeckDetailViewModel @Inject constructor(
             Source.LOCAL -> {
                 currentDeckId = deckId
                 viewModelScope.launch {
-                    nextTrainingTime = getNextTrainingTimeUseCase(
-                        deckId = deckId,
-                        source = source
-                    )
+                    nextTrainingTime = getNextTrainingTimeUseCase(deckId = deckId)
                     getDeckByIdFromLocalUseCase(deckId)?.also { deck ->
                         screenState.value = DeckDetailScreenState.Success(
                             deck = deck,
@@ -61,10 +58,7 @@ internal class DeckDetailViewModel @Inject constructor(
 
                     getDeckByIdFromNetworkUseCase(deckId).also { (deck, source) ->
                         currentDeckId = deck.id
-                        nextTrainingTime = getNextTrainingTimeUseCase(
-                            deckId = deck.id,
-                            source = source
-                        )
+                        nextTrainingTime = getNextTrainingTimeUseCase(deckId = deck.id)
                         screenState.value = DeckDetailScreenState.Success(
                             deck = deck,
                             source = source,

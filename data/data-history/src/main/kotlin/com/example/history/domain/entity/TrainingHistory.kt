@@ -12,7 +12,6 @@ data class TrainingHistory(
     val timestamp: Long,
     val isCorrect: Boolean,
     val trainingMode: TrainingMode,
-    val incorrectAnswer: String?,
     val source: Source,
     val userID: String,
     val trainingSessionId: String

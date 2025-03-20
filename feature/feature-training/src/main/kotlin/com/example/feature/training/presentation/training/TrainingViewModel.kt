@@ -11,6 +11,7 @@ import com.example.feature.training.domain.GetDeckByIdNetworkUseCase
 import com.example.feature.training.domain.GetTrainingModesUseCase
 import com.example.feature.training.domain.PrepareTrainingCardsUseCase
 import com.example.feature.training.domain.RecordAnswerUseCase
+import com.example.feature.training.domain.RecordTrainingUseCase
 import com.example.training.domain.entity.TrainingCard
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -24,6 +25,7 @@ internal class TrainingViewModel @Inject constructor(
     private val getDeckByIdLocalUseCase: GetDeckByIdLocalUseCase,
     private val prepareTrainingCardsUseCase: PrepareTrainingCardsUseCase,
     private val recordAnswerUseCase: RecordAnswerUseCase,
+    private val recordTrainingUseCase: RecordTrainingUseCase,
     private val checkFillInTheBlankAnswerUseCase: CheckFillInTheBlankAnswerUseCase,
     private val getTrainingModesUseCase: GetTrainingModesUseCase,
 ) : ViewModel() {
@@ -77,7 +79,6 @@ internal class TrainingViewModel @Inject constructor(
         return prepareTrainingCardsUseCase(
             deckId = currentDeck.id,
             cards = currentDeck.cards,
-            source = currentSource,
             modes = trainingModes
         )
     }
@@ -112,18 +113,21 @@ internal class TrainingViewModel @Inject constructor(
 
         viewModelScope.launch {
             recordAnswerUseCase(
-                deckId = currentDeck.id,
-                deckName = currentDeck.name,
-                cardsCount = currentDeck.cards.size,
                 cardId = currentCard.id,
                 isCorrect = isCorrect,
                 question = question,
                 correctAnswer = correctAnswer,
                 fillInTheBlankAnswer = fillInTheBlankAnswer,
                 incorrectAnswer = selectedAnswer,
-                source = currentSource,
                 trainingSessionId = trainingSessionId,
                 trainingMode = trainingMode
+            )
+            recordTrainingUseCase(
+                deckId = currentDeck.id,
+                deckName = currentDeck.name,
+                cardsCount = currentDeck.cards.size,
+                source = currentSource,
+                trainingSessionId = trainingSessionId
             )
         }
     }

@@ -12,23 +12,26 @@ interface TrainingRepository {
     suspend fun prepareTrainingCards(
         deckId: String,
         cards: List<Card>,
-        source: Source,
-        modes: Set<TrainingMode>
+        modes: Set<TrainingMode>,
     ): List<TrainingCard>
 
-    suspend fun recordAnswer(
+    suspend fun recordTraining(
         deckId: String,
         deckName: String,
         cardsCount: Int,
+        source: Source,
+        trainingSessionId: String,
+    )
+
+    suspend fun recordAnswer(
         cardId: Int,
-        isCorrect: Boolean,
         question: String,
         correctAnswer: String,
         fillInTheBlankAnswer: String? = null,
         incorrectAnswer: String? = null,
-        source: Source,
+        isCorrect: Boolean,
         trainingSessionId: String,
-        trainingMode: TrainingMode
+        trainingMode: TrainingMode,
     )
 
     suspend fun saveTrainingModes(trainingModes: TrainingModes)

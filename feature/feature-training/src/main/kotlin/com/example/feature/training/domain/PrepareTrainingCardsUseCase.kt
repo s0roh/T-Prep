@@ -8,19 +8,17 @@ import com.example.training.domain.repository.TrainingRepository
 import javax.inject.Inject
 
 internal class PrepareTrainingCardsUseCase @Inject constructor(
-    private val repository: TrainingRepository
+    private val repository: TrainingRepository,
 ) {
 
     suspend operator fun invoke(
         deckId: String,
         cards: List<Card>,
-        source: Source,
-        modes: Set<TrainingMode>
+        modes: Set<TrainingMode>,
     ): List<TrainingCard> =
         repository.prepareTrainingCards(
             deckId = deckId,
             cards = cards,
-            source = source,
             modes = modes
         )
 }

@@ -7,8 +7,8 @@ data class TrainingError(
     val trainingSessionId: String,
     val trainingSessionTime: Long,
     val question: String,
-    val correctAnswer: String,
-    val fillInTheBlankAnswer: String? = null,
-    val incorrectAnswer: String,
+    val answer: String,
+    val blankAnswer: String? = null,
+    val userAnswer: String,
     val trainingMode: TrainingMode,
 )

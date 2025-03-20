@@ -6,20 +6,20 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "errors",
+    tableName = "error_answer",
     indices = [
+        Index(value = ["cardId"]),
         Index(value = ["trainingSessionId"])
     ]
 )
-data class ErrorDBO(
+data class ErrorAnswerDBO(
     @PrimaryKey(autoGenerate = true) val id: Long,
     @ColumnInfo("trainingSessionId") val trainingSessionId: String,
-    @ColumnInfo("deckId") val deckId: String,
     @ColumnInfo("cardId") val cardId: Int,
     @ColumnInfo("question") val question: String,
-    @ColumnInfo("correctAnswer") val correctAnswer: String,
-    @ColumnInfo("fillInTheBlankAnswer") val fillInTheBlankAnswer: String?,
-    @ColumnInfo("incorrectAnswer") val incorrectAnswer: String,
+    @ColumnInfo("answer") val answer: String,
+    @ColumnInfo("userAnswer") val userAnswer: String,
+    @ColumnInfo("blankAnswer") val blankAnswer: String?,
     @ColumnInfo("trainingMode") val trainingMode: TrainingMode,
 )
 
