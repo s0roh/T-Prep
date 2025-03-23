@@ -1,12 +1,12 @@
 package com.example.training.data.mapper
 
-import com.example.database.models.ErrorAnswerWithTime
+import com.example.database.models.ErrorAnswerWithTimeDBO
 import com.example.database.models.TrainingMode
 import com.example.database.models.TrainingModesHistoryDBO
 import com.example.training.domain.entity.TrainingError
 import com.example.training.domain.entity.TrainingModes
 
-internal fun ErrorAnswerWithTime.toEntity(): TrainingError =
+internal fun ErrorAnswerWithTimeDBO.toEntity(): TrainingError =
     TrainingError(
         id = id,
         trainingSessionId = trainingSessionId,

@@ -197,8 +197,7 @@ private fun ErrorItem(error: TrainingError) {
 
         AnswerSection(
             title = "Правильный ответ:",
-            answer = error.blankAnswer?.let { error.blankAnswer }
-                ?: error.answer,
+            answer = error.blankAnswer?.takeIf { it.isNotBlank() } ?: error.answer,
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
         Spacer(modifier = Modifier.height(19.dp))

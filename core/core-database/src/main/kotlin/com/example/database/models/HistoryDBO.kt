@@ -22,6 +22,7 @@ data class HistoryDBO(
     @ColumnInfo("timestamp") val timestamp: Long,
     @ColumnInfo("trainingSessionId") val trainingSessionId: String,
     @ColumnInfo("source") val source: Source,
+    @ColumnInfo("isSynchronized") val isSynchronized: Boolean,
 )
 
 enum class Source {

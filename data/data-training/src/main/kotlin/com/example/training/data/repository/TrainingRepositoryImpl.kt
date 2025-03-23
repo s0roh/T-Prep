@@ -2,7 +2,7 @@ package com.example.training.data.repository
 
 import com.example.common.domain.entity.Card
 import com.example.database.TPrepDatabase
-import com.example.database.models.AnswerStats
+import com.example.database.models.AnswerStatsDBO
 import com.example.database.models.CorrectAnswerDBO
 import com.example.database.models.ErrorAnswerDBO
 import com.example.database.models.HistoryDBO
@@ -164,7 +164,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
     ) {
         if (isCorrect) {
             val correctAnswer = CorrectAnswerDBO(
-                id = 0,
+                id = DEFAULT_CORRECT_ANSWER_ID,
                 cardId = cardId,
                 trainingMode = trainingMode,
                 trainingSessionId = trainingSessionId
@@ -172,7 +172,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
             database.correctAnswerDao.insertCorrectAnswer(correctAnswer)
         } else if (userAnswer != null) {
             val errorAnswer = ErrorAnswerDBO(
-                id = 0,
+                id = DEFAULT_ERROR_ANSWER_ID,
                 trainingSessionId = trainingSessionId,
                 cardId = cardId,
                 question = question,
@@ -200,14 +200,15 @@ class TrainingRepositoryImpl @Inject internal constructor(
 
         // Если запись существует, обновляем её, иначе вставляем новую
         val history = HistoryDBO(
-            id = existingHistory?.id ?: 0,
+            id = existingHistory?.id ?: DEFAULT_HISTORY_ID,
             userId = userId,
             deckId = deckId,
             deckName = deckName,
             cardsCount = cardsCount,
             timestamp = System.currentTimeMillis(),
             trainingSessionId = trainingSessionId,
-            source = source
+            source = source,
+            isSynchronized = false
         )
         if (existingHistory != null) {
             database.historyDao.updateHistory(history)
@@ -263,7 +264,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
         return trainingHistory.deckId to trainingHistory.source
     }
 
-    private fun calculateCoefficientFromHistory(answerStats: AnswerStats): Double {
+    private fun calculateCoefficientFromHistory(answerStats: AnswerStatsDBO): Double {
         var coefficient = DEFAULT_COEFFICIENT
         repeat(answerStats.correctCount) { coefficient += COEFFICIENT_INCREMENT }
         repeat(answerStats.errorCount) { coefficient += COEFFICIENT_DECREMENT }
@@ -282,5 +283,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
         private const val WRONG_ANSWERS_COUNT = 3
         private const val MIN_INPUT_LENGTH_PERCENT = 0.5
         private const val MAX_ALLOWED_ERROR_PERCENT = 0.2
+        private const val DEFAULT_HISTORY_ID = 0L
+        private const val DEFAULT_CORRECT_ANSWER_ID = 0L
+        private const val DEFAULT_ERROR_ANSWER_ID = 0L
     }
 }

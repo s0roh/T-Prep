@@ -1,7 +1,6 @@
 package com.example.feature.training.domain
 
 import com.example.common.domain.entity.Card
-import com.example.database.models.Source
 import com.example.database.models.TrainingMode
 import com.example.training.domain.entity.TrainingCard
 import com.example.training.domain.repository.TrainingRepository

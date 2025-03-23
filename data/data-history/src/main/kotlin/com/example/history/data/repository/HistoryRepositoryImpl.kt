@@ -39,7 +39,12 @@ class HistoryRepositoryImpl @Inject internal constructor(
         val totalTrainings = groupedTrainings.size
 
         val averageAccuracy = if (totalTrainings > 0) {
-            groupedTrainings.values.sumOf { calculatePercentOfCorrectAnswers(it.first().trainingSessionId) } / totalTrainings
+            groupedTrainings.values.sumOf {
+                calculatePercentOfCorrectAnswers(
+                    it.first().trainingSessionId,
+                    true
+                )
+            } / totalTrainings
         } else {
             0
         }
@@ -158,10 +163,19 @@ class HistoryRepositoryImpl @Inject internal constructor(
     }
 
     // Функция для подсчета процента правильных ответов в пределах одной сессии
-    private suspend fun calculatePercentOfCorrectAnswers(trainingSessionId: String): Int {
+    private suspend fun calculatePercentOfCorrectAnswers(
+        trainingSessionId: String,
+        useTotalDeckSize: Boolean = false,
+    ): Int {
         val answerStats = database.historyDao.getAnswerStatsForSession(trainingSessionId)
 
-        val totalAnswers = answerStats.correctCount + answerStats.errorCount
+        // Выбираем, от какого количества считать процент: от всех карт или от количества ответов
+        val totalAnswers = if (useTotalDeckSize) {
+            answerStats.allCount ?: 0
+        } else {
+            answerStats.correctCount + answerStats.errorCount
+        }
+
         if (totalAnswers == 0) return 0
 
         return (answerStats.correctCount * 100) / totalAnswers

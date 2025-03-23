@@ -5,6 +5,8 @@ import com.example.network.dto.collection.CardRequestDto
 import com.example.network.dto.collection.DeckDto
 import com.example.network.dto.collection.DeckRequestDto
 import com.example.network.dto.collection.ResponseMessageDto
+import com.example.network.dto.collection.history.HistoryItemDto
+import com.example.network.dto.collection.history.HistoryItemsDto
 import com.example.network.dto.global.AutoRemindersDto
 import com.example.network.dto.global.CardDto
 import com.example.network.dto.global.PublicDecksDto
@@ -58,6 +60,18 @@ interface ApiService {
         @Query("offset") nextFrom: Int = 0,
         @Header("Authorization") authHeader: String? = null,
     ): PublicDecksDto
+
+    @POST("collection/training")
+    suspend fun addTrainingToHistory(
+        @Body historyItemDto: HistoryItemDto,
+        @Header("Authorization") authHeader: String? = null,
+    ): Response<ResponseMessageDto>
+
+    @GET("user/history")
+    suspend fun getUserHistory(
+        @Query("from_time") fromTime: Int = 0,
+        @Header("Authorization") authHeader: String? = null,
+    ): Response<HistoryItemsDto>
 
     @GET("collection/{id}")
     suspend fun getDeckById(

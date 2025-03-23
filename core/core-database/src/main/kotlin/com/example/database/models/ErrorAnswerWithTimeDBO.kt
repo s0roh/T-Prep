@@ -1,6 +1,6 @@
 package com.example.database.models
 
-data class ErrorAnswerWithTime(
+data class ErrorAnswerWithTimeDBO(
     val id: Long,
     val trainingSessionId: String,
     val trainingSessionTime: Long,

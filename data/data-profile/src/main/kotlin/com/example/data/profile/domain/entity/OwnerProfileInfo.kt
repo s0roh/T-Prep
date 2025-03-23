@@ -7,4 +7,6 @@ data class OwnerProfileInfo(
     val ownerProfileName: String,
     val ownerProfileImage: Uri?,
     val ownerPublicDecks: List<DeckUiModel>,
+    val ownerTotalTrainings: Int,
+    val ownerMediumPercentage: Int,
 )
