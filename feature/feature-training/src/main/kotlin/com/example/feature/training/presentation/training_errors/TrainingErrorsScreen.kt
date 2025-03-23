@@ -185,11 +185,11 @@ private fun ErrorItem(error: TrainingError) {
         Spacer(modifier = Modifier.height(24.dp))
 
         if (error.trainingMode == TrainingMode.FILL_IN_THE_BLANK &&
-            error.correctAnswer != error.fillInTheBlankAnswer
+            error.answer != error.blankAnswer
         ) {
             AnswerSection(
                 title = "Полный ответ:",
-                answer = error.correctAnswer,
+                answer = error.answer,
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
             )
             Spacer(modifier = Modifier.height(19.dp))
@@ -197,14 +197,13 @@ private fun ErrorItem(error: TrainingError) {
 
         AnswerSection(
             title = "Правильный ответ:",
-            answer = error.fillInTheBlankAnswer?.let { error.fillInTheBlankAnswer }
-                ?: error.correctAnswer,
+            answer = error.blankAnswer?.takeIf { it.isNotBlank() } ?: error.answer,
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
         Spacer(modifier = Modifier.height(19.dp))
 
-        val userAnswer = if (error.incorrectAnswer.isBlank()) "Вы не ответили на данный вопрос"
-        else error.incorrectAnswer
+        val userAnswer = if (error.userAnswer.isBlank()) "Вы не ответили на данный вопрос"
+        else error.userAnswer
 
         when (error.trainingMode) {
             TrainingMode.MULTIPLE_CHOICE -> {
@@ -224,8 +223,6 @@ private fun ErrorItem(error: TrainingError) {
                 )
             }
         }
-
-
     }
 }
 

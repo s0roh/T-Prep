@@ -15,7 +15,7 @@ internal sealed interface OwnerProfileScreenState {
         val userName: String,
         val profileImageUri: Uri? = null,
         val ownerPublicDecks: List<DeckUiModel>,
-        val totalTrainings: Int = 115,
-        val averageAccuracy: Int = 72,
+        val totalTrainings: Int,
+        val averageAccuracy: Int,
     ) : OwnerProfileScreenState
 }

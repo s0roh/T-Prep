@@ -28,7 +28,9 @@ internal class OwnerProfileViewModel @Inject constructor(
             screenState.value = OwnerProfileScreenState.Success(
                 userName = ownerProfileInfo.ownerProfileName,
                 profileImageUri = ownerProfileInfo.ownerProfileImage,
-                ownerPublicDecks = ownerProfileInfo.ownerPublicDecks
+                ownerPublicDecks = ownerProfileInfo.ownerPublicDecks,
+                totalTrainings = ownerProfileInfo.ownerTotalTrainings,
+                averageAccuracy = ownerProfileInfo.ownerMediumPercentage
             )
         }
     }

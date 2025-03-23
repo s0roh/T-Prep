@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.database.dao.CardDao
+import com.example.database.dao.CorrectAnswerDao
 import com.example.database.dao.DeckDao
 import com.example.database.dao.ErrorDao
 import com.example.database.dao.HistoryDao
@@ -13,8 +14,9 @@ import com.example.database.dao.SyncMetadataDao
 import com.example.database.dao.TrainingModesHistoryDao
 import com.example.database.dao.TrainingReminderDao
 import com.example.database.models.CardDBO
+import com.example.database.models.CorrectAnswerDBO
 import com.example.database.models.DeckDBO
-import com.example.database.models.ErrorDBO
+import com.example.database.models.ErrorAnswerDBO
 import com.example.database.models.HistoryDBO
 import com.example.database.models.SyncMetadataDBO
 import com.example.database.models.TrainingModesHistoryDBO
@@ -27,6 +29,9 @@ class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase
 
     val errorDao: ErrorDao
         get() = database.errorDao()
+
+    val correctAnswerDao: CorrectAnswerDao
+        get() = database.correctAnswerDao()
 
     val deckDao: DeckDao
         get() = database.deckDao()
@@ -49,18 +54,20 @@ class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase
         CardDBO::class,
         DeckDBO::class,
         HistoryDBO::class,
-        ErrorDBO::class,
+        ErrorAnswerDBO::class,
+        CorrectAnswerDBO::class,
         SyncMetadataDBO::class,
         TrainingReminderDBO::class,
         TrainingModesHistoryDBO::class
     ],
-    version = 8,
+    version = 10,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 internal abstract class TPrepRoomDatabase : RoomDatabase() {
     abstract fun historyDao(): HistoryDao
     abstract fun errorDao(): ErrorDao
+    abstract fun correctAnswerDao(): CorrectAnswerDao
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
     abstract fun syncMetadataDao(): SyncMetadataDao

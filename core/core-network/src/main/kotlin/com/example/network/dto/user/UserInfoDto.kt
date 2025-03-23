@@ -10,4 +10,5 @@ data class UserInfoDto(
     @SerialName("email") val email: String? = null,
     @SerialName("has_picture") val hasPicture: Boolean,
     @SerialName("collections") val collectionsId: List<String>,
+    @SerialName("statistics") val statistics: UserStatisticDto,
 )

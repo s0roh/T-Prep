@@ -42,23 +42,6 @@ class AuthRepositoryImpl @Inject internal constructor(
         return processAuthResponse(response)
     }
 
-    suspend fun <T> withAuthToken(apiCall: suspend (String) -> T?): T? {
-        val accessToken = authPreferences.getAccessToken()
-        if (accessToken != null && authPreferences.isAccessTokenValid()) {
-            return apiCall("Bearer $accessToken")
-        }
-
-        if (refreshTokens()) {
-            val newAccessToken = authPreferences.getAccessToken()
-            if (newAccessToken != null) {
-                return apiCall("Bearer $newAccessToken")
-            }
-        }
-
-        return null
-    }
-
-
     private fun processAuthResponse(response: Response<AuthResponseDto>): Boolean {
         if (!response.isSuccessful) return false
         val newAccessToken = response.body()?.accessToken

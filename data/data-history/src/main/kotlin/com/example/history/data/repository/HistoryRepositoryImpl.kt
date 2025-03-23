@@ -17,20 +17,15 @@ class HistoryRepositoryImpl @Inject internal constructor(
 
     override suspend fun getTrainingHistory(): List<TrainingHistoryItem> {
         val allTrainings = getAllTrainingHistories()
-        val currentTime = System.currentTimeMillis()
 
         return allTrainings
             .groupBy { it.trainingSessionId }
-            .map { (_, trainings) ->
-                // Получаем timestamp последней карточки в сессии
-                val lastTraining = trainings.maxByOrNull { it.timestamp }
-                val timestamp = lastTraining?.timestamp ?: currentTime
-
+            .map { (trainingSessionId, trainings) ->
                 // Подсчитываем процент правильных ответов в сессии
-                val percentOfCorrectAnswers = calculatePercentOfCorrectAnswers(trainings)
+                val percentOfCorrectAnswers = calculatePercentOfCorrectAnswers(trainingSessionId)
 
                 TrainingHistoryItem(
-                    timestamp = timestamp,
+                    timestamp = trainings.first().timestamp,
                     percentOfCorrectAnswers = percentOfCorrectAnswers,
                     trainingHistories = trainings
                 )
@@ -44,7 +39,12 @@ class HistoryRepositoryImpl @Inject internal constructor(
         val totalTrainings = groupedTrainings.size
 
         val averageAccuracy = if (totalTrainings > 0) {
-            groupedTrainings.values.sumOf { calculatePercentOfCorrectAnswers(it) } / totalTrainings
+            groupedTrainings.values.sumOf {
+                calculatePercentOfCorrectAnswers(
+                    it.first().trainingSessionId,
+                    true
+                )
+            } / totalTrainings
         } else {
             0
         }
@@ -93,25 +93,91 @@ class HistoryRepositoryImpl @Inject internal constructor(
         val userId = preferences.getUserId()
             ?: throw IllegalStateException("User ID not found in preferences")
 
-        return database.historyDao.getHistoryForDeck(deckId = deckId, userId = userId)
-            .map { it.toEntity() }
+        // Получаем истории для конкретной колоды
+        val historyRecords = database.historyDao.getHistoryForDeck(deckId = deckId, userId = userId)
+
+        // Преобразуем каждую запись в TrainingHistory
+        return historyRecords.flatMap { history ->
+            // Получаем ошибки и правильные ответы для каждой сессии
+            val errorAnswers =
+                database.errorDao.getErrorAnswersForTrainingSession(history.trainingSessionId)
+            val correctAnswers =
+                database.correctAnswerDao.getCorrectAnswersForTrainingSession(history.trainingSessionId)
+
+            // Преобразуем ошибки в TrainingHistory
+            val historyWithErrors = errorAnswers.map { error ->
+                history.toEntity(
+                    isCorrect = false,  // Ошибочные ответы
+                    trainingMode = error.trainingMode,
+                    cardId = error.cardId
+                )
+            }
+
+            // Преобразуем правильные ответы в TrainingHistory
+            val historyWithCorrectAnswers = correctAnswers.map { correct ->
+                history.toEntity(
+                    isCorrect = true,  // Правильные ответы
+                    trainingMode = correct.trainingMode,
+                    cardId = correct.cardId
+                )
+            }
+
+            // Объединяем результаты ошибок и правильных ответов
+            historyWithErrors + historyWithCorrectAnswers
+        }
     }
 
     private suspend fun getAllTrainingHistories(): List<TrainingHistory> {
         val userId = preferences.getUserId()
             ?: throw IllegalStateException("User ID not found in preferences")
 
-        return database.historyDao.getAllTrainingHistories(userId).map { it.toEntity() }
+        val historyRecords = database.historyDao.getAllTrainingHistories(userId)
+
+        return historyRecords.flatMap { history ->
+            val errorAnswers =
+                database.errorDao.getErrorAnswersForTrainingSession(history.trainingSessionId)
+            val correctAnswers =
+                database.correctAnswerDao.getCorrectAnswersForTrainingSession(history.trainingSessionId)
+
+            // Преобразуем ошибки в TrainingHistory
+            val historyWithErrors = errorAnswers.map { error ->
+                history.toEntity(
+                    isCorrect = false,  // Ошибочные ответы
+                    trainingMode = error.trainingMode,
+                    cardId = error.cardId
+                )
+            }
+
+            // Преобразуем правильные ответы в TrainingHistory
+            val historyWithCorrectAnswers = correctAnswers.map { correct ->
+                history.toEntity(
+                    isCorrect = true,  // Правильные ответы
+                    trainingMode = correct.trainingMode,
+                    cardId = correct.cardId
+                )
+            }
+
+            // Объединяем результаты ошибок и правильных ответов
+            historyWithErrors + historyWithCorrectAnswers
+        }
     }
 
     // Функция для подсчета процента правильных ответов в пределах одной сессии
-    private fun calculatePercentOfCorrectAnswers(trainingHistories: List<TrainingHistory>): Int {
-        val totalAnswers = trainingHistories.size
-        val correctAnswers = trainingHistories.count { it.isCorrect }
-        return if (totalAnswers > 0) {
-            (correctAnswers * 100) / totalAnswers
+    private suspend fun calculatePercentOfCorrectAnswers(
+        trainingSessionId: String,
+        useTotalDeckSize: Boolean = false,
+    ): Int {
+        val answerStats = database.historyDao.getAnswerStatsForSession(trainingSessionId)
+
+        // Выбираем, от какого количества считать процент: от всех карт или от количества ответов
+        val totalAnswers = if (useTotalDeckSize) {
+            answerStats.allCount ?: 0
         } else {
-            0
+            answerStats.correctCount + answerStats.errorCount
         }
+
+        if (totalAnswers == 0) return 0
+
+        return (answerStats.correctCount * 100) / totalAnswers
     }
 }

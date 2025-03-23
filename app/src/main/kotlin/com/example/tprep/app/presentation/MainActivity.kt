@@ -136,7 +136,12 @@ fun MainScreen(navController: NavHostController) {
                     ownerId = ownerId,
                     onBackClick = { navigationState.navHostController.popBackStack() },
                     onDeckClickListener = { deckId ->
-                        navigationState.navigateWithSaveState(Screen.DeckDetails(deckId, Source.NETWORK))
+                        navigationState.navigateWithSaveState(
+                            Screen.DeckDetails(
+                                deckId,
+                                Source.NETWORK
+                            )
+                        )
                     }
                 )
             },

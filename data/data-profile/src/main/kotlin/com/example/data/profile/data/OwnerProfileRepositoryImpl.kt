@@ -37,7 +37,9 @@ class OwnerProfileRepositoryImpl @Inject constructor(
             return@executeWithAuth OwnerProfileInfo(
                 ownerProfileName = userInfo.userName,
                 ownerProfileImage = ownerImage,
-                ownerPublicDecks = ownerPublicDecks
+                ownerPublicDecks = ownerPublicDecks,
+                ownerTotalTrainings = userInfo.statistics.totalTrainings,
+                ownerMediumPercentage = userInfo.statistics.mediumPercentage,
             )
         }
     }

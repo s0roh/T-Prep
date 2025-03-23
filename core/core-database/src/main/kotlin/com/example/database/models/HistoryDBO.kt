@@ -8,24 +8,21 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "history",
     indices = [
+        Index(value = ["userId"]),
         Index(value = ["deckId"]),
-        Index(value = ["timestamp"]),
-        Index(value = ["cardId", "deckId", "source"]),
         Index(value = ["trainingSessionId"])
     ]
 )
 data class HistoryDBO(
     @PrimaryKey(autoGenerate = true) val id: Long,
+    @ColumnInfo("userId") val userId: String,
     @ColumnInfo("deckId") val deckId: String,
     @ColumnInfo("deckName") val deckName: String,
     @ColumnInfo("cardsCount") val cardsCount: Int,
-    @ColumnInfo("cardId") val cardId: Int,
     @ColumnInfo("timestamp") val timestamp: Long,
-    @ColumnInfo("isCorrect") val isCorrect: Boolean,
-    @ColumnInfo("trainingMode") val trainingMode: TrainingMode,
-    @ColumnInfo("source") val source: Source,
     @ColumnInfo("trainingSessionId") val trainingSessionId: String,
-    @ColumnInfo("userId") val userId: String,
+    @ColumnInfo("source") val source: Source,
+    @ColumnInfo("isSynchronized") val isSynchronized: Boolean,
 )
 
 enum class Source {

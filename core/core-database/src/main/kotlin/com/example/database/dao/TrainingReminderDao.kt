@@ -16,8 +16,8 @@ interface TrainingReminderDao {
     @Query("SELECT * FROM training_reminders WHERE id = :reminderId LIMIT 1")
     suspend fun getReminderById(reminderId: Long): TrainingReminderDBO?
 
-    @Query("SELECT * FROM training_reminders WHERE deckId = :deckId AND source = :source ORDER BY reminderTime LIMIT 1")
-    suspend fun getNextReminder(deckId: String, source: Source): TrainingReminderDBO?
+    @Query("SELECT * FROM training_reminders WHERE deckId = :deckId ORDER BY reminderTime LIMIT 1")
+    suspend fun getNextReminder(deckId: String): TrainingReminderDBO?
 
     @Query("SELECT * FROM training_reminders WHERE deckId = :deckId AND source = :source ORDER BY reminderTime ")
     suspend fun getRemindersForDeck(deckId: String, source: Source): List<TrainingReminderDBO>

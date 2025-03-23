@@ -2,7 +2,9 @@ package com.example.training.data.repository
 
 import com.example.common.domain.entity.Card
 import com.example.database.TPrepDatabase
-import com.example.database.models.ErrorDBO
+import com.example.database.models.AnswerStatsDBO
+import com.example.database.models.CorrectAnswerDBO
+import com.example.database.models.ErrorAnswerDBO
 import com.example.database.models.HistoryDBO
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
@@ -30,7 +32,6 @@ class TrainingRepositoryImpl @Inject internal constructor(
     override suspend fun prepareTrainingCards(
         deckId: String,
         cards: List<Card>,
-        source: Source,
         modes: Set<TrainingMode>,
     ): List<TrainingCard> {
         require(modes.isNotEmpty()) { "At least one training mode must be selected" }
@@ -39,17 +40,16 @@ class TrainingRepositoryImpl @Inject internal constructor(
             val userId = preferences.getUserId()
                 ?: throw IllegalStateException("User ID not found in preferences")
 
-            // Сортировка карт по истории и коэффициентам
+            // Получение статистики по каждой карте
             val cardsWithSortingData = cards.map { card ->
-                val historyList = database.historyDao.getHistoryForCard(
+                val answerStats = database.historyDao.getAnswerStatsForCard(
                     cardId = card.id,
                     deckId = deckId,
-                    source = source,
                     userId = userId
                 )
-                val isNew = historyList.isEmpty()
+                val isNew = answerStats.correctCount == 0 && answerStats.errorCount == 0
                 val coefficient =
-                    if (isNew) DEFAULT_COEFFICIENT else calculateCoefficientFromHistory(historyList)
+                    if (isNew) DEFAULT_COEFFICIENT else calculateCoefficientFromHistory(answerStats)
                 card to Pair(isNew, coefficient)
             }
 
@@ -57,9 +57,9 @@ class TrainingRepositoryImpl @Inject internal constructor(
             val sortedCards = cardsWithSortingData
                 .sortedWith(
                     compareBy(
-                    { if (it.second.first) NEW_CARD_PRIORITY else EXISTING_CARD_PRIORITY },
-                    { it.second.second }
-                ))
+                        { if (it.second.first) NEW_CARD_PRIORITY else EXISTING_CARD_PRIORITY },
+                        { it.second.second }
+                    ))
                 .map { it.first }
 
             // Применение выбранного режима тренировки к каждой карте
@@ -153,51 +153,67 @@ class TrainingRepositoryImpl @Inject internal constructor(
     }
 
     override suspend fun recordAnswer(
+        cardId: Int,
+        question: String,
+        answer: String,
+        blankAnswer: String?,
+        userAnswer: String?,
+        isCorrect: Boolean,
+        trainingSessionId: String,
+        trainingMode: TrainingMode,
+    ) {
+        if (isCorrect) {
+            val correctAnswer = CorrectAnswerDBO(
+                id = DEFAULT_CORRECT_ANSWER_ID,
+                cardId = cardId,
+                trainingMode = trainingMode,
+                trainingSessionId = trainingSessionId
+            )
+            database.correctAnswerDao.insertCorrectAnswer(correctAnswer)
+        } else if (userAnswer != null) {
+            val errorAnswer = ErrorAnswerDBO(
+                id = DEFAULT_ERROR_ANSWER_ID,
+                trainingSessionId = trainingSessionId,
+                cardId = cardId,
+                question = question,
+                answer = answer,
+                userAnswer = userAnswer,
+                blankAnswer = blankAnswer,
+                trainingMode = trainingMode
+            )
+            database.errorDao.insertError(errorAnswer)
+        }
+    }
+
+    override suspend fun recordTraining(
         deckId: String,
         deckName: String,
         cardsCount: Int,
-        cardId: Int,
-        isCorrect: Boolean,
-        question: String,
-        correctAnswer: String,
-        fillInTheBlankAnswer: String?,
-        incorrectAnswer: String?,
         source: Source,
         trainingSessionId: String,
-        trainingMode: TrainingMode,
     ) {
         val userId = preferences.getUserId()
             ?: throw IllegalStateException("User ID not found in preferences")
 
+        // Проверяем, существует ли уже запись с данным trainingSessionId
+        val existingHistory = database.historyDao.getHistoryByTrainingSessionId(trainingSessionId)
+
+        // Если запись существует, обновляем её, иначе вставляем новую
         val history = HistoryDBO(
-            id = 0,
+            id = existingHistory?.id ?: DEFAULT_HISTORY_ID,
+            userId = userId,
             deckId = deckId,
             deckName = deckName,
             cardsCount = cardsCount,
-            cardId = cardId,
             timestamp = System.currentTimeMillis(),
-            isCorrect = isCorrect,
-            trainingMode = trainingMode,
+            trainingSessionId = trainingSessionId,
             source = source,
-            userId = userId,
-            trainingSessionId = trainingSessionId
+            isSynchronized = false
         )
-
-        database.historyDao.insertHistory(history)
-
-        if (!isCorrect && incorrectAnswer != null) {
-            val error = ErrorDBO(
-                id = 0,
-                trainingSessionId = trainingSessionId,
-                deckId = deckId,
-                cardId = cardId,
-                question = question,
-                correctAnswer = correctAnswer,
-                fillInTheBlankAnswer = fillInTheBlankAnswer,
-                incorrectAnswer = incorrectAnswer,
-                trainingMode = trainingMode
-            )
-            database.errorDao.insertError(error)
+        if (existingHistory != null) {
+            database.historyDao.updateHistory(history)
+        } else {
+            database.historyDao.insertHistory(history)
         }
     }
 
@@ -215,59 +231,43 @@ class TrainingRepositoryImpl @Inject internal constructor(
 
     override suspend fun getDeckNameAndTrainingSessionTime(trainingSessionId: String): Pair<String, Long> {
         val trainingHistory = database.historyDao.getHistoryForTrainingSession(trainingSessionId)
+            ?: throw IllegalStateException("History with trainingSessionId: $trainingSessionId is not find.")
 
-        val deckName = trainingHistory.firstOrNull()?.deckName
-            ?: throw IllegalStateException("Deck name is not available.")
-
-        val trainingSessionTime = trainingHistory.maxByOrNull { it.timestamp }
-            ?.timestamp
-            ?: throw IllegalStateException("No training session found.")
-
-        return Pair(deckName, trainingSessionTime)
+        return Pair(trainingHistory.deckName, trainingHistory.timestamp)
     }
 
     override suspend fun getTotalAndCorrectCountAnswers(trainingSessionId: String): Pair<Int, Int> {
-        val trainingHistory = database.historyDao.getHistoryForTrainingSession(trainingSessionId)
-        val totalAnswers = trainingHistory.size
-        val correctAnswers = trainingHistory.count { it.isCorrect }
-        return Pair(totalAnswers, correctAnswers)
+        val answerStats = database.historyDao.getAnswerStatsForSession(trainingSessionId)
+        val totalAnswers = answerStats.correctCount + answerStats.errorCount
+        return Pair(totalAnswers, answerStats.correctCount)
     }
 
     override suspend fun getNextTrainingTime(trainingSessionId: String): Long? {
         val trainingHistory = database.historyDao.getHistoryForTrainingSession(trainingSessionId)
 
-        val deckId = trainingHistory.first().deckId
-        val source = trainingHistory.first().source
+        val deckId = trainingHistory?.deckId
+            ?: throw IllegalStateException("History with trainingSessionId: $trainingSessionId is not find.")
 
-        return database.trainingReminderDao.getNextReminder(deckId, source)?.reminderTime
+        return database.trainingReminderDao.getNextReminder(deckId)?.reminderTime
     }
 
     override suspend fun getErrorsList(trainingSessionId: String): List<TrainingError> {
-        val trainingHistory = database.historyDao.getHistoryForTrainingSession(trainingSessionId)
-        val trainingSessionTime =
-            trainingHistory.maxByOrNull { it.timestamp }?.timestamp ?: return emptyList()
-
         val trainingErrors = database.errorDao.getErrorsForTrainingSession(trainingSessionId)
 
-        return trainingErrors.map { error ->
-            error.toEntity(trainingSessionTime)
-        }
+        return trainingErrors.map { it.toEntity() }
     }
 
     override suspend fun getInfoForNavigationToDeck(trainingSessionId: String): Pair<String, Source> {
         val trainingHistory = database.historyDao.getHistoryForTrainingSession(trainingSessionId)
-        val firstEntry = trainingHistory.firstOrNull()
-            ?: throw IllegalStateException("No history found for session $trainingSessionId")
+            ?: throw IllegalStateException("History with trainingSessionId: $trainingSessionId is not find.")
 
-        return firstEntry.deckId to firstEntry.source
+        return trainingHistory.deckId to trainingHistory.source
     }
 
-    private fun calculateCoefficientFromHistory(historyList: List<HistoryDBO>): Double {
+    private fun calculateCoefficientFromHistory(answerStats: AnswerStatsDBO): Double {
         var coefficient = DEFAULT_COEFFICIENT
-        historyList.forEach {
-            val adjustment = if (it.isCorrect) COEFFICIENT_INCREMENT else COEFFICIENT_DECREMENT
-            coefficient += adjustment
-        }
+        repeat(answerStats.correctCount) { coefficient += COEFFICIENT_INCREMENT }
+        repeat(answerStats.errorCount) { coefficient += COEFFICIENT_DECREMENT }
         return coefficient.coerceIn(MIN_COEFFICIENT, MAX_COEFFICIENT)
     }
 
@@ -283,5 +283,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
         private const val WRONG_ANSWERS_COUNT = 3
         private const val MIN_INPUT_LENGTH_PERCENT = 0.5
         private const val MAX_ALLOWED_ERROR_PERCENT = 0.2
+        private const val DEFAULT_HISTORY_ID = 0L
+        private const val DEFAULT_CORRECT_ANSWER_ID = 0L
+        private const val DEFAULT_ERROR_ANSWER_ID = 0L
     }
 }
