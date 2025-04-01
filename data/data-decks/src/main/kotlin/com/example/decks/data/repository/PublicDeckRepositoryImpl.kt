@@ -21,6 +21,35 @@ class PublicDeckRepositoryImpl @Inject internal constructor(
     private val database: TPrepDatabase,
 ) : PublicDeckRepository {
 
+    override suspend fun likeOrUnlikeDeck(
+        deckId: String,
+        isLiked: Boolean,
+    ): Int {
+        return authRequestWrapper.executeWithAuth { token ->
+            val response = if (isLiked) {
+                apiService.unlike(deckId = deckId, authHeader = token)
+            } else {
+                apiService.like(deckId = deckId, authHeader = token)
+            }
+
+            if (!response.isSuccessful) {
+                throw Exception("Failed to update like status: ${response.code()}")
+            }
+
+            response.body()?.likes ?: throw Exception("Response body is null")
+        }
+    }
+
+    override suspend fun getFavouriteDeckIds(): List<String> {
+        return authRequestWrapper.executeWithAuth { token ->
+            val response = apiService.getUserInfo(authHeader = token)
+            if (!response.isSuccessful) {
+                throw Exception("Failed to load profile info: ${response.code()}")
+            }
+            response.body()?.favourite ?: emptyList()
+        }
+    }
+
     override suspend fun getDeckById(id: String): Pair<Deck, Source> {
         val localDeck = database.deckDao.getDeckByServerId(serverDeckId = id)?.let { deckDbo ->
             val cards = database.cardDao.getCardsForDeck(deckDbo.id).first().map { it.toEntity() }
@@ -34,7 +63,11 @@ class PublicDeckRepositoryImpl @Inject internal constructor(
         }
     }
 
-    override fun getPublicDecks(query: String?): Flow<PagingData<DeckUiModel>> {
+    override fun getPublicDecks(
+        query: String?,
+        sortBy: String?,
+        category: String?,
+    ): Flow<PagingData<DeckUiModel>> {
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -46,7 +79,9 @@ class PublicDeckRepositoryImpl @Inject internal constructor(
                 PublicDecksPagingSource(
                     apiService = apiService,
                     authRequestWrapper = authRequestWrapper,
-                    query = query
+                    query = query,
+                    sortBy = sortBy,
+                    category = category
                 )
             }
         ).flow

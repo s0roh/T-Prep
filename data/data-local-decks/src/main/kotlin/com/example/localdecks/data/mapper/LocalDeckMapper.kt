@@ -21,7 +21,10 @@ internal fun DeckDBO.toUiModel(cardsCount: Int): DeckUiModel = DeckUiModel(
     id= id,
     name = name,
     isPublic = isPublic,
-    cardsCount = cardsCount
+    cardsCount = cardsCount,
+    isLiked = false,
+    likes = 0,
+    shouldShowLikes = false
 )
 
 internal fun CardDBO.toEntity(): Card = Card(

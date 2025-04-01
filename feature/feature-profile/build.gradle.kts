@@ -9,6 +9,7 @@ android {
 dependencies {
     implementation(project(":data-history"))
     implementation(project(":data-profile"))
+    implementation(project(":data-decks"))
     implementation(project(":core-preferences"))
     implementation(project(":core-common"))
 

@@ -2,6 +2,8 @@ package com.example.feature.decks.presentation.public_decks
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,11 +21,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.WifiOff
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,11 +43,15 @@ import androidx.compose.material3.SearchBarDefaults.InputField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -63,13 +76,16 @@ fun PublicDecksScreen(
     onDeckClickListener: (String) -> Unit,
 ) {
     val viewModel: PublicDecksViewModel = hiltViewModel()
+    val screenState by viewModel.screenState.collectAsState()
     val query = rememberSaveable { mutableStateOf("") }
     val searchBarExpanded = remember { mutableStateOf(false) }
     val decksFlow = remember(query.value) {
-        if (query.value.isBlank()) viewModel.publicDecks
+        if (query.value.isBlank()) viewModel.decksFlow
         else viewModel.searchPublicDecks(query.value)
-    }
-    val lazyPagingItems = decksFlow.collectAsLazyPagingItems()
+    }.collectAsLazyPagingItems()
+
+    val listState = rememberLazyListState()
+    val isScrollingDown = remember { derivedStateOf { listState.firstVisibleItemScrollOffset > 0 } }
 
     val animatedPadding by animateDpAsState(
         targetValue = if (searchBarExpanded.value) 0.dp else 16.dp,
@@ -77,8 +93,8 @@ fun PublicDecksScreen(
     )
 
     AppPullToRefreshBox(
-        isRefreshing = lazyPagingItems.loadState.refresh is LoadState.Loading,
-        onRefresh = { lazyPagingItems.refresh() },
+        isRefreshing = decksFlow.loadState.refresh is LoadState.Loading,
+        onRefresh = { decksFlow.refresh() },
         enabled = !searchBarExpanded.value
     ) {
         Column(
@@ -87,30 +103,55 @@ fun PublicDecksScreen(
             SearchBarComponent(
                 query = query,
                 searchBarExpanded = searchBarExpanded,
-                lazyPagingItems = lazyPagingItems,
+                lazyPagingItems = decksFlow,
                 onDeckClickListener = onDeckClickListener,
+                onQueryChange = { newQuery -> viewModel.searchPublicDecks(newQuery) },
+                onLikeClickListener = { deckId, newIsLiked, onUpdate ->
+                    viewModel.onLikeClick(deckId, newIsLiked) { updatedLikes ->
+                        onUpdate(updatedLikes)
+                    }
+                },
                 modifier = Modifier.padding(horizontal = animatedPadding)
             )
+
+            AnimatedVisibility(visible = !isScrollingDown.value) {
+                SortAndCategoryFilters(
+                    screenState = screenState,
+                    updateSortType = viewModel::updateSortType,
+                    updateCategory = viewModel::updateCategory
+                )
+            }
+
             HandlePagingLoadState(
-                loadState = lazyPagingItems.loadState.refresh,
-                onRetry = { lazyPagingItems.retry() }
+                loadState = decksFlow.loadState.refresh,
+                isLikeCategorySelected = screenState.category == DeckCategory.LIKED,
+                onRetry = { decksFlow.retry() }
             ) {
                 LazyColumn(
                     modifier = Modifier.padding(
                         bottom = paddingValues.calculateBottomPadding(),
-                        start = 16.dp,
-                        end = 16.dp
+                        start = 24.dp,
+                        end = 24.dp
                     ),
+                    state = listState,
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     item {
-                        Spacer(modifier = Modifier)
                     }
-                    items(lazyPagingItems.itemCount) { index ->
-                        lazyPagingItems[index]?.let { deck ->
+                    items(decksFlow.itemCount) { index ->
+                        decksFlow[index]?.let { deck ->
+                            var isLiked by remember { mutableStateOf(deck.isLiked) }
+                            var likes by remember { mutableIntStateOf(deck.likes) }
+
                             DeckCard(
-                                deck = deck,
+                                deck = deck.copy(isLiked = isLiked, likes = likes),
                                 onDeckClickListener = onDeckClickListener,
+                                onLikeClickListener = { deckId, newIsLiked ->
+                                    viewModel.onLikeClick(deckId, newIsLiked) { updatedLikes ->
+                                        isLiked = !newIsLiked
+                                        likes = updatedLikes
+                                    }
+                                },
                                 modifier = Modifier.animateItem()
                             )
                         }
@@ -125,17 +166,112 @@ fun PublicDecksScreen(
 }
 
 @Composable
+private fun SortAndCategoryFilters(
+    screenState: PublicDecksScreenState,
+    updateSortType: (SortType) -> Unit,
+    updateCategory: (DeckCategory) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 24.dp, end = 24.dp, top = 8.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val selectedSortType = screenState.sortType
+
+            SortType.entries.forEach { sortType ->
+                val backgroundColor by animateColorAsState(
+                    targetValue = if (selectedSortType == sortType)
+                        MaterialTheme.colorScheme.secondaryContainer
+                    else MaterialTheme.colorScheme.surface,
+                    label = "SortTypeBackground"
+                )
+
+                AssistChip(
+                    onClick = { if (selectedSortType != sortType) updateSortType(sortType) },
+                    label = {
+                        Crossfade(targetState = sortType) { targetSortType ->
+                            Text(
+                                text = when (targetSortType) {
+                                    SortType.LIKES -> "По лайкам"
+                                    SortType.TRAININGS -> "По тренировкам"
+                                }
+                            )
+                        }
+                    },
+                    colors = AssistChipDefaults.assistChipColors(containerColor = backgroundColor),
+                    border = if (selectedSortType == sortType) null else AssistChipDefaults.assistChipBorder(
+                        true
+                    ),
+                    leadingIcon = {
+                        if (selectedSortType == sortType) {
+                            Crossfade(targetState = selectedSortType) { selected ->
+                                if (selected == sortType) {
+                                    Icon(Icons.Filled.Check, contentDescription = "Выбрано")
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val selectedCategory = screenState.category
+            AssistChip(
+                onClick = {
+                    if (selectedCategory == DeckCategory.LIKED) {
+                        updateCategory(DeckCategory.ALL)
+                    } else {
+                        updateCategory(DeckCategory.LIKED)
+                    }
+                },
+                label = { Text("Избранное") },
+                colors = AssistChipDefaults.assistChipColors(
+                    if (selectedCategory == DeckCategory.LIKED)
+                        MaterialTheme.colorScheme.secondaryContainer
+                    else MaterialTheme.colorScheme.surface
+                ),
+                border = if (selectedCategory == DeckCategory.LIKED) null
+                else AssistChipDefaults.assistChipBorder(true),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Favorite Icon",
+                        tint = if (selectedCategory == DeckCategory.LIKED) {
+                            MaterialTheme.colorScheme.onSecondaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        }
+                    )
+                }
+            )
+        }
+    }
+}
+
+
+@Composable
 private fun HandlePagingLoadState(
     loadState: LoadState,
     onRetry: () -> Unit,
+    isLikeCategorySelected: Boolean,
     onContent: @Composable () -> Unit,
 ) {
     when (loadState) {
         is LoadState.Loading -> LoadingIndicator()
         is LoadState.Error -> {
-            val errorMessage =
-                loadState.error.localizedMessage ?: stringResource(R.string.error_occurred)
-            ErrorContent(message = errorMessage, onRetry = onRetry, isFullScreen = true)
+            if (isLikeCategorySelected) {
+                EmptyContent(modifier = Modifier.fillMaxSize())
+            } else {
+                val errorMessage =
+                    loadState.error.localizedMessage ?: stringResource(R.string.error_occurred)
+                ErrorContent(
+                    message = errorMessage,
+                    onRetry = onRetry,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
         else -> onContent()
@@ -143,8 +279,34 @@ private fun HandlePagingLoadState(
 }
 
 @Composable
+private fun EmptyContent(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Inbox,
+            contentDescription = "No Data",
+            modifier = Modifier.size(64.dp),
+            tint = Color.Gray
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Нет результатов",
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.Gray,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+
+@Composable
 private fun LoadingIndicator(
-    modifier: Modifier = Modifier.fillMaxSize(),
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier,
@@ -156,25 +318,22 @@ private fun LoadingIndicator(
 
 @Composable
 private fun ErrorContent(
+    modifier: Modifier = Modifier,
     message: String,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier.fillMaxSize(),
-    isFullScreen: Boolean = true,
 ) {
     Box(
         modifier = modifier.padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            if (isFullScreen) {
-                Icon(
-                    imageVector = Icons.Filled.WifiOff,
-                    contentDescription = null,
-                    tint = Color.Gray,
-                    modifier = Modifier.size(100.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            Icon(
+                imageVector = Icons.Filled.WifiOff,
+                contentDescription = null,
+                tint = Color.Gray,
+                modifier = Modifier.size(100.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = message,
                 color = MaterialTheme.colorScheme.error,
@@ -195,14 +354,19 @@ private fun SearchBarComponent(
     query: MutableState<String>,
     searchBarExpanded: MutableState<Boolean>,
     lazyPagingItems: LazyPagingItems<DeckUiModel>,
+    onQueryChange: (String) -> Unit,
     onDeckClickListener: (String) -> Unit,
+    onLikeClickListener: (String, Boolean, (Int) -> Unit) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
     val inputField = @Composable {
         InputField(
             query = query.value,
-            onQueryChange = { query.value = it },
+            onQueryChange = { newQuery ->
+                query.value = newQuery
+                onQueryChange(newQuery)
+            },
             onSearch = {
                 scope.launch { searchBarExpanded.value = false }
             },
@@ -212,7 +376,12 @@ private fun SearchBarComponent(
             leadingIcon = {
                 if (searchBarExpanded.value) {
                     IconButton(
-                        onClick = { scope.launch { searchBarExpanded.value = false } }
+                        onClick = {
+                            scope.launch {
+                                searchBarExpanded.value = false
+                                query.value = ""
+                            }
+                        }
                     ) {
                         Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Назад")
                     }
@@ -258,9 +427,18 @@ private fun SearchBarComponent(
                         Spacer(modifier = Modifier)
                     }
                     items(decksList) { deck ->
+                        var isLiked by remember(deck.id) { mutableStateOf(deck.isLiked) }
+                        var likes by remember(deck.id) { mutableIntStateOf(deck.likes) }
+
                         DeckCard(
-                            deck = deck,
+                            deck = deck.copy(isLiked = isLiked, likes = likes),
                             onDeckClickListener = onDeckClickListener,
+                            onLikeClickListener = { deckId, newIsLiked ->
+                                onLikeClickListener(deckId, newIsLiked) { updatedLikes ->
+                                    isLiked = !newIsLiked
+                                    likes = updatedLikes
+                                }
+                            },
                             modifier = Modifier.animateItem()
                         )
                     }

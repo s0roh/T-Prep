@@ -20,5 +20,6 @@ data class PublicDeckDto(
     @SerialName("id") val id: String,
     @SerialName("name") val name: String,
     @SerialName("is_public") val isPublic: Boolean,
-    @SerialName("cards_count") val cardsCount: Int
+    @SerialName("cards_count") val cardsCount: Int,
+    @SerialName("likes") val likes: Int
 )

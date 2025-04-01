@@ -4,6 +4,7 @@ package com.example.network.api
 import com.example.network.dto.collection.CardRequestDto
 import com.example.network.dto.collection.DeckDto
 import com.example.network.dto.collection.DeckRequestDto
+import com.example.network.dto.collection.LikeDto
 import com.example.network.dto.collection.ResponseMessageDto
 import com.example.network.dto.collection.history.HistoryItemDto
 import com.example.network.dto.collection.history.HistoryItemsDto
@@ -56,6 +57,8 @@ interface ApiService {
     @GET("collection/search")
     suspend fun getPublicDecksOrSearch(
         @Query("name") name: String? = null,
+        @Query("sort_by") sortBy: String? = null,
+        @Query("category") category: String? = null,
         @Query("count") count: Int = 10,
         @Query("offset") nextFrom: Int = 0,
         @Header("Authorization") authHeader: String? = null,
@@ -119,6 +122,18 @@ interface ApiService {
         @Path("cardID") cardId: Int,
         @Header("Authorization") authHeader: String? = null,
     ): Response<ResponseMessageDto>
+
+    @PUT("collection/{id}/like")
+    suspend fun like(
+        @Path("id") deckId: String,
+        @Header("Authorization") authHeader: String? = null,
+    ): Response<LikeDto>
+
+    @PUT("collection/{id}/unlike")
+    suspend fun unlike(
+        @Path("id") deckId: String,
+        @Header("Authorization") authHeader: String? = null,
+    ): Response<LikeDto>
 
     @GET("user")
     suspend fun getUserInfo(

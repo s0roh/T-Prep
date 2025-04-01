@@ -25,13 +25,19 @@ class OwnerProfileRepositoryImpl @Inject constructor(
             val userInfo = userResponse.body() ?: throw Exception("User info is null")
             val ownerImage = getOwnerProfileImage(ownerId)
 
+            val favouriteDecksIds =
+                userInfo.favourite?.toSet() ?:emptySet()
+
             val ownerPublicDecks = userInfo.collectionsId.map { deckId ->
                 val deckDto = apiService.getDeckById(deckId, token)
                 DeckUiModel(
                     id = deckDto.id,
                     name = deckDto.name,
                     isPublic = deckDto.isPublic,
-                    cardsCount = deckDto.cards.size
+                    cardsCount = deckDto.cards.size,
+                    likes = deckDto.likes,
+                    shouldShowLikes = true,
+                    isLiked = favouriteDecksIds.contains(deckDto.id)
                 )
             }
             return@executeWithAuth OwnerProfileInfo(

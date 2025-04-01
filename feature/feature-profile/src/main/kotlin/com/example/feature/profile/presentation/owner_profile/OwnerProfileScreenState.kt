@@ -12,6 +12,7 @@ internal sealed interface OwnerProfileScreenState {
     ) : OwnerProfileScreenState
 
     data class Success(
+        val userId: String,
         val userName: String,
         val profileImageUri: Uri? = null,
         val ownerPublicDecks: List<DeckUiModel>,

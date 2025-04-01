@@ -12,6 +12,8 @@ dependencies {
     implementation(project(":core-preferences"))
     implementation(project(":core-common"))
 
+    implementation(libs.retrofit.core)
+
     implementation(libs.paging.runtime)
     implementation(libs.paging.compose)
     implementation(libs.androidx.core.ktx)
