@@ -1,5 +1,6 @@
 package com.example.decks.data.repository
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.decks.data.mapper.toEntity
@@ -10,7 +11,9 @@ import com.example.preferences.AuthRequestWrapper
 internal class PublicDecksPagingSource(
     private val apiService: ApiService,
     private val authRequestWrapper: AuthRequestWrapper,
-    private val query: String? = null
+    private val query: String? = null,
+    private val sortBy: String? = null,
+    private val category: String? = null,
 ) : PagingSource<Int, DeckUiModel>() {
 
     override fun getRefreshKey(state: PagingState<Int, DeckUiModel>): Int? {
@@ -25,19 +28,34 @@ internal class PublicDecksPagingSource(
 
         return try {
             authRequestWrapper.executeWithAuth { token ->
-                val response = apiService.getPublicDecksOrSearch(
+                Log.d("!@#", "Making API request with token: $token")
+
+                val publicDecksResponse = apiService.getPublicDecksOrSearch(
                     name = query,
+                    sortBy = sortBy,
+                    category = category,
                     count = params.loadSize,
                     nextFrom = page * params.loadSize,
                     authHeader = token
                 )
 
-                val decks = response.decks.orEmpty().map { it.toEntity() }
+                val userInfoResponse = apiService.getUserInfo(authHeader = token)
+
+                if (!userInfoResponse.isSuccessful) {
+                    throw Exception("Failed to load profile info: ${userInfoResponse.code()}")
+                }
+
+                val favouriteDecksIds = userInfoResponse.body()?.favourite?.toSet()
+                    ?: emptySet()
+
+                val decks = publicDecksResponse.decks.orEmpty().map {deckDto ->
+                    deckDto.toEntity(isLiked = favouriteDecksIds.contains(deckDto.id) )
+                }
 
                 LoadResult.Page(
                     data = decks,
                     prevKey = if (page == 0) null else page - 1,
-                    nextKey = if (response.count < 10 || decks.isEmpty()) null else page + 1
+                    nextKey = if (publicDecksResponse.count < 10 || decks.isEmpty()) null else page + 1
                 )
             }
         } catch (e: Exception) {

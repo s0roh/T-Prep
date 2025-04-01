@@ -18,12 +18,15 @@ internal fun DeckDto.toEntity(): Deck =
         cards = cards.map { it.toEntity() }
     )
 
-internal fun PublicDeckDto.toEntity(): DeckUiModel =
+internal fun PublicDeckDto.toEntity(isLiked: Boolean): DeckUiModel =
     DeckUiModel(
         id = id,
         name = name,
         isPublic = isPublic,
-        cardsCount = cardsCount
+        cardsCount = cardsCount,
+        likes = likes,
+        isLiked = isLiked,
+        shouldShowLikes = true
     )
 
 internal fun CardDto.toEntity(): Card =

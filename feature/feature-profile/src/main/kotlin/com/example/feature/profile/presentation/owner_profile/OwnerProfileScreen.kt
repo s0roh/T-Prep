@@ -69,7 +69,8 @@ fun OwnerProfileScreen(
             OwnerProfileContent(
                 state = currentState,
                 onBackClick = onBackClick,
-                onDeckClickListener = onDeckClickListener
+                onDeckClickListener = onDeckClickListener,
+                onLikeClickListener = viewModel::onLikeClick
             )
         }
     }
@@ -80,6 +81,7 @@ private fun OwnerProfileContent(
     state: OwnerProfileScreenState.Success,
     onBackClick: () -> Unit,
     onDeckClickListener: (String) -> Unit,
+    onLikeClickListener: (String, Boolean) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -129,6 +131,7 @@ private fun OwnerProfileContent(
                     DeckCard(
                         deck = deck,
                         onDeckClickListener = onDeckClickListener,
+                        onLikeClickListener = onLikeClickListener,
                         modifier = Modifier.animateItem()
                     )
                 }

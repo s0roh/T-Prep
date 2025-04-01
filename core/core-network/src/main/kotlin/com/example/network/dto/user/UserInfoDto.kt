@@ -11,4 +11,5 @@ data class UserInfoDto(
     @SerialName("has_picture") val hasPicture: Boolean,
     @SerialName("collections") val collectionsId: List<String>,
     @SerialName("statistics") val statistics: UserStatisticDto,
+    @SerialName("favourite") val favourite: List<String>? = emptyList(),
 )

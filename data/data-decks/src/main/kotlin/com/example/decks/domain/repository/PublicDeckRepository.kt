@@ -8,7 +8,15 @@ import kotlinx.coroutines.flow.Flow
 
 interface PublicDeckRepository {
 
-    fun getPublicDecks(query: String? = null): Flow<PagingData<DeckUiModel>>
+    fun getPublicDecks(
+        query: String? = null,
+        sortBy: String? = null,
+        category: String? = null,
+    ): Flow<PagingData<DeckUiModel>>
 
     suspend fun getDeckById(id: String): Pair<Deck, Source>
+
+    suspend fun likeOrUnlikeDeck(deckId: String, isLiked: Boolean): Int
+
+    suspend fun getFavouriteDeckIds(): List<String>
 }
