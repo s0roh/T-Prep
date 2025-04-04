@@ -36,6 +36,7 @@ class OwnerProfileRepositoryImpl @Inject constructor(
                     isPublic = deckDto.isPublic,
                     cardsCount = deckDto.cards.size,
                     likes = deckDto.likes,
+                    trainings = deckDto.trainings,
                     shouldShowLikes = true,
                     isLiked = favouriteDecksIds.contains(deckDto.id)
                 )

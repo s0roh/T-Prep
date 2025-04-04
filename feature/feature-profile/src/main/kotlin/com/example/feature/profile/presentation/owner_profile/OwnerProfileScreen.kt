@@ -1,5 +1,6 @@
 package com.example.feature.profile.presentation.owner_profile
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,11 +39,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.SubcomposeAsyncImage
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.DeckCard
-import com.example.common.ui.ErrorState
 import com.example.common.ui.LoadingState
 import com.example.common.ui.NavigationIconType
 import com.example.feature.profile.R
 import com.example.feature.profile.presentation.components.StatisticsSection
+import kotlinx.coroutines.flow.receiveAsFlow
 
 @Composable
 fun OwnerProfileScreen(
@@ -51,16 +53,23 @@ fun OwnerProfileScreen(
 ) {
     val viewModel: OwnerProfileViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
+    val context = LocalContext.current
+
+    val eventFlow = viewModel.eventFlow.receiveAsFlow().collectAsState(initial = null).value
 
     LaunchedEffect(ownerId) {
         viewModel.loadOwnerProfile(ownerId = ownerId)
     }
 
-    when (val currentState = screenState) {
-        is OwnerProfileScreenState.Error -> {
-            ErrorState(message = currentState.message)
+    LaunchedEffect(eventFlow) {
+        eventFlow?.let {
+            if (it is OwnerProfileEvent.ShowError) {
+                Toast.makeText(context, "Ошибка: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
 
+    when (val currentState = screenState) {
         OwnerProfileScreenState.Loading -> {
             LoadingState()
         }

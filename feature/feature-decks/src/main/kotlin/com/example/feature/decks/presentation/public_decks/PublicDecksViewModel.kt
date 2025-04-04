@@ -37,10 +37,10 @@ internal class PublicDecksViewModel @Inject constructor(
         Log.e("PublicDecksViewModel", "Error: ${throwable.message}")
     }
 
-    fun onLikeClick(deckId: String, isLiked: Boolean, onUpdate: (Int) -> Unit) {
+    fun onLikeClick(deckId: String, isLiked: Boolean,  onUpdate: (Boolean, Int) -> Unit) {
         viewModelScope.launch(exceptionHandler) {
             val updatedLikes = likeOrUnlikeUseCase(deckId, isLiked)
-            onUpdate(updatedLikes)
+            onUpdate(!isLiked, updatedLikes)
         }
     }
 

@@ -107,8 +107,8 @@ fun PublicDecksScreen(
                 onDeckClickListener = onDeckClickListener,
                 onQueryChange = { newQuery -> viewModel.searchPublicDecks(newQuery) },
                 onLikeClickListener = { deckId, newIsLiked, onUpdate ->
-                    viewModel.onLikeClick(deckId, newIsLiked) { updatedLikes ->
-                        onUpdate(updatedLikes)
+                    viewModel.onLikeClick(deckId, newIsLiked) { successIsLiked, updatedLikes ->
+                        onUpdate(successIsLiked, updatedLikes)
                     }
                 },
                 modifier = Modifier.padding(horizontal = animatedPadding)
@@ -147,8 +147,11 @@ fun PublicDecksScreen(
                                 deck = deck.copy(isLiked = isLiked, likes = likes),
                                 onDeckClickListener = onDeckClickListener,
                                 onLikeClickListener = { deckId, newIsLiked ->
-                                    viewModel.onLikeClick(deckId, newIsLiked) { updatedLikes ->
-                                        isLiked = !newIsLiked
+                                    viewModel.onLikeClick(
+                                        deckId,
+                                        newIsLiked
+                                    ) { updatedIsLiked , updatedLikes ->
+                                        isLiked = updatedIsLiked
                                         likes = updatedLikes
                                     }
                                 },
@@ -356,7 +359,7 @@ private fun SearchBarComponent(
     lazyPagingItems: LazyPagingItems<DeckUiModel>,
     onQueryChange: (String) -> Unit,
     onDeckClickListener: (String) -> Unit,
-    onLikeClickListener: (String, Boolean, (Int) -> Unit) -> Unit,
+    onLikeClickListener: (String, Boolean, (Boolean, Int) -> Unit) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
@@ -434,9 +437,13 @@ private fun SearchBarComponent(
                             deck = deck.copy(isLiked = isLiked, likes = likes),
                             onDeckClickListener = onDeckClickListener,
                             onLikeClickListener = { deckId, newIsLiked ->
-                                onLikeClickListener(deckId, newIsLiked) { updatedLikes ->
-                                    isLiked = !newIsLiked
+                                onLikeClickListener(
+                                    deckId,
+                                    newIsLiked
+                                ) { updatedIsLiked , updatedLikes ->
+                                    isLiked = updatedIsLiked
                                     likes = updatedLikes
+
                                 }
                             },
                             modifier = Modifier.animateItem()

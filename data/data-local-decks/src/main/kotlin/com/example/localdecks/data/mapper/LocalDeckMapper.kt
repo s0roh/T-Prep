@@ -24,6 +24,7 @@ internal fun DeckDBO.toUiModel(cardsCount: Int): DeckUiModel = DeckUiModel(
     cardsCount = cardsCount,
     isLiked = false,
     likes = 0,
+    trainings = 0,
     shouldShowLikes = false
 )
 

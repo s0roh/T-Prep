@@ -7,6 +7,7 @@ import com.example.feature.profile.domain.LikeOrUnlikeUseCase
 import com.example.feature.profile.domain.LoadOwnerProfileInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,8 +22,13 @@ internal class OwnerProfileViewModel @Inject constructor(
     var screenState = MutableStateFlow<OwnerProfileScreenState>(OwnerProfileScreenState.Loading)
         private set
 
+     var eventFlow = Channel<OwnerProfileEvent>(Channel.CONFLATED)
+         private  set
+
     private val exceptionHandler = CoroutineExceptionHandler { _, message ->
-        screenState.value = OwnerProfileScreenState.Error(message = message.toString())
+        viewModelScope.launch {
+            eventFlow.send(OwnerProfileEvent.ShowError(message.message ?: "Unknown Error"))
+        }
     }
 
     fun loadOwnerProfile(ownerId: String) {

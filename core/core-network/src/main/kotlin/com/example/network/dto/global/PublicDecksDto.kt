@@ -1,6 +1,5 @@
 package com.example.network.dto.global
 
-import com.example.network.dto.collection.DeckDto
 import com.example.network.dto.collection.PublicDeckDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

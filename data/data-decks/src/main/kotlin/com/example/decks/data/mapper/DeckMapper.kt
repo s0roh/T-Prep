@@ -25,6 +25,7 @@ internal fun PublicDeckDto.toEntity(isLiked: Boolean): DeckUiModel =
         isPublic = isPublic,
         cardsCount = cardsCount,
         likes = likes,
+        trainings = trainings,
         isLiked = isLiked,
         shouldShowLikes = true
     )
