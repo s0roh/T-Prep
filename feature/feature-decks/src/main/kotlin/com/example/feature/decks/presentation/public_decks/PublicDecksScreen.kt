@@ -107,7 +107,10 @@ fun PublicDecksScreen(
                 onDeckClickListener = onDeckClickListener,
                 onQueryChange = { newQuery -> viewModel.searchPublicDecks(newQuery) },
                 onLikeClickListener = { deckId, newIsLiked, onUpdate ->
-                    viewModel.onLikeClick(deckId, newIsLiked) { successIsLiked, updatedLikes ->
+                    viewModel.onLikeClick(
+                        deckId,
+                        newIsLiked
+                    ) { successIsLiked, updatedLikes ->
                         onUpdate(successIsLiked, updatedLikes)
                     }
                 },
@@ -136,8 +139,6 @@ fun PublicDecksScreen(
                     state = listState,
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
-                    item {
-                    }
                     items(decksFlow.itemCount) { index ->
                         decksFlow[index]?.let { deck ->
                             var isLiked by remember { mutableStateOf(deck.isLiked) }
@@ -150,7 +151,7 @@ fun PublicDecksScreen(
                                     viewModel.onLikeClick(
                                         deckId,
                                         newIsLiked
-                                    ) { updatedIsLiked , updatedLikes ->
+                                    ) { updatedIsLiked, updatedLikes ->
                                         isLiked = updatedIsLiked
                                         likes = updatedLikes
                                     }
@@ -252,7 +253,6 @@ private fun SortAndCategoryFilters(
         }
     }
 }
-
 
 @Composable
 private fun HandlePagingLoadState(
@@ -371,7 +371,10 @@ private fun SearchBarComponent(
                 onQueryChange(newQuery)
             },
             onSearch = {
-                scope.launch { searchBarExpanded.value = false }
+                scope.launch {
+                    searchBarExpanded.value = false
+                    query.value = ""
+                }
             },
             expanded = searchBarExpanded.value,
             onExpandedChange = { searchBarExpanded.value = it },
@@ -409,7 +412,12 @@ private fun SearchBarComponent(
     SearchBar(
         inputField = inputField,
         expanded = searchBarExpanded.value,
-        onExpandedChange = { searchBarExpanded.value = it },
+        onExpandedChange = { expanded ->
+            searchBarExpanded.value = expanded
+            if (!expanded) {
+                query.value = ""
+            }
+        },
         shape = MaterialTheme.shapes.medium,
         modifier = modifier
     ) {
@@ -440,7 +448,7 @@ private fun SearchBarComponent(
                                 onLikeClickListener(
                                     deckId,
                                     newIsLiked
-                                ) { updatedIsLiked , updatedLikes ->
+                                ) { updatedIsLiked, updatedLikes ->
                                     isLiked = updatedIsLiked
                                     likes = updatedLikes
 
