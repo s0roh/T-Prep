@@ -110,8 +110,8 @@ fun PublicDecksScreen(
                 onDeckClickListener = onDeckClickListener,
                 onDeckLongClickListener = {deckId ->
                     coroutineScope.launch {
-                        val (_, source) = viewModel.getDeckById(deckId)
-                        onDeckLongClickListener(deckId, source)
+                        val (deck, source) = viewModel.getDeckById(deckId)
+                        onDeckLongClickListener(deck.id, source)
                     }
                 },
                 onQueryChange = { newQuery -> viewModel.searchPublicDecks(newQuery) },
@@ -158,8 +158,8 @@ fun PublicDecksScreen(
                                 onDeckClickListener = onDeckClickListener,
                                 onDeckLongClickListener = {deckId ->
                                     coroutineScope.launch {
-                                        val (_, source) = viewModel.getDeckById(deckId)
-                                        onDeckLongClickListener(deckId, source)
+                                        val (deck, source) = viewModel.getDeckById(deckId)
+                                        onDeckLongClickListener(deck.id, source)
                                     }
                                 },
                                 onLikeClickListener = { deckId, newIsLiked ->
@@ -386,10 +386,10 @@ private fun SearchBarComponent(
                 query.value = newQuery
                 onQueryChange(newQuery)
             },
-            onSearch = {
+            onSearch = {newQuery ->
                 scope.launch {
-                    searchBarExpanded.value = false
-                    query.value = ""
+                    query.value = newQuery
+                    onQueryChange(newQuery)
                 }
             },
             expanded = searchBarExpanded.value,
