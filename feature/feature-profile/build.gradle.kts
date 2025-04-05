@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":data-decks"))
     implementation(project(":core-preferences"))
     implementation(project(":core-common"))
+    implementation(project(":core-database"))
 
     implementation(libs.android.image.cropper)
     implementation(libs.coil.compose)

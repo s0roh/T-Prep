@@ -64,6 +64,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.common.ui.DeckCard
 import com.example.common.ui.entity.DeckUiModel
+import com.example.database.models.Source
 import com.example.decks.R
 import com.example.feature.decks.presentation.components.AppPullToRefreshBox
 import kotlinx.coroutines.launch
@@ -74,6 +75,7 @@ import kotlinx.coroutines.launch
 fun PublicDecksScreen(
     paddingValues: PaddingValues,
     onDeckClickListener: (String) -> Unit,
+    onDeckLongClickListener: (String, Source) -> Unit
 ) {
     val viewModel: PublicDecksViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
@@ -84,6 +86,7 @@ fun PublicDecksScreen(
         else viewModel.searchPublicDecks(query.value)
     }.collectAsLazyPagingItems()
 
+    val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val isScrollingDown = remember { derivedStateOf { listState.firstVisibleItemScrollOffset > 0 } }
 
@@ -105,6 +108,12 @@ fun PublicDecksScreen(
                 searchBarExpanded = searchBarExpanded,
                 lazyPagingItems = decksFlow,
                 onDeckClickListener = onDeckClickListener,
+                onDeckLongClickListener = {deckId ->
+                    coroutineScope.launch {
+                        val (_, source) = viewModel.getDeckById(deckId)
+                        onDeckLongClickListener(deckId, source)
+                    }
+                },
                 onQueryChange = { newQuery -> viewModel.searchPublicDecks(newQuery) },
                 onLikeClickListener = { deckId, newIsLiked, onUpdate ->
                     viewModel.onLikeClick(
@@ -114,7 +123,7 @@ fun PublicDecksScreen(
                         onUpdate(successIsLiked, updatedLikes)
                     }
                 },
-                modifier = Modifier.fillMaxWidth() .padding(horizontal = animatedPadding)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = animatedPadding)
             )
 
             AnimatedVisibility(visible = !isScrollingDown.value) {
@@ -147,6 +156,12 @@ fun PublicDecksScreen(
                             DeckCard(
                                 deck = deck.copy(isLiked = isLiked, likes = likes),
                                 onDeckClickListener = onDeckClickListener,
+                                onDeckLongClickListener = {deckId ->
+                                    coroutineScope.launch {
+                                        val (_, source) = viewModel.getDeckById(deckId)
+                                        onDeckLongClickListener(deckId, source)
+                                    }
+                                },
                                 onLikeClickListener = { deckId, newIsLiked ->
                                     viewModel.onLikeClick(
                                         deckId,
@@ -359,6 +374,7 @@ private fun SearchBarComponent(
     lazyPagingItems: LazyPagingItems<DeckUiModel>,
     onQueryChange: (String) -> Unit,
     onDeckClickListener: (String) -> Unit,
+    onDeckLongClickListener: (String) -> Unit,
     onLikeClickListener: (String, Boolean, (Boolean, Int) -> Unit) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -444,6 +460,7 @@ private fun SearchBarComponent(
                         DeckCard(
                             deck = deck.copy(isLiked = isLiked, likes = likes),
                             onDeckClickListener = onDeckClickListener,
+                            onDeckLongClickListener = onDeckLongClickListener,
                             onLikeClickListener = { deckId, newIsLiked ->
                                 onLikeClickListener(
                                     deckId,

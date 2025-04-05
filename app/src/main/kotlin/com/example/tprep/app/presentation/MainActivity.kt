@@ -107,6 +107,14 @@ fun MainScreen(navController: NavHostController) {
                     paddingValues = paddingValues,
                     onDeckClickListener = { deckId ->
                         navigationState.navigateTo(Screen.DeckDetails(deckId, Source.NETWORK))
+                    },
+                    onDeckLongClickListener = {deckId, source ->
+                        navigationState.navigateWithSaveState(
+                            Screen.Training(
+                                deckId = deckId,
+                                source = source
+                            )
+                        )
                     }
                 )
             },
@@ -140,6 +148,14 @@ fun MainScreen(navController: NavHostController) {
                             Screen.DeckDetails(
                                 deckId,
                                 Source.NETWORK
+                            )
+                        )
+                    },
+                    onDeckLongClickListener = {deckId ->
+                        navigationState.navigateWithSaveState(
+                            Screen.Training(
+                                deckId = deckId,
+                                source = Source.NETWORK
                             )
                         )
                     }
@@ -270,6 +286,14 @@ fun MainScreen(navController: NavHostController) {
                     },
                     onAddClick = {
                         navigationState.navigateWithSaveState(Screen.AddEditDeck(deckId = null))
+                    },
+                    onDeckLongClickListener = {deckId ->
+                        navigationState.navigateWithSaveState(
+                            Screen.Training(
+                                deckId = deckId,
+                                source = Source.LOCAL
+                            )
+                        )
                     }
                 )
             },

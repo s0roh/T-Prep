@@ -43,28 +43,28 @@ import com.example.common.ui.LoadingState
 import com.example.common.ui.NavigationIconType
 import com.example.feature.profile.R
 import com.example.feature.profile.presentation.components.StatisticsSection
-import kotlinx.coroutines.flow.receiveAsFlow
 
 @Composable
 fun OwnerProfileScreen(
     ownerId: String,
     onBackClick: () -> Unit,
     onDeckClickListener: (String) -> Unit,
+    onDeckLongClickListener: (String) -> Unit
 ) {
     val viewModel: OwnerProfileViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
     val context = LocalContext.current
 
-    val eventFlow = viewModel.eventFlow.receiveAsFlow().collectAsState(initial = null).value
-
     LaunchedEffect(ownerId) {
         viewModel.loadOwnerProfile(ownerId = ownerId)
     }
 
-    LaunchedEffect(eventFlow) {
-        eventFlow?.let {
-            if (it is OwnerProfileEvent.ShowError) {
-                Toast.makeText(context, "Ошибка: ${it.message}", Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is OwnerProfileEvent.ShowError -> {
+                    Toast.makeText(context, "Ошибка: ${event.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -79,6 +79,7 @@ fun OwnerProfileScreen(
                 state = currentState,
                 onBackClick = onBackClick,
                 onDeckClickListener = onDeckClickListener,
+                onDeckLongClickListener = onDeckLongClickListener,
                 onLikeClickListener = viewModel::onLikeClick
             )
         }
@@ -90,6 +91,7 @@ private fun OwnerProfileContent(
     state: OwnerProfileScreenState.Success,
     onBackClick: () -> Unit,
     onDeckClickListener: (String) -> Unit,
+    onDeckLongClickListener: (String) -> Unit,
     onLikeClickListener: (String, Boolean) -> Unit,
 ) {
     Scaffold(
@@ -140,6 +142,7 @@ private fun OwnerProfileContent(
                     DeckCard(
                         deck = deck,
                         onDeckClickListener = onDeckClickListener,
+                        onDeckLongClickListener = onDeckLongClickListener,
                         onLikeClickListener = onLikeClickListener,
                         modifier = Modifier.animateItem()
                     )

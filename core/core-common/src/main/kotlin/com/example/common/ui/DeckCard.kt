@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,17 +40,23 @@ import com.example.common.ui.entity.DeckUiModel
 import com.example.common.util.formatCount
 import com.example.common.util.getCardWordForm
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DeckCard(
     modifier: Modifier = Modifier,
     deck: DeckUiModel,
     onDeckClickListener: (String) -> Unit,
+    onDeckLongClickListener: (String) -> Unit,
     onLikeClickListener: ((String, Boolean) -> Unit)? = null,
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
-        onClick = { onDeckClickListener(deck.id) },
-        elevation = CardDefaults.cardElevation(2.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(2.dp,MaterialTheme.shapes.medium)
+            .combinedClickable(
+                onClick = { onDeckClickListener(deck.id) },
+                onLongClick = { onDeckLongClickListener(deck.id) }
+            ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {
         Column(
