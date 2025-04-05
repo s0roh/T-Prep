@@ -1,5 +1,6 @@
 package com.example.common.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -55,110 +55,146 @@ fun DeckCard(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text(
-                text = deck.name,
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = "${deck.cardsCount} ${getCardWordForm(deck.cardsCount)}",
-                style = MaterialTheme.typography.bodySmall,
-            )
+            DeckInfo(deck)
             Spacer(modifier = Modifier.height(20.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row {
-                    Icon(
-                        painter = painterResource(
-                            if (deck.isPublic) R.drawable.ic_public_card
-                            else R.drawable.ic_private_card
-                        ),
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = if (deck.isPublic) "Публичная"
-                        else "Приватная",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                }
-                onLikeClickListener?.let {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Text(
-                            text = formatCount(deck.trainings),
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                        Icon(
-                            imageVector = Icons.Filled.RemoveRedEye,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                        LikeButtonWithAnimation(
-                            modifier = Modifier
-                                .clip(MaterialTheme.shapes.medium)
-                                .clickable(onClick = {
-                                    onLikeClickListener(
-                                        deck.id,
-                                        deck.isLiked
-                                    )
-                                }),
-                            likeCount = deck.likes,
-                            isLiked = deck.isLiked
-                        )
-                    }
-                }
-            }
+            DeckFooter(deck, onLikeClickListener)
         }
     }
 }
 
 @Composable
-private fun LikeButtonWithAnimation(
-    modifier: Modifier = Modifier,
-    likeCount: Int,
-    isLiked: Boolean,
+private fun DeckInfo(deck: DeckUiModel) {
+    Text(
+        text = deck.name,
+        style = MaterialTheme.typography.titleLarge,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
+    Text(
+        text = "${deck.cardsCount} ${getCardWordForm(deck.cardsCount)}",
+        style = MaterialTheme.typography.bodySmall,
+    )
+}
+
+@Composable
+private fun DeckFooter(
+    deck: DeckUiModel,
+    onLikeClickListener: ((String, Boolean) -> Unit)?,
 ) {
     Row(
-        modifier = modifier.padding(horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        DeckVisibility(deck)
+        onLikeClickListener?.let {
+            DeckStats(deck, onLikeClickListener)
+        }
+    }
+}
+
+@Composable
+private fun DeckVisibility(deck: DeckUiModel) {
+    Row {
+        Icon(
+            painter = painterResource(
+                if (deck.isPublic) R.drawable.ic_public_card
+                else R.drawable.ic_private_card
+            ),
+            contentDescription = null
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = if (deck.isPublic) "Публичная" else "Приватная",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+    }
+}
+
+@Composable
+private fun DeckStats(
+    deck: DeckUiModel,
+    onLikeClickListener: (String, Boolean) -> Unit,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = formatCount(likeCount),
+            text = formatCount(deck.trainings),
             style = MaterialTheme.typography.bodyMedium.copy(
-                color = if (isLiked) MaterialTheme.colorScheme.error else
-                    MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         )
-
-        val scale by animateFloatAsState(
-            targetValue = if (isLiked) 1.01f else 1f,
-            animationSpec = keyframes {
-                durationMillis = 600
-                1f at 0 using FastOutSlowInEasing
-                1.3f at 150 using FastOutSlowInEasing
-                1f at 300 using FastOutSlowInEasing
-                1.1f at 450 using FastOutSlowInEasing
-                1f at 600 using FastOutSlowInEasing
-            }
+        Icon(
+            painter = painterResource(R.drawable.ic_training),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        LikeButtonWithAnimation(
+            likeCount = deck.likes,
+            isLiked = deck.isLiked,
+            onClick = { onLikeClickListener(deck.id, deck.isLiked) }
+        )
+    }
+}
+
+@Composable
+private fun LikeButtonWithAnimation(
+    likeCount: Int,
+    isLiked: Boolean,
+    onClick: () -> Unit,
+) {
+    val animatedScale by animateFloatAsState(
+        targetValue = if (isLiked) 1.01f else 1f,
+        animationSpec = keyframes {
+            durationMillis = 600
+            1f at 0 using FastOutSlowInEasing
+            1.3f at 150 using FastOutSlowInEasing
+            1f at 300 using FastOutSlowInEasing
+            1.1f at 450 using FastOutSlowInEasing
+            1f at 600 using FastOutSlowInEasing
+        }
+    )
+
+    Row(
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.medium)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+
+        ) {
+        AnimatedLikeCount(likeCount, isLiked)
         Icon(
             imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
             tint = if (isLiked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
             contentDescription = null,
-            modifier = Modifier.scale(scale)
+            modifier = Modifier.scale(animatedScale)
         )
+    }
+}
+
+@Composable
+private fun AnimatedLikeCount(
+    likeCount: Int,
+    isLiked: Boolean,
+) {
+    AnimatedContent(
+        targetState = likeCount,
+        label = "LikeCountTransition"
+    ) { count ->
+        if (count != 0) {
+            Text(
+                modifier = Modifier.padding(end = 8.dp),
+                text = formatCount(count),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = if (isLiked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
     }
 }

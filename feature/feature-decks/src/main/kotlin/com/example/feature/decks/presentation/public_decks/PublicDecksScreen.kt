@@ -88,7 +88,7 @@ fun PublicDecksScreen(
     val isScrollingDown = remember { derivedStateOf { listState.firstVisibleItemScrollOffset > 0 } }
 
     val animatedPadding by animateDpAsState(
-        targetValue = if (searchBarExpanded.value) 0.dp else 16.dp,
+        targetValue = if (searchBarExpanded.value) 0.dp else 24.dp,
         label = "searchBarPadding"
     )
 
@@ -114,7 +114,7 @@ fun PublicDecksScreen(
                         onUpdate(successIsLiked, updatedLikes)
                     }
                 },
-                modifier = Modifier.padding(horizontal = animatedPadding)
+                modifier = Modifier.fillMaxWidth() .padding(horizontal = animatedPadding)
             )
 
             AnimatedVisibility(visible = !isScrollingDown.value) {
