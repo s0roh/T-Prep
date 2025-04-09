@@ -9,6 +9,7 @@ import com.example.localdecks.domain.entity.CardRequest
 import com.example.localdecks.domain.entity.DeckRequest
 import com.example.network.dto.collection.CardRequestDto
 import com.example.network.dto.collection.DeckRequestDto
+import com.example.network.dto.global.OtherAnswersDto
 
 internal fun DeckDBO.toEntity(cards: List<Card>): Deck = Deck(
     id = id,
@@ -18,7 +19,7 @@ internal fun DeckDBO.toEntity(cards: List<Card>): Deck = Deck(
 )
 
 internal fun DeckDBO.toUiModel(cardsCount: Int): DeckUiModel = DeckUiModel(
-    id= id,
+    id = id,
     name = name,
     isPublic = isPublic,
     cardsCount = cardsCount,
@@ -31,7 +32,8 @@ internal fun DeckDBO.toUiModel(cardsCount: Int): DeckUiModel = DeckUiModel(
 internal fun CardDBO.toEntity(): Card = Card(
     id = id,
     question = question,
-    answer = answer
+    answer = answer,
+    wrongAnswers = listOfNotNull(wrongAnswer1, wrongAnswer2, wrongAnswer3)
 )
 
 internal fun Deck.toDBO(serverDeckId: String?, userId: String): DeckDBO = DeckDBO(
@@ -47,7 +49,10 @@ internal fun Card.toDBO(deckId: String, serverCardId: Int?): CardDBO = CardDBO(
     serverCardId = serverCardId,
     deckId = deckId,
     question = question,
-    answer = answer
+    answer = answer,
+    wrongAnswer1 = wrongAnswers.getOrNull(0),
+    wrongAnswer2 = wrongAnswers.getOrNull(1),
+    wrongAnswer3 = wrongAnswers.getOrNull(2),
 )
 
 internal fun DeckRequest.toDTO() = DeckRequestDto(
@@ -57,5 +62,9 @@ internal fun DeckRequest.toDTO() = DeckRequestDto(
 
 internal fun CardRequest.toDTO() = CardRequestDto(
     question = question,
-    answer = answer
+    answer = answer,
+    otherAnswers = OtherAnswersDto(
+        count = wrongAnswers.size,
+        items = wrongAnswers
+    )
 )

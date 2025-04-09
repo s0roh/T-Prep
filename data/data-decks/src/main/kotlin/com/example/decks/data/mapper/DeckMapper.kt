@@ -34,14 +34,16 @@ internal fun CardDto.toEntity(): Card =
     Card(
         id = id,
         question = question,
-        answer = answer
+        answer = answer,
+        wrongAnswers = otherAnswers.items
     )
 
 internal fun CardDBO.toEntity(): Card =
     Card(
         id = id,
         question = question,
-        answer = answer
+        answer = answer,
+        wrongAnswers = listOfNotNull(wrongAnswer1, wrongAnswer2, wrongAnswer3)
     )
 
 internal fun DeckDBO.toEntity(cards: List<Card>): Deck =

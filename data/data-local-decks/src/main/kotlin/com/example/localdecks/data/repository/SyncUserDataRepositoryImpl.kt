@@ -148,12 +148,19 @@ class SyncUserDataRepositoryImpl @Inject constructor(
                 deckId = deckLocalId
             )
             if (existingCard != null) {
-                if (existingCard.question != cardDto.question || existingCard.answer != cardDto.answer) {
+                if (existingCard.question != cardDto.question || existingCard.answer != cardDto.answer ||
+                    existingCard.wrongAnswer1 != cardDto.otherAnswers.items.getOrNull(0) ||
+                    existingCard.wrongAnswer2 != cardDto.otherAnswers.items.getOrNull(1) ||
+                    existingCard.wrongAnswer3 != cardDto.otherAnswers.items.getOrNull(2)
+                ) {
                     Log.d(TAG, "Обновление карточки. Старое: $existingCard, новое: $cardDto")
                     database.cardDao.updateCard(
                         existingCard.copy(
                             question = cardDto.question,
-                            answer = cardDto.answer
+                            answer = cardDto.answer,
+                            wrongAnswer1 = cardDto.otherAnswers.items.getOrNull(0),
+                            wrongAnswer2 = cardDto.otherAnswers.items.getOrNull(1),
+                            wrongAnswer3 = cardDto.otherAnswers.items.getOrNull(2)
                         )
                     )
                 }
@@ -165,7 +172,10 @@ class SyncUserDataRepositoryImpl @Inject constructor(
                         serverCardId = cardDto.id,
                         deckId = deckLocalId,
                         question = cardDto.question,
-                        answer = cardDto.answer
+                        answer = cardDto.answer,
+                        wrongAnswer1 = cardDto.otherAnswers.items.getOrNull(0),
+                        wrongAnswer2 = cardDto.otherAnswers.items.getOrNull(1),
+                        wrongAnswer3 = cardDto.otherAnswers.items.getOrNull(2)
                     )
                 )
             }

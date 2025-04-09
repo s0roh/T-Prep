@@ -5,5 +5,6 @@ data class AddEditCardScreenState(
     val answer: String = "",
     val questionError: String? = null,
     val answerError: String? = null,
-    val isSaveButtonEnabled: Boolean = true
+    val isSaveButtonEnabled: Boolean = true,
+    val wrongAnswerList: List<String> = emptyList()
 )

@@ -98,7 +98,7 @@ private fun HistoryList(
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(vertical =  16.dp, horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         groupedHistory.forEach { (header, items) ->

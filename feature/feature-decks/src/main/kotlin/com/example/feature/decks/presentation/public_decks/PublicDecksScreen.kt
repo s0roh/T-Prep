@@ -447,7 +447,7 @@ private fun SearchBarComponent(
                 Text("Нет результатов", modifier = Modifier.padding(16.dp))
             } else {
                 LazyColumn(
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier.padding(horizontal = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     item {

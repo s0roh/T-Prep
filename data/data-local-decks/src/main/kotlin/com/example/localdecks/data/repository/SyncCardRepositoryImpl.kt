@@ -28,7 +28,12 @@ class SyncCardRepositoryImpl @Inject constructor(
 
             val cardRequest = CardRequest(
                 question = metadataInfo.question,
-                answer = metadataInfo.answer
+                answer = metadataInfo.answer,
+                wrongAnswers = listOfNotNull(
+                    metadataInfo.wrongAnswer1,
+                    metadataInfo.wrongAnswer2,
+                    metadataInfo.wrongAnswer3
+                )
             )
 
             val response = apiService.createCard(
@@ -103,7 +108,12 @@ class SyncCardRepositoryImpl @Inject constructor(
             val serverCardId = metadataInfo.serverCardId ?: -1
             val cardRequest = CardRequest(
                 question = metadataInfo.question,
-                answer = metadataInfo.answer
+                answer = metadataInfo.answer,
+                wrongAnswers = listOfNotNull(
+                    metadataInfo.wrongAnswer1,
+                    metadataInfo.wrongAnswer2,
+                    metadataInfo.wrongAnswer3
+                )
             )
 
             val response = apiService.updateCard(

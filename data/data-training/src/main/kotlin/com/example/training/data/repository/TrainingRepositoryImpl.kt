@@ -142,6 +142,10 @@ class TrainingRepositoryImpl @Inject internal constructor(
         currentCard: Card,
         allCards: List<Card>,
     ): List<String> {
+        if (currentCard.wrongAnswers.isNotEmpty()) {
+            return currentCard.wrongAnswers
+        }
+
         return allCards
             .asSequence()
             .filter { it.id != currentCard.id }
