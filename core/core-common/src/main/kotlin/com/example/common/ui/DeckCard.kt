@@ -1,5 +1,6 @@
 package com.example.common.ui
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -31,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,13 +51,23 @@ fun DeckCard(
     onDeckLongClickListener: (String) -> Unit,
     onLikeClickListener: ((String, Boolean) -> Unit)? = null,
 ) {
+    val context = LocalContext.current
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(2.dp,MaterialTheme.shapes.medium)
+            .shadow(2.dp, MaterialTheme.shapes.medium)
             .combinedClickable(
                 onClick = { onDeckClickListener(deck.id) },
-                onLongClick = { onDeckLongClickListener(deck.id) }
+                onLongClick = {
+                    if (deck.cardsCount > 0) onDeckLongClickListener(deck.id) else {
+
+                        Toast.makeText(
+                            context,
+                            "Добавьте карточки в колоду, чтобы начать тренировку",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
     ) {

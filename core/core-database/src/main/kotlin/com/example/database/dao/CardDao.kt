@@ -15,6 +15,9 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE deckId = :deckId AND isDeleted = 0")
     fun getCardsForDeck(deckId: String): Flow<List<CardDBO>>
 
+    @Query("SELECT * FROM cards WHERE deckId = :deckId")
+    fun getCardsForDeckAndDeleted(deckId: String): Flow<List<CardDBO>>
+
     @Query("SELECT * FROM cards WHERE id = :cardID")
     suspend fun getCardById(cardID: Int): CardDBO?
 

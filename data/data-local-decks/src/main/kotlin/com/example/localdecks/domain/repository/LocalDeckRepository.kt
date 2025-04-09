@@ -17,7 +17,11 @@ interface LocalDeckRepository {
 
     suspend fun updateDeck(deck: Deck)
 
-    suspend fun deleteDeck(deck: Deck)
+    suspend fun deleteDeck(deckId: String)
+
+    suspend fun softDeleteDeck(deckId: String)
+
+    suspend fun restoreDeck(deckId: String)
 
     // CardDao
 

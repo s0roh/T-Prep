@@ -8,12 +8,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.auth.presentation.auth.AuthScreen
+import com.example.common.ui.CountdownSnackbar
+import com.example.common.ui.snackbar_controller.SnackbarController
 import com.example.database.models.Source
 import com.example.feature.decks.presentation.deck_details.DeckDetailScreen
 import com.example.feature.decks.presentation.deck_details_statistic.DeckDetailsStatisticScreen
@@ -39,8 +47,10 @@ import com.example.feature.training.presentation.training.TrainingScreen
 import com.example.feature.training.presentation.training_errors.TrainingErrorsScreen
 import com.example.feature.training.presentation.training_mode_settings.TrainingModeSettingsScreen
 import com.example.feature.training.presentation.training_results.TrainingResultsScreen
+import com.example.tprep.app.presentation.utils.ObserveAsEvents
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -76,7 +86,42 @@ fun MainScreen(navController: NavHostController) {
     val navigationState = rememberNavigationState(navHostController = navController)
     val currentRoute = currentRoute(navigationState)
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    ObserveAsEvents(
+        flow = SnackbarController.events,
+        snackbarHostState
+    ) { event ->
+        scope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+
+            val result = snackbarHostState.showSnackbar(
+                message = event.message,
+                actionLabel = event.action?.name,
+                duration = SnackbarDuration.Long
+            )
+
+            when (result) {
+                SnackbarResult.ActionPerformed -> {
+                    event.action?.action?.invoke()
+                }
+
+                SnackbarResult.Dismissed -> {
+                    event.action?.dismiss?.invoke()
+                }
+            }
+        }
+    }
+
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState
+            ) { data ->
+                CountdownSnackbar(data)
+            }
+        },
         bottomBar = {
             if (shouldShowBottomNavigation(currentRoute)) {
                 AppBottomNavigation(navigationState = navigationState)
@@ -108,7 +153,7 @@ fun MainScreen(navController: NavHostController) {
                     onDeckClickListener = { deckId ->
                         navigationState.navigateTo(Screen.DeckDetails(deckId, Source.NETWORK))
                     },
-                    onDeckLongClickListener = {deckId, source ->
+                    onDeckLongClickListener = { deckId, source ->
                         navigationState.navigateWithSaveState(
                             Screen.Training(
                                 deckId = deckId,
@@ -151,7 +196,7 @@ fun MainScreen(navController: NavHostController) {
                             )
                         )
                     },
-                    onDeckLongClickListener = {deckId ->
+                    onDeckLongClickListener = { deckId ->
                         navigationState.navigateWithSaveState(
                             Screen.Training(
                                 deckId = deckId,
@@ -287,7 +332,7 @@ fun MainScreen(navController: NavHostController) {
                     onAddClick = {
                         navigationState.navigateWithSaveState(Screen.AddEditDeck(deckId = null))
                     },
-                    onDeckLongClickListener = {deckId ->
+                    onDeckLongClickListener = { deckId ->
                         navigationState.navigateWithSaveState(
                             Screen.Training(
                                 deckId = deckId,

@@ -77,10 +77,10 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun deleteDeck(deck: Deck) {
-        val existingDeck = database.deckDao.getDeckById(deck.id)
+    override suspend fun deleteDeck(deckId: String) {
+        val existingDeck = database.deckDao.getDeckById(deckId)
         if (existingDeck != null) {
-            val cards = database.cardDao.getCardsForDeck(deck.id).firstOrNull() ?: emptyList()
+            val cards = database.cardDao.getCardsForDeckAndDeleted(deckId).firstOrNull() ?: emptyList()
             cards.forEach { card ->
                 if (card.serverCardId == null) {
                     database.cardDao.deleteCard(card)
@@ -88,21 +88,49 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
                     database.cardDao.updateCard(card.copy(isDeleted = true))
                 }
                 syncHelper.markAsDeleted(
-                    deckId = deck.id,
+                    deckId = deckId,
                     entityType = EntityType.CARD,
                     cardId = card.id
                 )
             }
-            database.trainingModesHistoryDao.deleteTrainingModes(deck.id)
-            database.errorDao.deleteErrorForDeck(deck.id)
-            database.historyDao.deleteHistoryForDeck(deck.id)
+            database.trainingModesHistoryDao.deleteTrainingModes(deckId)
+            database.errorDao.deleteErrorForDeck(deckId)
+            database.historyDao.deleteHistoryForDeck(deckId)
             if (existingDeck.serverDeckId == null) {
                 database.deckDao.deleteDeck(existingDeck)
             } else {
                 database.deckDao.updateDeck(existingDeck.copy(isDeleted = true))
             }
-            syncHelper.markAsDeleted(deckId = deck.id, entityType = EntityType.DECK, cardId = null)
+            syncHelper.markAsDeleted(deckId = deckId, entityType = EntityType.DECK, cardId = null)
+        }
+    }
 
+    override suspend fun softDeleteDeck(deckId: String) {
+        val existingDeck = database.deckDao.getDeckById(deckId)
+        if (existingDeck != null) {
+            // Помечаем карты как удаленные
+            val cards = database.cardDao.getCardsForDeck(deckId).firstOrNull() ?: emptyList()
+            cards.forEach { card ->
+                database.cardDao.updateCard(card.copy(isDeleted = true))
+            }
+
+            // Помечаем колоду как удаленную
+            database.deckDao.updateDeck(existingDeck.copy(isDeleted = true))
+        }
+    }
+
+    override suspend fun restoreDeck(deckId: String) {
+        val existingDeck = database.deckDao.getDeckById(deckId)
+        if (existingDeck != null) {
+            // Восстанавливаем карты
+            val cards = database.cardDao.getCardsForDeckAndDeleted(deckId).firstOrNull()
+                ?: emptyList()
+            cards.forEach { card ->
+                database.cardDao.updateCard(card.copy(isDeleted = false))
+            }
+
+            // Восстанавливаем колоду
+            database.deckDao.updateDeck(existingDeck.copy(isDeleted = false))
         }
     }
 
