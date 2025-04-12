@@ -1,5 +1,6 @@
 package com.example.training.domain.repository
 
+import android.net.Uri
 import com.example.common.domain.entity.Card
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
@@ -33,6 +34,13 @@ interface TrainingRepository {
         trainingSessionId: String,
         trainingMode: TrainingMode,
     )
+
+    suspend fun getCardPicture(
+        deckId: String,
+        cardId: Int,
+        source: Source,
+        attachment: String? = null,
+    ): Uri?
 
     suspend fun saveTrainingModes(trainingModes: TrainingModes)
 

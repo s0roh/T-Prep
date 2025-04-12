@@ -315,7 +315,7 @@ fun CardPicture(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(260.dp)
+                    .height(200.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .padding(end = 24.dp),
@@ -351,7 +351,7 @@ fun CardPicture(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(260.dp)
+                .height(200.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .clickable { onClick() }
         )

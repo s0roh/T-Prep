@@ -16,8 +16,8 @@ internal fun launchCrop(
             uri,
             CropImageOptions(
                 cropShape = CropImageView.CropShape.RECTANGLE,
-                aspectRatioX = 3,
-                aspectRatioY = 2,
+                aspectRatioX = 16,
+                aspectRatioY = 9,
                 fixAspectRatio = true,
                 activityBackgroundColor = themeColors.background.toArgb(),
                 toolbarColor = themeColors.background.toArgb(),

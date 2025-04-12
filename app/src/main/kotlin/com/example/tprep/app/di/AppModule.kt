@@ -62,11 +62,6 @@ interface AppModule {
     @Binds
     @Singleton
     @Suppress("unused")
-    fun bindTrainingRepository(trainingRepositoryImpl: TrainingRepositoryImpl): TrainingRepository
-
-    @Binds
-    @Singleton
-    @Suppress("unused")
     fun bindHistoryRepository(historyRepositoryImpl: HistoryRepositoryImpl): HistoryRepository
 
     @Binds
@@ -200,6 +195,24 @@ interface AppModule {
             return OwnerProfileRepositoryImpl(
                 context,
                 apiService,
+                authRequestWrapper
+            )
+        }
+
+        @Provides
+        @Singleton
+        fun provideTrainingRepository(
+            @ApplicationContext context: Context,
+            database: TPrepDatabase,
+            apiService: ApiService,
+            preferences: AuthPreferences,
+            authRequestWrapper: AuthRequestWrapper,
+        ): TrainingRepository {
+            return TrainingRepositoryImpl(
+                context,
+                database,
+                apiService,
+                preferences,
                 authRequestWrapper
             )
         }

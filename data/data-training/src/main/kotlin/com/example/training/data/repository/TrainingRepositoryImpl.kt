@@ -1,5 +1,8 @@
 package com.example.training.data.repository
 
+import android.content.Context
+import android.net.Uri
+import androidx.core.net.toUri
 import com.example.common.domain.entity.Card
 import com.example.database.TPrepDatabase
 import com.example.database.models.AnswerStatsDBO
@@ -8,7 +11,9 @@ import com.example.database.models.ErrorAnswerDBO
 import com.example.database.models.HistoryDBO
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
+import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
+import com.example.preferences.AuthRequestWrapper
 import com.example.training.data.mapper.toDbo
 import com.example.training.data.mapper.toEntity
 import com.example.training.data.util.generatePartialAnswer
@@ -20,13 +25,17 @@ import com.example.training.domain.entity.TrainingModes
 import com.example.training.domain.repository.TrainingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 import kotlin.math.max
 
 
-class TrainingRepositoryImpl @Inject internal constructor(
+class TrainingRepositoryImpl @Inject constructor(
+    private val context: Context,
     private val database: TPrepDatabase,
+    private val apiService: ApiService,
     private val preferences: AuthPreferences,
+    private val authRequestWrapper: AuthRequestWrapper,
 ) : TrainingRepository {
 
     override suspend fun prepareTrainingCards(
@@ -81,6 +90,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 trainingMode = mode,
                 question = card.question,
                 answer = card.answer,
+                attachment = card.attachment,
                 wrongAnswers = generateWrongAnswers(card, allCards)
             )
 
@@ -96,6 +106,7 @@ class TrainingRepositoryImpl @Inject internal constructor(
                     question = card.question,
                     answer = card.answer,
                     displayedAnswer = displayedAnswer,
+                    attachment = card.attachment,
                 )
             }
 
@@ -107,7 +118,8 @@ class TrainingRepositoryImpl @Inject internal constructor(
                     question = card.question,
                     answer = card.answer,
                     partialAnswer = partialAnswer,
-                    missingWords = missingWords
+                    missingWords = missingWords,
+                    attachment = card.attachment,
                 )
             }
         }
@@ -186,6 +198,52 @@ class TrainingRepositoryImpl @Inject internal constructor(
                 trainingMode = trainingMode
             )
             database.errorDao.insertError(errorAnswer)
+        }
+    }
+
+    override suspend fun getCardPicture(
+        deckId: String,
+        cardId: Int,
+        source: Source,
+        attachment: String?,
+    ): Uri? {
+        return when (source) {
+            Source.LOCAL -> {
+                return try {
+                    val card = database.cardDao.getCardById(cardId)
+                    val path = card?.picturePath ?: return null
+                    File(path).toUri()
+                } catch (_: Exception) {
+                    null
+                }
+            }
+
+            Source.NETWORK -> {
+                if (attachment.isNullOrBlank()) {
+                    return null
+                }
+
+                authRequestWrapper.executeWithAuth { token ->
+                    val response = apiService.getCardPicture(
+                        deckId = deckId,
+                        cardId = cardId,
+                        objectName = attachment,
+                        authHeader = token
+                    )
+
+                    if (response.isSuccessful) {
+                        response.body()?.let { body ->
+                            val tempFile = File(context.cacheDir, "card_image.jpg")
+                            tempFile.outputStream().use { output ->
+                                body.byteStream().copyTo(output)
+                            }
+                            tempFile.toUri()
+                        }
+                    } else {
+                        null
+                    }
+                }
+            }
         }
     }
 

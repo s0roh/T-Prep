@@ -1,5 +1,6 @@
 package com.example.feature.training.presentation.training
 
+import android.net.Uri
 import com.example.training.domain.entity.TrainingCard
 
 sealed interface TrainingScreenState {
@@ -11,6 +12,7 @@ sealed interface TrainingScreenState {
     data class Success(
         val cards: List<TrainingCard>,
         val currentCardIndex: Int = 0,
+        val currentCardPictureUri: Uri? = null,
         val correctAnswers: Int = 0,
         val selectedAnswer: String? = null
     ) : TrainingScreenState
