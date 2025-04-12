@@ -72,11 +72,6 @@ interface AppModule {
     @Binds
     @Singleton
     @Suppress("unused")
-    fun bindLocalDeckRepository(localDeckRepositoryImpl: LocalDeckRepositoryImpl): LocalDeckRepository
-
-    @Binds
-    @Singleton
-    @Suppress("unused")
     fun bindSyncCardRepository(syncCardRepositoryImpl: SyncCardRepositoryImpl): SyncCardRepository
 
     @Binds
@@ -87,17 +82,7 @@ interface AppModule {
     @Binds
     @Singleton
     @Suppress("unused")
-    fun bindSyncUserDataRepository(syncUserDataRepositoryImpl: SyncUserDataRepositoryImpl): SyncUserDataRepository
-
-    @Binds
-    @Singleton
-    @Suppress("unused")
     fun bindDeckDetailsRepository(deckDetailsRepositoryImpl: DeckDetailsRepositoryImpl): DeckDetailsRepository
-
-    @Binds
-    @Singleton
-    @Suppress("unused")
-    fun bindOwnerProfileRepository(ownerProfileRepositoryImpl: OwnerProfileRepositoryImpl): OwnerProfileRepository
 
     @Binds
     @Singleton
@@ -169,6 +154,54 @@ interface AppModule {
             authRequestWrapper: AuthRequestWrapper,
         ): ProfileRepository {
             return ProfileRepositoryImpl(context, apiService, preferences, authRequestWrapper)
+        }
+
+        @Provides
+        @Singleton
+        fun provideLocalDeckRepository(
+            @ApplicationContext context: Context,
+            database: TPrepDatabase,
+            syncHelper: SyncHelper,
+            preferences: AuthPreferences,
+        ): LocalDeckRepository {
+            return LocalDeckRepositoryImpl(
+                context,
+                database,
+                syncHelper,
+                preferences
+            )
+        }
+
+        @Provides
+        @Singleton
+        fun provideSyncUserDataRepository(
+            @ApplicationContext context: Context,
+            database: TPrepDatabase,
+            apiService: ApiService,
+            authRequestWrapper: AuthRequestWrapper,
+            preferences: AuthPreferences,
+        ): SyncUserDataRepository {
+            return SyncUserDataRepositoryImpl(
+                context,
+                database,
+                apiService,
+                authRequestWrapper,
+                preferences
+            )
+        }
+
+        @Provides
+        @Singleton
+        fun provideOwnerProfileRepository(
+            @ApplicationContext context: Context,
+            apiService: ApiService,
+            authRequestWrapper: AuthRequestWrapper,
+        ): OwnerProfileRepository {
+            return OwnerProfileRepositoryImpl(
+                context,
+                apiService,
+                authRequestWrapper
+            )
         }
     }
 }

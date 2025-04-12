@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -98,8 +97,7 @@ fun MainScreen(navController: NavHostController) {
 
             val result = snackbarHostState.showSnackbar(
                 message = event.message,
-                actionLabel = event.action?.name,
-                duration = SnackbarDuration.Long
+                actionLabel = event.action?.name
             )
 
             when (result) {

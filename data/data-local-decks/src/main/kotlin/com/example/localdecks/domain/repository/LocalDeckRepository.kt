@@ -1,5 +1,6 @@
 package com.example.localdecks.domain.repository
 
+import android.net.Uri
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
 import com.example.common.ui.entity.DeckUiModel
@@ -29,9 +30,15 @@ interface LocalDeckRepository {
 
     suspend fun getCardById(cardId: Int): Card?
 
-    suspend fun insertCard(card: Card, deckId: String)
+    suspend fun getCardPicture(deckId: String, cardId: Int): Uri?
+
+    suspend fun insertCard(card: Card, deckId: String): Int
 
     suspend fun updateCard(card: Card)
 
+    suspend fun updateCardPicture(deckId: String, cardId: Int, pictureUri: Uri)
+
     suspend fun deleteCard(card: Card)
+
+    suspend fun deleteCardPicture(deckId: String, cardId: Int)
 }

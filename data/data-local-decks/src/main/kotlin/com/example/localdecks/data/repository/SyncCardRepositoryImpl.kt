@@ -8,6 +8,10 @@ import com.example.localdecks.domain.entity.CardRequest
 import com.example.localdecks.domain.repository.SyncCardRepository
 import com.example.network.api.ApiService
 import com.example.preferences.AuthRequestWrapper
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 
 class SyncCardRepositoryImpl @Inject constructor(
@@ -43,8 +47,53 @@ class SyncCardRepositoryImpl @Inject constructor(
             )
 
             if (response.isSuccessful) {
-                Log.d("SyncWorker", "Карта создана успешно: ${response.body()?.id}")
-                database.cardDao.updateCard(metadataInfo.copy(serverCardId = response.body()?.id))
+                val serverCardId = response.body()?.id ?: -1
+                Log.d("SyncWorker", "Карта создана успешно: $serverCardId")
+
+                val localImagePath = metadataInfo.picturePath
+                when {
+                    localImagePath != null -> {
+                        val file = File(localImagePath)
+                        if (file.exists()) {
+                            val requestBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                            val multipartBody = MultipartBody.Part.createFormData(
+                                "image", file.name, requestBody
+                            )
+
+                            val uploadResponse = apiService.updateCardPicture(
+                                deckId = serverDeckId,
+                                cardId = serverCardId,
+                                authHeader = token,
+                                image = multipartBody
+                            )
+
+                            if (!uploadResponse.isSuccessful) {
+                                Log.e(
+                                    "SyncWorker",
+                                    "Ошибка при загрузке картинки: ${
+                                        uploadResponse.errorBody()?.string()
+                                    }"
+                                )
+                            } else {
+                                database.cardDao.updateCard(
+                                    metadataInfo.copy(
+                                        attachment = uploadResponse.body()?.objectName,
+                                        serverCardId = serverCardId
+                                    )
+                                )
+                                Log.d(
+                                    "SyncWorker",
+                                    "Картинка успешно загружена для карточки $serverCardId"
+                                )
+                            }
+                        }
+                    }
+
+                    else -> {
+                        database.cardDao.updateCard(metadataInfo.copy(serverCardId = serverCardId))
+                    }
+                }
+
                 metadata.cardId?.let { cardId ->
                     database.syncMetadataDao.deleteCardSyncMetadata(metadata.deckId, cardId)
                 }
@@ -73,6 +122,15 @@ class SyncCardRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 Log.d("SyncWorker", "Карта удалена успешно: ${response.body()?.message}")
+
+                metadataInfo.picturePath?.let { path ->
+                    val file = File(path)
+                    if (file.exists()) {
+                        val deleted = file.delete()
+                        Log.d("SyncWorker", "Удаление изображения: $deleted ($path)")
+                    }
+                }
+
                 metadata.cardId?.let { cardId ->
                     database.syncMetadataDao.deleteCardSyncMetadata(metadata.deckId, cardId)
                 }
@@ -125,6 +183,67 @@ class SyncCardRepositoryImpl @Inject constructor(
 
             if (response.isSuccessful) {
                 Log.d("SyncWorker", "Карта обновлена успешно: ${response.body()?.message}")
+
+                val localImagePath = metadataInfo.picturePath
+                val attachment = metadataInfo.attachment
+
+                when {
+                    localImagePath != null -> {
+                        val file = File(localImagePath)
+                        if (file.exists()) {
+                            val requestBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                            val multipartBody = MultipartBody.Part.createFormData(
+                                "image", file.name, requestBody
+                            )
+
+                            val uploadResponse = apiService.updateCardPicture(
+                                deckId = serverDeckId,
+                                cardId = serverCardId,
+                                authHeader = token,
+                                image = multipartBody
+                            )
+
+                            if (!uploadResponse.isSuccessful) {
+                                Log.e(
+                                    "SyncWorker",
+                                    "Ошибка при загрузке картинки: ${
+                                        uploadResponse.errorBody()?.string()
+                                    }"
+                                )
+                            } else {
+                                database.cardDao.updateCard(metadataInfo.copy(attachment = uploadResponse.body()?.objectName))
+                                Log.d(
+                                    "SyncWorker",
+                                    "Картинка успешно загружена для карточки $serverCardId"
+                                )
+                            }
+                        }
+                    }
+
+                    attachment != null -> {
+                        val deleteResponse = apiService.deleteCardPicture(
+                            deckId = serverDeckId,
+                            cardId = serverCardId,
+                            objectName = attachment,
+                            authHeader = token
+                        )
+
+                        if (deleteResponse.isSuccessful) {
+                            database.cardDao.updateCard(
+                                metadataInfo.copy(attachment = null)
+                            )
+                            Log.d("SyncWorker", "Картинка успешно удалена для карточки $serverCardId")
+                        } else {
+                            Log.e(
+                                "SyncWorker",
+                                "Ошибка при удалении картинки: ${
+                                    deleteResponse.errorBody()?.string()
+                                }"
+                            )
+                        }
+                    }
+                }
+
                 metadata.cardId?.let { cardId ->
                     database.syncMetadataDao.deleteCardSyncMetadata(metadata.deckId, cardId)
                 }

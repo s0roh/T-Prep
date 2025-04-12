@@ -1,5 +1,9 @@
 package com.example.localdecks.data.repository
 
+import android.content.Context
+import android.net.Uri
+import android.util.Log
+import androidx.core.net.toUri
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
 import com.example.common.ui.entity.DeckUiModel
@@ -18,9 +22,11 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import java.io.File
 import javax.inject.Inject
 
-class LocalDeckRepositoryImpl @Inject internal constructor(
+class LocalDeckRepositoryImpl @Inject constructor(
+    private val context: Context,
     private val database: TPrepDatabase,
     private val syncHelper: SyncHelper,
     private val preferences: AuthPreferences,
@@ -80,7 +86,8 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
     override suspend fun deleteDeck(deckId: String) {
         val existingDeck = database.deckDao.getDeckById(deckId)
         if (existingDeck != null) {
-            val cards = database.cardDao.getCardsForDeckAndDeleted(deckId).firstOrNull() ?: emptyList()
+            val cards =
+                database.cardDao.getCardsForDeckAndDeleted(deckId).firstOrNull() ?: emptyList()
             cards.forEach { card ->
                 if (card.serverCardId == null) {
                     database.cardDao.deleteCard(card)
@@ -94,8 +101,6 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
                 )
             }
             database.trainingModesHistoryDao.deleteTrainingModes(deckId)
-            database.errorDao.deleteErrorForDeck(deckId)
-            database.historyDao.deleteHistoryForDeck(deckId)
             if (existingDeck.serverDeckId == null) {
                 database.deckDao.deleteDeck(existingDeck)
             } else {
@@ -144,11 +149,27 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
         return database.cardDao.getCardById(cardId)?.toEntity()
     }
 
-    override suspend fun insertCard(card: Card, deckId: String) {
+    override suspend fun getCardPicture(
+        deckId: String,
+        cardId: Int,
+    ): Uri? {
+        return try {
+            val card = database.cardDao.getCardById(cardId)
+            val path = card?.picturePath ?: return null
+            File(path).toUri()
+        } catch (e: Exception) {
+            Log.e("LocalDeckRepositoryImpl", "getCardPicture: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun insertCard(card: Card, deckId: String): Int {
         val dbo = card.toDBO(deckId = deckId, serverCardId = null)
         val generatedId = database.cardDao.insertCard(dbo).toInt()
 
         syncHelper.markAsNew(deckId = deckId, entityType = EntityType.CARD, cardId = generatedId)
+
+        return generatedId
     }
 
     override suspend fun updateCard(card: Card) {
@@ -168,6 +189,33 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
         }
     }
 
+    override suspend fun updateCardPicture(
+        deckId: String,
+        cardId: Int,
+        pictureUri: Uri,
+    ) {
+        val existingCard = database.cardDao.getCardById(cardId) ?: return
+        val file = File(context.filesDir, "card_${cardId}_$deckId.jpg")
+
+        val inputStream = context.contentResolver.openInputStream(pictureUri)
+        inputStream?.use { input ->
+            file.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        if (file.length() > 5 * 1024 * 1024) {
+            Log.e(
+                "LocalDeckRepositoryImpl",
+                "updateUserProfileImage: Image size exceeds 5MB limit"
+            )
+            file.delete()
+            throw Exception("Image size exceeds 5MB limit")
+        }
+
+        database.cardDao.updateCard(existingCard.copy(picturePath = file.absolutePath))
+    }
+
     override suspend fun deleteCard(card: Card) {
         val existingCard = database.cardDao.getCardById(card.id)
         if (existingCard != null) {
@@ -182,5 +230,18 @@ class LocalDeckRepositoryImpl @Inject internal constructor(
                 cardId = card.id
             )
         }
+    }
+
+    override suspend fun deleteCardPicture(
+        deckId: String,
+        cardId: Int,
+    ) {
+        val existingCard = database.cardDao.getCardById(cardId) ?: return
+        existingCard.picturePath?.let { path ->
+            val file = File(path)
+            if (file.exists()) file.delete()
+        }
+
+        database.cardDao.updateCard(existingCard.copy(picturePath = null))
     }
 }

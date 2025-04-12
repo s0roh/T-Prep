@@ -1,11 +1,10 @@
-package com.example.feature.profile.presentation.util
+package com.example.feature.localdecks.presentation.util
 
 import android.net.Uri
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.toArgb
 import com.canhub.cropper.CropImageOptions
 import com.canhub.cropper.CropImageView
-import com.example.feature.profile.presentation.components.CropImageContractOptions
 
 internal fun launchCrop(
     uri: Uri,
@@ -16,7 +15,9 @@ internal fun launchCrop(
         CropImageContractOptions(
             uri,
             CropImageOptions(
-                cropShape = CropImageView.CropShape.OVAL,
+                cropShape = CropImageView.CropShape.RECTANGLE,
+                aspectRatioX = 3,
+                aspectRatioY = 2,
                 fixAspectRatio = true,
                 activityBackgroundColor = themeColors.background.toArgb(),
                 toolbarColor = themeColors.background.toArgb(),

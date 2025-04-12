@@ -52,7 +52,7 @@ import kotlinx.coroutines.delay
 fun CountdownSnackbar(
     snackbarData: SnackbarData,
     modifier: Modifier = Modifier,
-    durationInSeconds: Int = 10,
+    durationInSeconds: Int = 5,
     actionOnNewLine: Boolean = false,
     shape: Shape = SnackbarDefaults.shape,
     containerColor: Color = SnackbarDefaults.color,

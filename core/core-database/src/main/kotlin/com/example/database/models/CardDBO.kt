@@ -15,5 +15,6 @@ data class CardDBO(
     @ColumnInfo("wrongAnswer2") val wrongAnswer2: String? = null,
     @ColumnInfo("wrongAnswer3") val wrongAnswer3: String? = null,
     @ColumnInfo("attachment") val attachment: String? = null,
+    @ColumnInfo("picturePath") val picturePath: String? = null,
     @ColumnInfo("isDeleted") val isDeleted: Boolean = false,
 )

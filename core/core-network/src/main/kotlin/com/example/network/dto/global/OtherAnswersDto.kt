@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OtherAnswersDto(
-    @SerialName("count") val count: Int = 0,
-    @SerialName("items") val items: List<String> = emptyList(),
+    @SerialName("count") val count: Int,
+    @SerialName("items") val items: List<String>,
 )

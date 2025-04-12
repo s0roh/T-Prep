@@ -33,7 +33,9 @@ internal fun CardDBO.toEntity(): Card = Card(
     id = id,
     question = question,
     answer = answer,
-    wrongAnswers = listOfNotNull(wrongAnswer1, wrongAnswer2, wrongAnswer3)
+    wrongAnswers = listOfNotNull(wrongAnswer1, wrongAnswer2, wrongAnswer3),
+    attachment = attachment,
+    picturePath = picturePath
 )
 
 internal fun Deck.toDBO(serverDeckId: String?, userId: String): DeckDBO = DeckDBO(
@@ -53,6 +55,8 @@ internal fun Card.toDBO(deckId: String, serverCardId: Int?): CardDBO = CardDBO(
     wrongAnswer1 = wrongAnswers.getOrNull(0),
     wrongAnswer2 = wrongAnswers.getOrNull(1),
     wrongAnswer3 = wrongAnswers.getOrNull(2),
+    attachment = attachment,
+    picturePath = picturePath
 )
 
 internal fun DeckRequest.toDTO() = DeckRequestDto(

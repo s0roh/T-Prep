@@ -1,5 +1,6 @@
 package com.example.data.profile.data
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import com.example.common.ui.entity.DeckUiModel
@@ -11,6 +12,7 @@ import java.io.File
 import javax.inject.Inject
 
 class OwnerProfileRepositoryImpl @Inject constructor(
+    private val context: Context,
     private val apiService: ApiService,
     private val authRequestWrapper: AuthRequestWrapper,
 ) : OwnerProfileRepository {
@@ -26,7 +28,7 @@ class OwnerProfileRepositoryImpl @Inject constructor(
             val ownerImage = getOwnerProfileImage(ownerId)
 
             val favouriteDecksIds =
-                userInfo.favourite?.toSet() ?:emptySet()
+                userInfo.favourite?.toSet() ?: emptySet()
 
             val ownerPublicDecks = userInfo.collectionsId.map { deckId ->
                 val deckDto = apiService.getDeckById(deckId, token)
@@ -57,7 +59,7 @@ class OwnerProfileRepositoryImpl @Inject constructor(
                 val response = apiService.getUserPicture(authHeader = token, userId = ownerId)
                 if (response.isSuccessful) {
                     response.body()?.byteStream()?.let { inputStream ->
-                        val tempFile = File.createTempFile("owner_profile_pic", ".jpg")
+                        val tempFile = File(context.filesDir, "owner_profile_pic.jpg")
                         tempFile.outputStream().use { output ->
                             inputStream.copyTo(output)
                         }

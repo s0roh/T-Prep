@@ -40,9 +40,10 @@ class SyncWorker @AssistedInject constructor(
         return try {
             Log.d("SyncWorker", "Запущена синхронизация данных")
             delay(500L)
-            val syncMetadataList = getSyncMetadataList()
-            syncMetadataList.forEach { metadata ->
-                withContext(Dispatchers.IO) {
+
+            withContext(Dispatchers.IO) {
+                val syncMetadataList = getSyncMetadataList()
+                syncMetadataList.forEach { metadata ->
                     when (metadata.entityType) {
                         EntityType.DECK -> {
                             Log.d("SyncWorker", "Синхронизация колоды: ${metadata.deckId}")
@@ -56,6 +57,7 @@ class SyncWorker @AssistedInject constructor(
                     }
                 }
             }
+
             syncUserDataUseCase()
             Log.d("SyncWorker", "Синхронизация завершена успешно")
             Result.success()
