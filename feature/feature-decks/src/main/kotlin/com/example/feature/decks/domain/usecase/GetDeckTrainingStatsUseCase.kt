@@ -8,5 +8,5 @@ internal class GetDeckTrainingStatsUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(deckId: String): List<Double> =
-        repository.getDeckTrainingStats(deckId = deckId).map { it.coerceAtMost(100.0) }
+        repository.getDeckTrainingStats(deckId = deckId)
 }
