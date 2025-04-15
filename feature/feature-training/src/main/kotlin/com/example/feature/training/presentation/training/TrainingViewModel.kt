@@ -6,6 +6,7 @@ import com.example.common.domain.entity.Deck
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
 import com.example.feature.training.domain.CheckFillInTheBlankAnswerUseCase
+import com.example.feature.training.domain.GetCardPictureUseCase
 import com.example.feature.training.domain.GetDeckByIdLocalUseCase
 import com.example.feature.training.domain.GetDeckByIdNetworkUseCase
 import com.example.feature.training.domain.GetTrainingModesUseCase
@@ -28,6 +29,7 @@ internal class TrainingViewModel @Inject constructor(
     private val recordTrainingUseCase: RecordTrainingUseCase,
     private val checkFillInTheBlankAnswerUseCase: CheckFillInTheBlankAnswerUseCase,
     private val getTrainingModesUseCase: GetTrainingModesUseCase,
+    private val getCardPictureUseCase: GetCardPictureUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<TrainingScreenState>(TrainingScreenState.Initial)
@@ -47,14 +49,27 @@ internal class TrainingViewModel @Inject constructor(
     fun loadTraining(deckId: String, source: Source) {
         currentDeckId = deckId
         currentSource = source
-
         trainingSessionId = generateTrainingSessionId(currentDeckId)
 
         viewModelScope.launch(exceptionHandler) {
             screenState.value = TrainingScreenState.Loading
 
             val cards = loadCardsForTraining(source)
-            screenState.value = TrainingScreenState.Success(cards = cards)
+            val firstCard = cards.firstOrNull()
+            val pictureUri =
+                firstCard?.let {
+                    getCardPictureUseCase(
+                        deckId = currentDeckId,
+                        cardId = it.id,
+                        source = currentSource,
+                        attachment = firstCard.attachment
+                    )
+                }
+
+            screenState.value = TrainingScreenState.Success(
+                cards = cards,
+                currentCardPictureUri = pictureUri
+            )
         }
     }
 
@@ -146,10 +161,22 @@ internal class TrainingViewModel @Inject constructor(
         val nextIndex = currentState.currentCardIndex + 1
 
         if (nextIndex < currentState.cards.size) {
-            screenState.value = currentState.copy(
-                currentCardIndex = nextIndex,
-                correctAnswers = correctAnswersCount
-            )
+            val nextCard = currentState.cards[nextIndex]
+            viewModelScope.launch(exceptionHandler) {
+                val pictureUri = getCardPictureUseCase(
+                    deckId = currentDeckId,
+                    cardId = nextCard.id,
+                    source = currentSource,
+                    attachment = nextCard.attachment
+                )
+
+                screenState.value = currentState.copy(
+                    currentCardIndex = nextIndex,
+                    correctAnswers = correctAnswersCount,
+                    currentCardPictureUri = pictureUri
+                )
+            }
+
         } else {
             finishTraining()
         }

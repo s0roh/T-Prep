@@ -111,11 +111,9 @@ fun DeckDetailScreen(
                 onStartTraining = onStartTraining,
                 onAddCardClick = { onAddCardClick(currentState.deck.id) },
                 onEditDeckName = onEditDeck,
-                onEditDeckPrivateState = {
-                    viewModel.changeDeckPrivacy()
-                },
+                onEditDeckPrivateState = { viewModel.changeDeckPrivacy() },
                 onDeleteDeck = {
-                    viewModel.deleteDeck()
+                    viewModel.deleteDeckWithUndo()
                     onBackClick()
                 },
                 onDeleteCard = { card ->

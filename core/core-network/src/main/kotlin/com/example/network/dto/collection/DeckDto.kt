@@ -22,5 +22,6 @@ data class DeckDto(
     @SerialName("is_public") val isPublic: Boolean,
     @SerialName("author") val authorId: String,
     @SerialName("likes") val likes: Int,
+    @SerialName("trainings") val trainings: Int,
     @SerialName("cards") val cards: List<CardDto>
 )

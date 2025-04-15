@@ -1,6 +1,7 @@
 package com.example.network.api
 
 
+import com.example.network.dto.collection.CardPictureResponseDto
 import com.example.network.dto.collection.CardRequestDto
 import com.example.network.dto.collection.DeckDto
 import com.example.network.dto.collection.DeckRequestDto
@@ -120,6 +121,31 @@ interface ApiService {
     suspend fun deleteCard(
         @Path("id") deckId: String,
         @Path("cardID") cardId: Int,
+        @Header("Authorization") authHeader: String? = null,
+    ): Response<ResponseMessageDto>
+
+    @GET("collection/{id}/card/{cardID}/picture")
+    suspend fun getCardPicture(
+        @Path("id") deckId: String,
+        @Path("cardID") cardId: Int,
+        @Query("object_name") objectName : String,
+        @Header("Authorization") authHeader: String? = null,
+    ): Response<ResponseBody>
+
+    @Multipart
+    @PUT("collection/{id}/card/{cardID}/picture")
+    suspend fun updateCardPicture(
+        @Path("id") deckId: String,
+        @Path("cardID") cardId: Int,
+        @Header("Authorization") authHeader: String? = null,
+        @Part image: MultipartBody.Part,
+    ): Response<CardPictureResponseDto>
+
+    @DELETE("collection/{id}/card/{cardID}/picture")
+    suspend fun deleteCardPicture(
+        @Path("id") deckId: String,
+        @Path("cardID") cardId: Int,
+        @Query("object_name") objectName : String,
         @Header("Authorization") authHeader: String? = null,
     ): Response<ResponseMessageDto>
 

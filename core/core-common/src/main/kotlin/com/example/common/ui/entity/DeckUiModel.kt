@@ -7,5 +7,6 @@ data class DeckUiModel(
     val isLiked: Boolean,
     val shouldShowLikes: Boolean,
     val cardsCount: Int,
-    val likes: Int
+    val likes: Int,
+    val trainings: Int,
 )

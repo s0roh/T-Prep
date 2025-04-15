@@ -1,5 +1,6 @@
 package com.example.feature.profile.presentation.owner_profile
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,7 +39,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.SubcomposeAsyncImage
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.DeckCard
-import com.example.common.ui.ErrorState
 import com.example.common.ui.LoadingState
 import com.example.common.ui.NavigationIconType
 import com.example.feature.profile.R
@@ -48,19 +49,27 @@ fun OwnerProfileScreen(
     ownerId: String,
     onBackClick: () -> Unit,
     onDeckClickListener: (String) -> Unit,
+    onDeckLongClickListener: (String) -> Unit
 ) {
     val viewModel: OwnerProfileViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(ownerId) {
         viewModel.loadOwnerProfile(ownerId = ownerId)
     }
 
-    when (val currentState = screenState) {
-        is OwnerProfileScreenState.Error -> {
-            ErrorState(message = currentState.message)
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is OwnerProfileEvent.ShowError -> {
+                    Toast.makeText(context, "Ошибка: ${event.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
+    }
 
+    when (val currentState = screenState) {
         OwnerProfileScreenState.Loading -> {
             LoadingState()
         }
@@ -70,6 +79,7 @@ fun OwnerProfileScreen(
                 state = currentState,
                 onBackClick = onBackClick,
                 onDeckClickListener = onDeckClickListener,
+                onDeckLongClickListener = onDeckLongClickListener,
                 onLikeClickListener = viewModel::onLikeClick
             )
         }
@@ -81,6 +91,7 @@ private fun OwnerProfileContent(
     state: OwnerProfileScreenState.Success,
     onBackClick: () -> Unit,
     onDeckClickListener: (String) -> Unit,
+    onDeckLongClickListener: (String) -> Unit,
     onLikeClickListener: (String, Boolean) -> Unit,
 ) {
     Scaffold(
@@ -131,6 +142,7 @@ private fun OwnerProfileContent(
                     DeckCard(
                         deck = deck,
                         onDeckClickListener = onDeckClickListener,
+                        onDeckLongClickListener = onDeckLongClickListener,
                         onLikeClickListener = onLikeClickListener,
                         modifier = Modifier.animateItem()
                     )

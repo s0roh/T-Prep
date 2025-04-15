@@ -56,13 +56,14 @@ class HistoryRepositoryImpl @Inject internal constructor(
         val allTrainings = getDeckTrainingHistories(deckId)
         if (allTrainings.isEmpty()) return emptyList()
 
-        val totalCardsInDeck = allTrainings.firstOrNull()?.cardsCount ?: return emptyList()
-
         return allTrainings
             .groupBy { it.trainingSessionId }
-            .map { (_, trainings) ->
+            .mapNotNull { (_, trainings) ->
+                val cardsCount = trainings.firstOrNull()?.cardsCount ?: return@mapNotNull null
+                if (cardsCount == 0) return@mapNotNull null
+
                 val correctAnswers = trainings.count { it.isCorrect }
-                (correctAnswers.toDouble() / totalCardsInDeck) * 100
+                (correctAnswers.toDouble() / cardsCount) * 100
             }
     }
 

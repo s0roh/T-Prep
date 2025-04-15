@@ -1,5 +1,6 @@
 package com.example.localdecks.data.repository
 
+import android.content.Context
 import android.util.Log
 import com.example.database.TPrepDatabase
 import com.example.database.models.CardDBO
@@ -19,9 +20,11 @@ import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthRequestWrapper
 import kotlinx.coroutines.flow.first
 import retrofit2.Response
+import java.io.File
 import javax.inject.Inject
 
 class SyncUserDataRepositoryImpl @Inject constructor(
+    private val context: Context,
     private val database: TPrepDatabase,
     private val apiService: ApiService,
     private val authRequestWrapper: AuthRequestWrapper,
@@ -93,7 +96,16 @@ class SyncUserDataRepositoryImpl @Inject constructor(
                     database.deckDao.updateDeck(localDeck.copy(isDeleted = false))
                 }
             } else {
-                Log.d(TAG, "Удаляем локальную колоду: $localDeck")
+                Log.d(TAG, "Удаляем локальную колоду и её содержимое: $localDeck")
+
+                val cards = database.cardDao.getCardsForDeck(localDeck.id)
+                cards.first().forEach { card ->
+                    card.picturePath?.let { path ->
+                        val file = File(path)
+                        if (file.exists()) file.delete()
+                    }
+                    database.cardDao.deleteCard(card)
+                }
                 database.deckDao.deleteDeck(localDeck)
             }
         }
@@ -135,45 +147,156 @@ class SyncUserDataRepositoryImpl @Inject constructor(
             ).toString()
         }
 
-        syncCardsWithServer(deckDto.cards, deckLocalId)
+        syncCardsWithServer(deckDto.cards, deckLocalId, deckId)
     }
 
-    private suspend fun syncCardsWithServer(cards: List<CardDto>, deckLocalId: String) {
-        val localCards = database.cardDao.getCardsForDeck(deckLocalId).first()
+    private suspend fun syncCardsWithServer(
+        cards: List<CardDto>,
+        localDeckId: String,
+        serverDeckId: String,
+    ) {
+        val localCards = database.cardDao.getCardsForDeck(localDeckId).first()
         val serverCardIds = cards.map { it.id }
 
         cards.forEach { cardDto ->
             val existingCard = database.cardDao.getCardByServerId(
                 serverCardId = cardDto.id,
-                deckId = deckLocalId
+                deckId = localDeckId
             )
+
             if (existingCard != null) {
-                if (existingCard.question != cardDto.question || existingCard.answer != cardDto.answer) {
-                    Log.d(TAG, "Обновление карточки. Старое: $existingCard, новое: $cardDto")
-                    database.cardDao.updateCard(
-                        existingCard.copy(
-                            question = cardDto.question,
-                            answer = cardDto.answer
-                        )
-                    )
+
+                val updatedCard = existingCard.copy(
+                    question = cardDto.question,
+                    answer = cardDto.answer,
+                    wrongAnswer1 = cardDto.otherAnswers.items.getOrNull(0),
+                    wrongAnswer2 = cardDto.otherAnswers.items.getOrNull(1),
+                    wrongAnswer3 = cardDto.otherAnswers.items.getOrNull(2)
+                )
+
+                if (existingCard != updatedCard) {
+                    Log.d(TAG, "Обновление карточки. Старое: $existingCard, новое: $updatedCard")
+                    database.cardDao.updateCard(updatedCard)
                 }
+
+                val newAttachment = cardDto.attachment
+                val localAttachment = existingCard.attachment ?: ""
+
+                if (newAttachment.isNotBlank() && newAttachment != localAttachment) {
+                    Log.d(TAG, "Attachment изменился, скачиваем изображение: $newAttachment")
+
+                    authRequestWrapper.executeWithAuth { token ->
+                        val imageResponse = apiService.getCardPicture(
+                            deckId = serverDeckId,
+                            cardId = cardDto.id,
+                            objectName = newAttachment,
+                            authHeader = token
+                        )
+
+                        if (imageResponse.isSuccessful) {
+                            val inputStream = imageResponse.body()?.byteStream()
+                            if (inputStream != null) {
+                                val file = File(
+                                    context.filesDir,
+                                    "card_${existingCard.id}_$localDeckId.jpg"
+                                )
+                                file.outputStream().use { output ->
+                                    inputStream.copyTo(output)
+                                }
+
+                                database.cardDao.updateCard(
+                                    existingCard.copy(
+                                        attachment = newAttachment,
+                                        picturePath = file.absolutePath
+                                    )
+                                )
+                                Log.d(TAG, "Картинка загружена: ${file.absolutePath}")
+                            }
+                        } else {
+                            Log.e(
+                                TAG,
+                                "Ошибка при загрузке картинки: ${
+                                    imageResponse.errorBody()?.string()
+                                }"
+                            )
+                        }
+                    }
+                }
+
             } else {
                 Log.d(TAG, "Добавление новой карточки: $cardDto")
-                database.cardDao.insertCard(
-                    CardDBO(
-                        id = 0,
-                        serverCardId = cardDto.id,
-                        deckId = deckLocalId,
-                        question = cardDto.question,
-                        answer = cardDto.answer
-                    )
+
+                val newCard = CardDBO(
+                    id = 0,
+                    serverCardId = cardDto.id,
+                    deckId = localDeckId,
+                    question = cardDto.question,
+                    answer = cardDto.answer,
+                    wrongAnswer1 = cardDto.otherAnswers.items.getOrNull(0),
+                    wrongAnswer2 = cardDto.otherAnswers.items.getOrNull(1),
+                    wrongAnswer3 = cardDto.otherAnswers.items.getOrNull(2),
+                    attachment = if (cardDto.attachment.isNotBlank()) cardDto.attachment else null,
+                    picturePath = null
                 )
+
+                val generatedId = database.cardDao.insertCard(newCard)
+
+                var picturePath: String? = null
+
+                if (cardDto.attachment.isNotBlank()) {
+                    authRequestWrapper.executeWithAuth { token ->
+                        val imageResponse = apiService.getCardPicture(
+                            deckId = serverDeckId,
+                            cardId = cardDto.id,
+                            objectName = cardDto.attachment,
+                            authHeader = token
+                        )
+
+                        if (imageResponse.isSuccessful) {
+                            val inputStream = imageResponse.body()?.byteStream()
+                            if (inputStream != null) {
+                                val file = File(
+                                    context.filesDir,
+                                    "card_${generatedId}_$localDeckId.jpg"
+                                )
+                                file.outputStream().use { output ->
+                                    inputStream.copyTo(output)
+                                }
+                                picturePath = file.absolutePath
+
+                                database.cardDao.updateCard(
+                                    newCard.copy(
+                                        id = generatedId.toInt(),
+                                        picturePath = picturePath
+                                    )
+                                )
+                                Log.d(TAG, "Картинка успешно загружена: $picturePath")
+                            }
+                        } else {
+                            Log.e(
+                                TAG,
+                                "Ошибка при загрузке картинки: ${
+                                    imageResponse.errorBody()?.string()
+                                }"
+                            )
+                        }
+                    }
+                }
             }
         }
 
         localCards.forEach { localCard ->
             if (localCard.serverCardId != null && localCard.serverCardId !in serverCardIds) {
                 Log.d(TAG, "Удаляем карточку, отсутствующую на сервере: $localCard")
+
+                localCard.picturePath?.let { path ->
+                    val file = File(path)
+                    if (file.exists()) {
+                        val deleted = file.delete()
+                        Log.d(TAG, "Удаление изображения: $deleted ($path)")
+                    }
+                }
+
                 database.cardDao.deleteCard(localCard)
             }
         }

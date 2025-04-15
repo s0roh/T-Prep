@@ -13,11 +13,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun AppButton(
+    modifier: Modifier = Modifier,
     title: String,
     shouldShowIcon: Boolean = false,
     iconResId: Int? = null,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     Button(

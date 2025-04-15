@@ -3,12 +3,10 @@ package com.example.feature.training.presentation.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -29,14 +27,14 @@ internal fun MultipleChoiceAnswerList(
     correctAnswer: String,
     shakeOffset: Animatable<Float, AnimationVector1D>,
     onAnswerSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
+    Column(
         modifier = modifier
-            .fillMaxWidth(),
-        contentPadding = PaddingValues(vertical = 16.dp)
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
     ) {
-        items(answers) { answer ->
+        answers.forEach { answer ->
             MultipleChoiceButton(
                 modifier = Modifier.offset(x = shakeOffset.value.dp),
                 answer = answer,
@@ -56,7 +54,7 @@ private fun MultipleChoiceButton(
     borderColor: Color,
     isEnabled: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     OutlinedButton(
         onClick = onClick,

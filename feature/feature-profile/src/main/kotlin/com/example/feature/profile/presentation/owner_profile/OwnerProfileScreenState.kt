@@ -7,10 +7,6 @@ internal sealed interface OwnerProfileScreenState {
 
     object Loading : OwnerProfileScreenState
 
-    data class Error(
-        val message: String,
-    ) : OwnerProfileScreenState
-
     data class Success(
         val userId: String,
         val userName: String,

@@ -15,5 +15,7 @@ data class Card(
     val id: Int,
     val question: String,
     val answer: String,
-    val wrongAnswers: List<String> = emptyList()
+    val wrongAnswers: List<String> = emptyList(),
+    val attachment: String? = null,
+    val picturePath: String? = null,
 )

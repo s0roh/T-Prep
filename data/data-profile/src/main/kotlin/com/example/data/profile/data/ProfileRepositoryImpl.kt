@@ -103,7 +103,6 @@ class ProfileRepositoryImpl @Inject constructor(
         }
     }
 
-
     override suspend fun deleteUserProfileImage() {
         return authRequestWrapper.executeWithAuth { token ->
             val response = apiService.deleteUserPicture(token)

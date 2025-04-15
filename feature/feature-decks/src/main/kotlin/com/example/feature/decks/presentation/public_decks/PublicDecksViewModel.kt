@@ -5,8 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.common.domain.entity.Deck
 import com.example.common.ui.entity.DeckUiModel
+import com.example.database.models.Source
 import com.example.feature.decks.domain.entity.PublicDeckFilters
+import com.example.feature.decks.domain.usecase.GetDeckByIdFromNetworkUseCase
 import com.example.feature.decks.domain.usecase.GetPublicDecksUseCase
 import com.example.feature.decks.domain.usecase.LikeOrUnlikeUseCase
 import com.example.feature.decks.domain.usecase.SearchPublicDecksUseCase
@@ -22,7 +25,8 @@ import javax.inject.Inject
 internal class PublicDecksViewModel @Inject constructor(
     getPublicDecksUseCase: GetPublicDecksUseCase,
     private val likeOrUnlikeUseCase: LikeOrUnlikeUseCase,
-    private val searchPublicDecksUseCase: SearchPublicDecksUseCase
+    private val searchPublicDecksUseCase: SearchPublicDecksUseCase,
+    private val getDeckByIdFromNetworkUseCase: GetDeckByIdFromNetworkUseCase
 ) : ViewModel() {
 
     private val filtersFlow = MutableStateFlow(PublicDeckFilters())
@@ -37,10 +41,10 @@ internal class PublicDecksViewModel @Inject constructor(
         Log.e("PublicDecksViewModel", "Error: ${throwable.message}")
     }
 
-    fun onLikeClick(deckId: String, isLiked: Boolean, onUpdate: (Int) -> Unit) {
+    fun onLikeClick(deckId: String, isLiked: Boolean,  onUpdate: (Boolean, Int) -> Unit) {
         viewModelScope.launch(exceptionHandler) {
             val updatedLikes = likeOrUnlikeUseCase(deckId, isLiked)
-            onUpdate(updatedLikes)
+            onUpdate(!isLiked, updatedLikes)
         }
     }
 
@@ -56,5 +60,9 @@ internal class PublicDecksViewModel @Inject constructor(
     fun updateCategory(category: DeckCategory) {
         screenState.value = screenState.value.copy(category = category)
         filtersFlow.update { it.copy(category = category.value) }
+    }
+
+    suspend fun getDeckById(deckId: String): Pair<Deck, Source> {
+        return getDeckByIdFromNetworkUseCase(deckId)
     }
 }

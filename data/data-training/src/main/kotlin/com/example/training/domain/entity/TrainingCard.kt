@@ -25,5 +25,6 @@ data class TrainingCard(
     val wrongAnswers: List<String> = emptyList(),
     val displayedAnswer: String? = null,
     val partialAnswer: String? = null,
+    val attachment: String? = null,
     val missingWords: List<String> = emptyList()
 )

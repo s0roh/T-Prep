@@ -18,7 +18,6 @@ internal fun launchCrop(
             CropImageOptions(
                 cropShape = CropImageView.CropShape.OVAL,
                 fixAspectRatio = true,
-                multiTouchEnabled = true,
                 activityBackgroundColor = themeColors.background.toArgb(),
                 toolbarColor = themeColors.background.toArgb(),
                 toolbarBackButtonColor = themeColors.onBackground.toArgb(),

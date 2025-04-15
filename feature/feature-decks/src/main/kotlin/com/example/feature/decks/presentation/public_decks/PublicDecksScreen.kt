@@ -64,6 +64,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.common.ui.DeckCard
 import com.example.common.ui.entity.DeckUiModel
+import com.example.database.models.Source
 import com.example.decks.R
 import com.example.feature.decks.presentation.components.AppPullToRefreshBox
 import kotlinx.coroutines.launch
@@ -74,6 +75,7 @@ import kotlinx.coroutines.launch
 fun PublicDecksScreen(
     paddingValues: PaddingValues,
     onDeckClickListener: (String) -> Unit,
+    onDeckLongClickListener: (String, Source) -> Unit
 ) {
     val viewModel: PublicDecksViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
@@ -84,11 +86,12 @@ fun PublicDecksScreen(
         else viewModel.searchPublicDecks(query.value)
     }.collectAsLazyPagingItems()
 
+    val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     val isScrollingDown = remember { derivedStateOf { listState.firstVisibleItemScrollOffset > 0 } }
 
     val animatedPadding by animateDpAsState(
-        targetValue = if (searchBarExpanded.value) 0.dp else 16.dp,
+        targetValue = if (searchBarExpanded.value) 0.dp else 24.dp,
         label = "searchBarPadding"
     )
 
@@ -105,13 +108,22 @@ fun PublicDecksScreen(
                 searchBarExpanded = searchBarExpanded,
                 lazyPagingItems = decksFlow,
                 onDeckClickListener = onDeckClickListener,
-                onQueryChange = { newQuery -> viewModel.searchPublicDecks(newQuery) },
-                onLikeClickListener = { deckId, newIsLiked, onUpdate ->
-                    viewModel.onLikeClick(deckId, newIsLiked) { updatedLikes ->
-                        onUpdate(updatedLikes)
+                onDeckLongClickListener = {deckId ->
+                    coroutineScope.launch {
+                        val (deck, source) = viewModel.getDeckById(deckId)
+                        onDeckLongClickListener(deck.id, source)
                     }
                 },
-                modifier = Modifier.padding(horizontal = animatedPadding)
+                onQueryChange = { newQuery -> viewModel.searchPublicDecks(newQuery) },
+                onLikeClickListener = { deckId, newIsLiked, onUpdate ->
+                    viewModel.onLikeClick(
+                        deckId,
+                        newIsLiked
+                    ) { successIsLiked, updatedLikes ->
+                        onUpdate(successIsLiked, updatedLikes)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = animatedPadding)
             )
 
             AnimatedVisibility(visible = !isScrollingDown.value) {
@@ -136,8 +148,6 @@ fun PublicDecksScreen(
                     state = listState,
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
-                    item {
-                    }
                     items(decksFlow.itemCount) { index ->
                         decksFlow[index]?.let { deck ->
                             var isLiked by remember { mutableStateOf(deck.isLiked) }
@@ -146,9 +156,18 @@ fun PublicDecksScreen(
                             DeckCard(
                                 deck = deck.copy(isLiked = isLiked, likes = likes),
                                 onDeckClickListener = onDeckClickListener,
+                                onDeckLongClickListener = {deckId ->
+                                    coroutineScope.launch {
+                                        val (deck, source) = viewModel.getDeckById(deckId)
+                                        onDeckLongClickListener(deck.id, source)
+                                    }
+                                },
                                 onLikeClickListener = { deckId, newIsLiked ->
-                                    viewModel.onLikeClick(deckId, newIsLiked) { updatedLikes ->
-                                        isLiked = !newIsLiked
+                                    viewModel.onLikeClick(
+                                        deckId,
+                                        newIsLiked
+                                    ) { updatedIsLiked, updatedLikes ->
+                                        isLiked = updatedIsLiked
                                         likes = updatedLikes
                                     }
                                 },
@@ -249,7 +268,6 @@ private fun SortAndCategoryFilters(
         }
     }
 }
-
 
 @Composable
 private fun HandlePagingLoadState(
@@ -356,7 +374,8 @@ private fun SearchBarComponent(
     lazyPagingItems: LazyPagingItems<DeckUiModel>,
     onQueryChange: (String) -> Unit,
     onDeckClickListener: (String) -> Unit,
-    onLikeClickListener: (String, Boolean, (Int) -> Unit) -> Unit,
+    onDeckLongClickListener: (String) -> Unit,
+    onLikeClickListener: (String, Boolean, (Boolean, Int) -> Unit) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
@@ -367,8 +386,11 @@ private fun SearchBarComponent(
                 query.value = newQuery
                 onQueryChange(newQuery)
             },
-            onSearch = {
-                scope.launch { searchBarExpanded.value = false }
+            onSearch = {newQuery ->
+                scope.launch {
+                    query.value = newQuery
+                    onQueryChange(newQuery)
+                }
             },
             expanded = searchBarExpanded.value,
             onExpandedChange = { searchBarExpanded.value = it },
@@ -406,7 +428,12 @@ private fun SearchBarComponent(
     SearchBar(
         inputField = inputField,
         expanded = searchBarExpanded.value,
-        onExpandedChange = { searchBarExpanded.value = it },
+        onExpandedChange = { expanded ->
+            searchBarExpanded.value = expanded
+            if (!expanded) {
+                query.value = ""
+            }
+        },
         shape = MaterialTheme.shapes.medium,
         modifier = modifier
     ) {
@@ -420,7 +447,7 @@ private fun SearchBarComponent(
                 Text("Нет результатов", modifier = Modifier.padding(16.dp))
             } else {
                 LazyColumn(
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier.padding(horizontal = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     item {
@@ -433,10 +460,15 @@ private fun SearchBarComponent(
                         DeckCard(
                             deck = deck.copy(isLiked = isLiked, likes = likes),
                             onDeckClickListener = onDeckClickListener,
+                            onDeckLongClickListener = onDeckLongClickListener,
                             onLikeClickListener = { deckId, newIsLiked ->
-                                onLikeClickListener(deckId, newIsLiked) { updatedLikes ->
-                                    isLiked = !newIsLiked
+                                onLikeClickListener(
+                                    deckId,
+                                    newIsLiked
+                                ) { updatedIsLiked, updatedLikes ->
+                                    isLiked = updatedIsLiked
                                     likes = updatedLikes
+
                                 }
                             },
                             modifier = Modifier.animateItem()

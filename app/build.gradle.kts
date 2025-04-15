@@ -26,6 +26,7 @@ dependencies {
     implementation(projects.coreNetwork)
     implementation(projects.coreDatabase)
     implementation(projects.corePreferences)
+    implementation(projects.coreCommon)
     implementation(projects.dataDecks)
     implementation(projects.dataHistory)
     implementation(projects.dataTraining)

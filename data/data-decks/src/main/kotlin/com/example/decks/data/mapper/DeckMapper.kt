@@ -25,6 +25,7 @@ internal fun PublicDeckDto.toEntity(isLiked: Boolean): DeckUiModel =
         isPublic = isPublic,
         cardsCount = cardsCount,
         likes = likes,
+        trainings = trainings,
         isLiked = isLiked,
         shouldShowLikes = true
     )
@@ -33,14 +34,19 @@ internal fun CardDto.toEntity(): Card =
     Card(
         id = id,
         question = question,
-        answer = answer
+        answer = answer,
+        wrongAnswers = otherAnswers.items,
+        attachment = attachment,
     )
 
 internal fun CardDBO.toEntity(): Card =
     Card(
         id = id,
         question = question,
-        answer = answer
+        answer = answer,
+        wrongAnswers = listOfNotNull(wrongAnswer1, wrongAnswer2, wrongAnswer3),
+        attachment =attachment,
+        picturePath = picturePath
     )
 
 internal fun DeckDBO.toEntity(cards: List<Card>): Deck =

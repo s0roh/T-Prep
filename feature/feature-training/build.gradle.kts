@@ -12,4 +12,7 @@ dependencies {
     implementation(project(":data-training"))
     implementation(project(":data-decks"))
     implementation(project(":data-local-decks"))
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 }

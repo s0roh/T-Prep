@@ -36,6 +36,7 @@ import com.example.common.ui.DeckCard
 fun LocalDecksScreen(
     paddingValues: PaddingValues,
     onDeckClick: (String) -> Unit,
+    onDeckLongClickListener: (String) -> Unit,
     onAddClick: () -> Unit,
 ) {
     val viewModel: LocalDecksViewModel = hiltViewModel()
@@ -79,7 +80,7 @@ fun LocalDecksScreen(
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 items(
@@ -89,7 +90,9 @@ fun LocalDecksScreen(
                     DeckCard(
                         deck = deck,
                         modifier = Modifier.animateItem(),
-                        onDeckClickListener = { onDeckClick(deck.id) })
+                        onDeckClickListener = { onDeckClick(deck.id) },
+                        onDeckLongClickListener = onDeckLongClickListener
+                    )
                 }
                 item {
                     Spacer(modifier = Modifier.height(180.dp))
