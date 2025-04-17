@@ -1,5 +1,6 @@
 package com.example.feature.decks.presentation.deck_details
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -19,12 +20,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,11 +55,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil3.compose.AsyncImage
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
 import com.example.common.ui.AppButton
@@ -123,7 +131,16 @@ fun DeckDetailScreen(
                 onRemindClick = onRemindClick,
                 onTrainingModeSettingsClick = onTrainingModeSettingsClick,
                 onDeckStatisticClick = onDeckStatisticClick,
-                onOwnerProfileClick = onOwnerProfileClick
+                onOwnerProfileClick = onOwnerProfileClick,
+                onGetCardPicture = { cardId, attachment, onResult ->
+                    viewModel.getCardPicture(
+                        deckId = currentState.deck.id,
+                        cardId = cardId,
+                        source = currentState.source,
+                        attachment = attachment,
+                        onResult = onResult
+                    )
+                }
             )
         }
     }
@@ -147,6 +164,7 @@ private fun DeckDetailContent(
     onTrainingModeSettingsClick: (String) -> Unit,
     onDeckStatisticClick: (String) -> Unit,
     onOwnerProfileClick: (String) -> Unit,
+    onGetCardPicture: (cardId: Int, attachment: String?, onResult: (Uri?) -> Unit) -> Unit,
 ) {
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -281,6 +299,7 @@ private fun DeckDetailContent(
             onEditCard = onEditCard,
             onDeleteCard = onDeleteCard,
             onAddCardClick = onAddCardClick,
+            onGetCardPicture = onGetCardPicture,
             onDismiss = { isBottomSheetOpen = false }
         )
     }
@@ -304,6 +323,7 @@ private fun CardListBottomSheet(
     onEditCard: (deckId: String, cardId: Int) -> Unit,
     onDeleteCard: (Card) -> Unit,
     onAddCardClick: () -> Unit,
+    onGetCardPicture: (cardId: Int, attachment: String?, onResult: (Uri?) -> Unit) -> Unit,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -347,6 +367,7 @@ private fun CardListBottomSheet(
                             coroutineScope = coroutineScope,
                             onEditCard = onEditCard,
                             onDeleteCard = onDeleteCard,
+                            onGetCardPicture = onGetCardPicture,
                             modifier = Modifier.animateItem()
                         )
                     }
@@ -384,8 +405,21 @@ private fun ExpandableCardItem(
     coroutineScope: CoroutineScope,
     onEditCard: (deckId: String, cardId: Int) -> Unit,
     onDeleteCard: (Card) -> Unit,
+    onGetCardPicture: (cardId: Int, attachment: String?, onResult: (Uri?) -> Unit) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val isExpanded = expandedCardId.value == card.id
+    val imageUri = remember { mutableStateOf<Uri?>(null) }
+
+    LaunchedEffect(isExpanded) {
+        if (isExpanded && card.attachment != null) {
+            imageUri.value = null
+            onGetCardPicture(card.id, card.attachment) { uri ->
+                imageUri.value = uri
+            }
+        }
+    }
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -443,8 +477,38 @@ private fun ExpandableCardItem(
                 }
             }
 
-            AnimatedVisibility(visible = expandedCardId.value == card.id) {
+
+            AnimatedVisibility(visible = isExpanded) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
+                    when {
+                        card.attachment != null && imageUri.value == null -> {
+                            Box(
+                                modifier = Modifier
+                                    .width(144.dp)
+                                    .height(97.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+
+                        imageUri.value != null -> {
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(imageUri.value)
+                                    .memoryCachePolicy(CachePolicy.DISABLED)
+                                    .diskCachePolicy(CachePolicy.DISABLED)
+                                    .build(),
+                                contentDescription = "Картинка карточки",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .height(81.dp)
+                                    .width(144.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
                     Text(
                         text = "Ответ:",
                         style = MaterialTheme.typography.bodySmall,

@@ -1,5 +1,6 @@
 package com.example.feature.training.presentation.training
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.domain.entity.Deck
@@ -55,20 +56,16 @@ internal class TrainingViewModel @Inject constructor(
             screenState.value = TrainingScreenState.Loading
 
             val cards = loadCardsForTraining(source)
-            val firstCard = cards.firstOrNull()
-            val pictureUri =
-                firstCard?.let {
-                    getCardPictureUseCase(
-                        deckId = currentDeckId,
-                        cardId = it.id,
-                        source = currentSource,
-                        attachment = firstCard.attachment
-                    )
-                }
+            val currentCard  = cards.firstOrNull()
+            val nextCard = cards.getOrNull(1)
+
+            val currentUri = getCardUriIfExists(currentCard)
+            val nextUri = getCardUriIfExists(nextCard)
 
             screenState.value = TrainingScreenState.Success(
                 cards = cards,
-                currentCardPictureUri = pictureUri
+                currentCardPictureUri = currentUri,
+                nextCardPictureUri = nextUri
             )
         }
     }
@@ -159,24 +156,22 @@ internal class TrainingViewModel @Inject constructor(
     fun moveToNextCardOrFinish() {
         val currentState = screenState.value as? TrainingScreenState.Success ?: return
         val nextIndex = currentState.currentCardIndex + 1
+        val cards = currentState.cards
 
-        if (nextIndex < currentState.cards.size) {
-            val nextCard = currentState.cards[nextIndex]
+        if (nextIndex < cards.size) {
+            val newCurrentUri = currentState.nextCardPictureUri
+            val nextNextCard = cards.getOrNull(nextIndex + 1)
+
             viewModelScope.launch(exceptionHandler) {
-                val pictureUri = getCardPictureUseCase(
-                    deckId = currentDeckId,
-                    cardId = nextCard.id,
-                    source = currentSource,
-                    attachment = nextCard.attachment
-                )
+                val newNextUri = getCardUriIfExists(nextNextCard)
 
                 screenState.value = currentState.copy(
                     currentCardIndex = nextIndex,
                     correctAnswers = correctAnswersCount,
-                    currentCardPictureUri = pictureUri
+                    currentCardPictureUri = newCurrentUri,
+                    nextCardPictureUri = newNextUri,
                 )
             }
-
         } else {
             finishTraining()
         }
@@ -188,6 +183,17 @@ internal class TrainingViewModel @Inject constructor(
             correctAnswers = correctAnswersCount,
             trainingSessionId = trainingSessionId
         )
+    }
+
+    private suspend fun getCardUriIfExists(card: TrainingCard?): Uri? {
+        return card?.let {
+            getCardPictureUseCase(
+                deckId = currentDeckId,
+                cardId = it.id,
+                source = currentSource,
+                attachment = it.attachment
+            )
+        }
     }
 
     private fun generateTrainingSessionId(deckId: String): String {

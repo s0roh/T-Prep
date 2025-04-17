@@ -1,5 +1,6 @@
 package com.example.feature.decks.presentation.deck_details
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.domain.entity.Card
@@ -9,6 +10,7 @@ import com.example.common.ui.snackbar_controller.SnackbarEvent
 import com.example.database.models.Source
 import com.example.feature.decks.domain.usecase.DeleteCardUseCase
 import com.example.feature.decks.domain.usecase.DeleteDeckUseCase
+import com.example.feature.decks.domain.usecase.GetCardPictureUseCase
 import com.example.feature.decks.domain.usecase.GetDeckByIdFromLocalUseCase
 import com.example.feature.decks.domain.usecase.GetDeckByIdFromNetworkUseCase
 import com.example.feature.decks.domain.usecase.GetNextTrainingTimeUseCase
@@ -32,6 +34,7 @@ internal class DeckDetailViewModel @Inject constructor(
     private val deleteCardUseCase: DeleteCardUseCase,
     private val getNextTrainingTimeUseCase: GetNextTrainingTimeUseCase,
     private val updateDeckUseCase: UpdateDeckUseCase,
+    private val getCardPictureUseCase: GetCardPictureUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<DeckDetailScreenState>(DeckDetailScreenState.Loading)
@@ -134,6 +137,19 @@ internal class DeckDetailViewModel @Inject constructor(
                     )
                 )
             }
+        }
+    }
+
+    fun getCardPicture(deckId: String, cardId: Int, source: Source, attachment: String?, onResult: (Uri?) -> Unit) {
+        viewModelScope.launch(exceptionHandler) {
+            val uri = getCardPictureUseCase(
+                deckId = deckId,
+                cardId = cardId,
+                source = source,
+                attachment = attachment
+            )
+
+            onResult(uri)
         }
     }
 }

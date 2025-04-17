@@ -233,7 +233,7 @@ class TrainingRepositoryImpl @Inject constructor(
 
                     if (response.isSuccessful) {
                         response.body()?.let { body ->
-                            val tempFile = File(context.cacheDir, "card_image.jpg")
+                            val tempFile = File(context.cacheDir, "card_temp_$cardId.jpg")
                             tempFile.outputStream().use { output ->
                                 body.byteStream().copyTo(output)
                             }
