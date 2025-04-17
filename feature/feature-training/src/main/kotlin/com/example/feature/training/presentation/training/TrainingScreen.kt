@@ -3,6 +3,7 @@ package com.example.feature.training.presentation.training
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -62,6 +63,7 @@ import com.example.feature.training.presentation.components.TrueFalseAnswerSecti
 import com.example.feature.training.presentation.components.TrueFalseButtons
 import com.example.feature.training.presentation.util.launchShakeAnimation
 import com.example.training.domain.entity.TrainingCard
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -154,6 +156,9 @@ private fun TrainingCardsContent(
     BackHandler(onBack = onExit)
     val currentCard = currentState.cards[currentState.currentCardIndex]
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+    val shakeOffset = remember { Animatable(0f) }
+    val correctAnswer = currentCard.displayedAnswer == currentCard.answer
 
     // Общее состояние для всех типов карточек
     var isAnswered by remember { mutableStateOf(false) }
@@ -169,6 +174,7 @@ private fun TrainingCardsContent(
         userInput = ""
         isButtonEnabled = true
         isCorrect = false
+        shakeOffset.snapTo(0f)
         scrollState.scrollTo(0)
     }
 
@@ -223,6 +229,8 @@ private fun TrainingCardsContent(
                             card = card,
                             isAnswered = isAnswered,
                             selectedAnswer = selectedAnswer as? String,
+                            coroutineScope = coroutineScope,
+                            shakeOffset = shakeOffset,
                             onAnswerSelected = { answer ->
                                 selectedAnswer = answer
                                 isAnswered = true
@@ -237,25 +245,7 @@ private fun TrainingCardsContent(
                             }
                         )
 
-                        TrainingMode.TRUE_FALSE -> TrueFalseContent(
-                            card = card,
-                            isAnswered = isAnswered,
-                            selectedAnswer = selectedAnswer as? Boolean,
-                            hasPicture = currentState.currentCardPictureUri != null,
-                            onAnswerSelected = { answer ->
-                                selectedAnswer = answer
-                                isAnswered = true
-                                val correctAnswer = card.displayedAnswer == card.answer
-                                onAnswer(
-                                    answer == correctAnswer,
-                                    card.question,
-                                    card.answer,
-                                    null,
-                                    card.displayedAnswer,
-                                    TrainingMode.TRUE_FALSE
-                                )
-                            }
-                        )
+                        TrainingMode.TRUE_FALSE -> TrueFalseContent(card = card)
 
                         TrainingMode.FILL_IN_THE_BLANK -> FillInTheBlankContent(
                             card = card,
@@ -269,6 +259,35 @@ private fun TrainingCardsContent(
                     }
                 }
             }
+        }
+
+
+
+        if (currentCard.trainingMode == TrainingMode.TRUE_FALSE) {
+            TrueFalseButtons(
+                modifier = Modifier.padding(bottom = 30.dp),
+                isAnswered = isAnswered,
+                selectedAnswer = selectedAnswer as? Boolean,
+                correctAnswer = correctAnswer,
+                shakeOffset = shakeOffset,
+                onAnswerSelected = { answer ->
+                    if (!isAnswered) {
+                        selectedAnswer = answer
+                        isAnswered = true
+                        if (answer != correctAnswer) {
+                            coroutineScope.launch { launchShakeAnimation(shakeOffset) }
+                        }
+                        onAnswer(
+                            answer == correctAnswer,
+                            currentCard.question,
+                            currentCard.answer,
+                            null,
+                            currentCard.displayedAnswer,
+                            TrainingMode.TRUE_FALSE
+                        )
+                    }
+                }
+            )
         }
 
         TrainingNavigationButton(
@@ -319,20 +338,16 @@ private fun TrainingCardsContent(
 
 @Composable
 private fun MultipleChoiceContent(
+    modifier: Modifier = Modifier,
     card: TrainingCard,
     isAnswered: Boolean,
     selectedAnswer: String?,
     onAnswerSelected: (String) -> Unit,
-    modifier: Modifier = Modifier,
+    coroutineScope: CoroutineScope,
+    shakeOffset: Animatable<Float, AnimationVector1D>
 ) {
     val shuffledAnswers = rememberSaveable(card.id) {
         (listOf(card.answer) + card.wrongAnswers).shuffled()
-    }
-    val coroutineScope = rememberCoroutineScope()
-    val shakeOffset = remember { Animatable(0f) }
-
-    LaunchedEffect(card.id) {
-        shakeOffset.snapTo(0f)
     }
 
     Column(modifier = modifier) {
@@ -359,15 +374,7 @@ private fun MultipleChoiceContent(
 private fun TrueFalseContent(
     modifier: Modifier = Modifier,
     card: TrainingCard,
-    isAnswered: Boolean,
-    selectedAnswer: Boolean?,
-    hasPicture: Boolean,
-    onAnswerSelected: (Boolean) -> Unit,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val shakeOffset = remember { Animatable(0f) }
-    val correctAnswer = card.displayedAnswer == card.answer
-
     Column(
         modifier = modifier.padding(horizontal = 25.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -375,23 +382,6 @@ private fun TrueFalseContent(
         TrueFalseAnswerSection(
             displayedAnswer = card.displayedAnswer,
             modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(if (hasPicture) 80.dp else 300.dp))
-
-        TrueFalseButtons(
-            isAnswered = isAnswered,
-            selectedAnswer = selectedAnswer,
-            correctAnswer = correctAnswer,
-            shakeOffset = shakeOffset,
-            onAnswerSelected = { answer ->
-                if (!isAnswered) {
-                    onAnswerSelected(answer)
-                    if (answer != correctAnswer) {
-                        coroutineScope.launch { launchShakeAnimation(shakeOffset) }
-                    }
-                }
-            }
         )
     }
 }
