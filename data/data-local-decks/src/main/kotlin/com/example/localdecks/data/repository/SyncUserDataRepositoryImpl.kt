@@ -377,7 +377,8 @@ class SyncUserDataRepositoryImpl @Inject constructor(
             answer = errorAnswer.answer,
             userAnswer = errorAnswer.userAnswer,
             blankAnswer = errorAnswer.blankAnswer,
-            trainingMode = mapTrainingMode(errorAnswer.type)
+            trainingMode = mapTrainingMode(errorAnswer.type),
+            attachment = errorAnswer.attachment
         )
         database.errorDao.insertError(errorAnswerDBO)
     }
@@ -458,7 +459,8 @@ class SyncUserDataRepositoryImpl @Inject constructor(
                     answer = it.answer,
                     type = it.trainingMode.name,
                     userAnswer = it.userAnswer,
-                    blankAnswer = it.blankAnswer
+                    blankAnswer = it.blankAnswer,
+                    attachment = it.attachment
                 )
             }
 

@@ -22,11 +22,16 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,10 +53,14 @@ fun DeckCard(
     modifier: Modifier = Modifier,
     deck: DeckUiModel,
     onDeckClickListener: (String) -> Unit,
-    onDeckLongClickListener: (String) -> Unit,
+    onTrainClick: (String) -> Unit,
+    onScheduleClick: (String) -> Unit,
+    onDeleteClick: ((String, String) -> Unit)? = null,
     onLikeClickListener: ((String, Boolean) -> Unit)? = null,
 ) {
     val context = LocalContext.current
+    var menuExpanded by remember { mutableStateOf(false) }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -59,14 +68,7 @@ fun DeckCard(
             .combinedClickable(
                 onClick = { onDeckClickListener(deck.id) },
                 onLongClick = {
-                    if (deck.cardsCount > 0) onDeckLongClickListener(deck.id) else {
-
-                        Toast.makeText(
-                            context,
-                            "Добавьте карточки в колоду, чтобы начать тренировку",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    menuExpanded = true
                 }
             ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
@@ -79,6 +81,77 @@ fun DeckCard(
             DeckInfo(deck)
             Spacer(modifier = Modifier.height(20.dp))
             DeckFooter(deck, onLikeClickListener)
+
+            DeckDropdownMenu(
+                deck = deck,
+                expanded = menuExpanded,
+                onDismiss = { menuExpanded = false },
+                onTrainClick = {
+                    menuExpanded = false
+                    if (deck.cardsCount > 0) {
+                        onTrainClick(deck.id)
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Добавьте карточки в колоду, чтобы начать тренировку",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                onScheduleClick = {
+                    menuExpanded = false
+                    onScheduleClick(deck.id)
+                },
+                onDeleteClick = onDeleteClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeckDropdownMenu(
+    deck: DeckUiModel,
+    expanded: Boolean,
+    onDismiss: () -> Unit,
+    onTrainClick: () -> Unit,
+    onScheduleClick: () -> Unit,
+    onDeleteClick: ((String, String) -> Unit)?,
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss,
+    ) {
+        DropdownMenuItem(
+            text = { Text("Тренироваться") },
+            onClick = onTrainClick,
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_training),
+                    contentDescription = null
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = { Text("Запланировать тренировку") },
+            onClick = onScheduleClick,
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_clock),
+                    contentDescription = null
+                )
+            }
+        )
+        onDeleteClick?.let {
+            DropdownMenuItem(
+                text = { Text("Удалить") },
+                onClick = { onDeleteClick(deck.id, deck.name) },
+                leadingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_trash),
+                        contentDescription = null
+                    )
+                }
+            )
         }
     }
 }

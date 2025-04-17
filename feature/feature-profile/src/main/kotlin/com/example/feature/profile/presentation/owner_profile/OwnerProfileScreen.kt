@@ -49,7 +49,8 @@ fun OwnerProfileScreen(
     ownerId: String,
     onBackClick: () -> Unit,
     onDeckClickListener: (String) -> Unit,
-    onDeckLongClickListener: (String) -> Unit
+    onTrainClick: (String) -> Unit,
+    onScheduleClick: (String, String) -> Unit,
 ) {
     val viewModel: OwnerProfileViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
@@ -79,7 +80,8 @@ fun OwnerProfileScreen(
                 state = currentState,
                 onBackClick = onBackClick,
                 onDeckClickListener = onDeckClickListener,
-                onDeckLongClickListener = onDeckLongClickListener,
+                onTrainClick = onTrainClick,
+                onScheduleClick = onScheduleClick,
                 onLikeClickListener = viewModel::onLikeClick
             )
         }
@@ -91,7 +93,8 @@ private fun OwnerProfileContent(
     state: OwnerProfileScreenState.Success,
     onBackClick: () -> Unit,
     onDeckClickListener: (String) -> Unit,
-    onDeckLongClickListener: (String) -> Unit,
+    onTrainClick: (String) -> Unit,
+    onScheduleClick: (String, String) -> Unit,
     onLikeClickListener: (String, Boolean) -> Unit,
 ) {
     Scaffold(
@@ -142,7 +145,8 @@ private fun OwnerProfileContent(
                     DeckCard(
                         deck = deck,
                         onDeckClickListener = onDeckClickListener,
-                        onDeckLongClickListener = onDeckLongClickListener,
+                        onTrainClick = onTrainClick,
+                        onScheduleClick = { onScheduleClick(deck.id, deck.name) },
                         onLikeClickListener = onLikeClickListener,
                         modifier = Modifier.animateItem()
                     )

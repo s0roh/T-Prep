@@ -36,7 +36,8 @@ import com.example.common.ui.DeckCard
 fun LocalDecksScreen(
     paddingValues: PaddingValues,
     onDeckClick: (String) -> Unit,
-    onDeckLongClickListener: (String) -> Unit,
+    onTrainClick: (String) -> Unit,
+    onScheduleClick: (String, String) -> Unit,
     onAddClick: () -> Unit,
 ) {
     val viewModel: LocalDecksViewModel = hiltViewModel()
@@ -91,7 +92,11 @@ fun LocalDecksScreen(
                         deck = deck,
                         modifier = Modifier.animateItem(),
                         onDeckClickListener = { onDeckClick(deck.id) },
-                        onDeckLongClickListener = onDeckLongClickListener
+                        onTrainClick = onTrainClick,
+                        onScheduleClick = { onScheduleClick(deck.id, deck.name) },
+                        onDeleteClick = { deckId, deckName ->
+                            viewModel.deleteDeckWithUndo(deckId = deckId, deckName = deckName)
+                        }
                     )
                 }
                 item {

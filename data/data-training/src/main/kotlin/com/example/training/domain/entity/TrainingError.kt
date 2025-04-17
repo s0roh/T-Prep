@@ -4,6 +4,8 @@ import com.example.database.models.TrainingMode
 
 data class TrainingError(
     val id: Long,
+    val cardId: Int,
+    val deckId: String,
     val trainingSessionId: String,
     val trainingSessionTime: Long,
     val question: String,
@@ -11,4 +13,5 @@ data class TrainingError(
     val blankAnswer: String? = null,
     val userAnswer: String,
     val trainingMode: TrainingMode,
+    val attachment: String? = null,
 )

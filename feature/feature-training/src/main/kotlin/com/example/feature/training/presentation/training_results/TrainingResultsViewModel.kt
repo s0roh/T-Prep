@@ -3,7 +3,7 @@ package com.example.feature.training.presentation.training_results
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.database.models.Source
-import com.example.feature.training.domain.GetDeckNameAndTrainingSessionTimeUseCase
+import com.example.feature.training.domain.GetDeckNameTrainingSessionTimeSourceUseCase
 import com.example.feature.training.domain.GetErrorsListUseCase
 import com.example.feature.training.domain.GetInfoForNavigationToDeckUseCase
 import com.example.feature.training.domain.GetNextTrainingTimeUseCase
@@ -19,8 +19,8 @@ internal class TrainingResultsViewModel @Inject constructor(
     private val getErrorsListUseCase: GetErrorsListUseCase,
     private val getNextTrainingTimeUseCase: GetNextTrainingTimeUseCase,
     private val getTotalAndCorrectCountAnswersUseCase: GetTotalAndCorrectCountAnswersUseCase,
-    private val getDeckNameAndTrainingSessionTimeUseCase: GetDeckNameAndTrainingSessionTimeUseCase,
-    private val getInfoForNavigationToDeckUseCase: GetInfoForNavigationToDeckUseCase
+    private val getDeckNameTrainingSessionTimeSourceUseCase: GetDeckNameTrainingSessionTimeSourceUseCase,
+    private val getInfoForNavigationToDeckUseCase: GetInfoForNavigationToDeckUseCase,
 ) : ViewModel() {
 
     var screenState =
@@ -38,8 +38,8 @@ internal class TrainingResultsViewModel @Inject constructor(
             val (totalAnswers, correctAnswers) =
                 getTotalAndCorrectCountAnswersUseCase(trainingSessionId)
 
-            val (deckName, trainingSessionTime) =
-                getDeckNameAndTrainingSessionTimeUseCase(trainingSessionId)
+            val (deckName, trainingSessionTime, _) =
+                getDeckNameTrainingSessionTimeSourceUseCase(trainingSessionId)
 
             val correctPercentage =
                 if (totalAnswers == 0) 0 else (correctAnswers * 100) / totalAnswers
@@ -64,7 +64,7 @@ internal class TrainingResultsViewModel @Inject constructor(
 
     fun getInfoForNavigationToDeck(
         trainingSessionId: String,
-        onResult: (Pair<String, Source>) -> Unit
+        onResult: (Pair<String, Source>) -> Unit,
     ) {
         viewModelScope.launch(exceptionHandler) {
             val result = getInfoForNavigationToDeckUseCase(trainingSessionId = trainingSessionId)

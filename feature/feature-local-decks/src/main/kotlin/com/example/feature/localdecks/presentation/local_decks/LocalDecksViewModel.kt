@@ -7,7 +7,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.common.ui.entity.DeckUiModel
+import com.example.common.ui.snackbar_controller.SnackbarAction
+import com.example.common.ui.snackbar_controller.SnackbarController
+import com.example.common.ui.snackbar_controller.SnackbarEvent
 import com.example.feature.localdecks.domain.usecase.GetDecksFlowUseCase
+import com.example.feature.localdecks.domain.usecase.RestoreDeckUseCase
+import com.example.feature.localdecks.domain.usecase.SoftDeleteDeckUseCase
 import com.example.localdecks.util.startSyncWork
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +27,9 @@ import javax.inject.Inject
 @HiltViewModel
 internal class LocalDecksViewModel @Inject constructor(
     getDecksFlowUseCase: GetDecksFlowUseCase,
+    private val deleteDeckUseCase: SoftDeleteDeckUseCase,
+    private val softDeleteDeckUseCase: SoftDeleteDeckUseCase,
+    private val restoreDeckUseCase: RestoreDeckUseCase,
 ) : ViewModel() {
 
     var isRefreshing = MutableStateFlow<Boolean>(false)
@@ -61,6 +69,32 @@ internal class LocalDecksViewModel @Inject constructor(
                 // Если вернул, но завершился с ошибкой
                 Toast.makeText(context, "Ошибка синхронизации", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    fun deleteDeckWithUndo(deckId: String, deckName: String) {
+        viewModelScope.launch {
+            softDeleteDeckUseCase(deckId = deckId)
+            showSnackbar(deckId = deckId, deckName = deckName)
+        }
+    }
+
+    private fun showSnackbar(deckId: String, deckName: String) {
+        viewModelScope.launch {
+            SnackbarController.sendEvent(
+                event = SnackbarEvent(
+                    message = "Колода \"$deckName\" удалена.",
+                    action = SnackbarAction(
+                        name = "Восстановить",
+                        action = {
+                            restoreDeckUseCase(deckId = deckId)
+                        },
+                        dismiss = {
+                            deleteDeckUseCase(deckId = deckId)
+                        }
+                    )
+                )
+            )
         }
     }
 

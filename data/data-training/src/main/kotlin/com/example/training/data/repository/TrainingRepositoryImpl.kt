@@ -26,6 +26,7 @@ import com.example.training.domain.repository.TrainingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -177,6 +178,7 @@ class TrainingRepositoryImpl @Inject constructor(
         isCorrect: Boolean,
         trainingSessionId: String,
         trainingMode: TrainingMode,
+        attachment: String?,
     ) {
         if (isCorrect) {
             val correctAnswer = CorrectAnswerDBO(
@@ -195,7 +197,8 @@ class TrainingRepositoryImpl @Inject constructor(
                 answer = answer,
                 userAnswer = userAnswer,
                 blankAnswer = blankAnswer,
-                trainingMode = trainingMode
+                trainingMode = trainingMode,
+                attachment = attachment
             )
             database.errorDao.insertError(errorAnswer)
         }
@@ -231,16 +234,24 @@ class TrainingRepositoryImpl @Inject constructor(
                         authHeader = token
                     )
 
-                    if (response.isSuccessful) {
-                        response.body()?.let { body ->
-                            val tempFile = File(context.cacheDir, "card_temp_$cardId.jpg")
-                            tempFile.outputStream().use { output ->
-                                body.byteStream().copyTo(output)
+                    when {
+                        response.isSuccessful -> {
+                            response.body()?.let { body ->
+                                val tempFile = File(context.cacheDir, "card_temp_$cardId.jpg")
+                                tempFile.outputStream().use { output ->
+                                    body.byteStream().copyTo(output)
+                                }
+                                tempFile.toUri()
                             }
-                            tempFile.toUri()
                         }
-                    } else {
-                        null
+
+                        response.code() == 404 -> {
+                            throw IOException("Card picture not found")
+                        }
+
+                        else -> {
+                           null
+                        }
                     }
                 }
             }
@@ -291,11 +302,11 @@ class TrainingRepositoryImpl @Inject constructor(
             )
     }
 
-    override suspend fun getDeckNameAndTrainingSessionTime(trainingSessionId: String): Pair<String, Long> {
+    override suspend fun getDeckNameAndTrainingSessionTime(trainingSessionId: String): Triple<String, Long, Source> {
         val trainingHistory = database.historyDao.getHistoryForTrainingSession(trainingSessionId)
             ?: throw IllegalStateException("History with trainingSessionId: $trainingSessionId is not find.")
 
-        return Pair(trainingHistory.deckName, trainingHistory.timestamp)
+        return Triple(trainingHistory.deckName, trainingHistory.timestamp, trainingHistory.source)
     }
 
     override suspend fun getTotalAndCorrectCountAnswers(trainingSessionId: String): Pair<Int, Int> {

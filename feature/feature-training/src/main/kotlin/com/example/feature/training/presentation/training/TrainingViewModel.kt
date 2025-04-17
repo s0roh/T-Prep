@@ -132,7 +132,8 @@ internal class TrainingViewModel @Inject constructor(
                 fillInTheBlankAnswer = fillInTheBlankAnswer,
                 incorrectAnswer = selectedAnswer,
                 trainingSessionId = trainingSessionId,
-                trainingMode = trainingMode
+                trainingMode = trainingMode,
+                attachment = currentCard.attachment
             )
             recordTrainingUseCase(
                 deckId = currentDeck.id,

@@ -75,7 +75,8 @@ import kotlinx.coroutines.launch
 fun PublicDecksScreen(
     paddingValues: PaddingValues,
     onDeckClickListener: (String) -> Unit,
-    onDeckLongClickListener: (String, Source) -> Unit
+    onTrainClick: (String, Source) -> Unit,
+    onScheduleClick: (String, String, Source) -> Unit,
 ) {
     val viewModel: PublicDecksViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
@@ -108,10 +109,10 @@ fun PublicDecksScreen(
                 searchBarExpanded = searchBarExpanded,
                 lazyPagingItems = decksFlow,
                 onDeckClickListener = onDeckClickListener,
-                onDeckLongClickListener = {deckId ->
+                onTrainClick = { deckId ->
                     coroutineScope.launch {
                         val (deck, source) = viewModel.getDeckById(deckId)
-                        onDeckLongClickListener(deck.id, source)
+                        onTrainClick(deck.id, source)
                     }
                 },
                 onQueryChange = { newQuery -> viewModel.searchPublicDecks(newQuery) },
@@ -123,7 +124,15 @@ fun PublicDecksScreen(
                         onUpdate(successIsLiked, updatedLikes)
                     }
                 },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = animatedPadding)
+                onScheduleClick = { deckId ->
+                    coroutineScope.launch {
+                        val (deck, source) = viewModel.getDeckById(deckId)
+                        onScheduleClick(deck.id, deck.name, source)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = animatedPadding)
             )
 
             AnimatedVisibility(visible = !isScrollingDown.value) {
@@ -156,10 +165,10 @@ fun PublicDecksScreen(
                             DeckCard(
                                 deck = deck.copy(isLiked = isLiked, likes = likes),
                                 onDeckClickListener = onDeckClickListener,
-                                onDeckLongClickListener = {deckId ->
+                                onTrainClick = { deckId ->
                                     coroutineScope.launch {
                                         val (deck, source) = viewModel.getDeckById(deckId)
-                                        onDeckLongClickListener(deck.id, source)
+                                        onTrainClick(deck.id, source)
                                     }
                                 },
                                 onLikeClickListener = { deckId, newIsLiked ->
@@ -169,6 +178,12 @@ fun PublicDecksScreen(
                                     ) { updatedIsLiked, updatedLikes ->
                                         isLiked = updatedIsLiked
                                         likes = updatedLikes
+                                    }
+                                },
+                                onScheduleClick = { deckId ->
+                                    coroutineScope.launch {
+                                        val (deck, source) = viewModel.getDeckById(deckId)
+                                        onScheduleClick(deck.id, deck.name, source)
                                     }
                                 },
                                 modifier = Modifier.animateItem()
@@ -374,7 +389,8 @@ private fun SearchBarComponent(
     lazyPagingItems: LazyPagingItems<DeckUiModel>,
     onQueryChange: (String) -> Unit,
     onDeckClickListener: (String) -> Unit,
-    onDeckLongClickListener: (String) -> Unit,
+    onTrainClick: (String) -> Unit,
+    onScheduleClick: (String) -> Unit,
     onLikeClickListener: (String, Boolean, (Boolean, Int) -> Unit) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -386,7 +402,7 @@ private fun SearchBarComponent(
                 query.value = newQuery
                 onQueryChange(newQuery)
             },
-            onSearch = {newQuery ->
+            onSearch = { newQuery ->
                 scope.launch {
                     query.value = newQuery
                     onQueryChange(newQuery)
@@ -460,7 +476,7 @@ private fun SearchBarComponent(
                         DeckCard(
                             deck = deck.copy(isLiked = isLiked, likes = likes),
                             onDeckClickListener = onDeckClickListener,
-                            onDeckLongClickListener = onDeckLongClickListener,
+                            onTrainClick = onTrainClick,
                             onLikeClickListener = { deckId, newIsLiked ->
                                 onLikeClickListener(
                                     deckId,
@@ -471,6 +487,7 @@ private fun SearchBarComponent(
 
                                 }
                             },
+                            onScheduleClick = onScheduleClick,
                             modifier = Modifier.animateItem()
                         )
                     }

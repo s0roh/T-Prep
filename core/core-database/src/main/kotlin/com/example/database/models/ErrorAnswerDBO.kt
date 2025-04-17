@@ -20,6 +20,7 @@ data class ErrorAnswerDBO(
     @ColumnInfo("answer") val answer: String,
     @ColumnInfo("userAnswer") val userAnswer: String,
     @ColumnInfo("blankAnswer") val blankAnswer: String?,
+    @ColumnInfo("attachment") val attachment: String? = null,
     @ColumnInfo("trainingMode") val trainingMode: TrainingMode,
 )
 

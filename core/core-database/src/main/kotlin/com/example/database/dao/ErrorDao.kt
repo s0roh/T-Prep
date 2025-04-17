@@ -14,7 +14,7 @@ interface ErrorDao {
     suspend fun insertError(error: ErrorAnswerDBO)
 
     @Query("""
-    SELECT e.*, h.timestamp AS trainingSessionTime 
+    SELECT e.*, h.timestamp AS trainingSessionTime, h.deckId 
     FROM error_answer e
     JOIN history h ON e.trainingSessionId = h.trainingSessionId
     WHERE e.trainingSessionId = :trainingSessionId
@@ -23,12 +23,4 @@ interface ErrorDao {
 
     @Query("SELECT * FROM error_answer WHERE trainingSessionId =:trainingSessionId")
     suspend fun getErrorAnswersForTrainingSession(trainingSessionId: String): List<ErrorAnswerDBO>
-
-    @Query("""
-    DELETE FROM error_answer 
-    WHERE trainingSessionId IN (
-        SELECT trainingSessionId FROM history WHERE deckId = :deckId
-    )
-""")
-    suspend fun deleteErrorForDeck(deckId: String)
 }

@@ -33,6 +33,7 @@ interface TrainingRepository {
         isCorrect: Boolean,
         trainingSessionId: String,
         trainingMode: TrainingMode,
+        attachment: String? = null,
     )
 
     suspend fun getCardPicture(
@@ -54,7 +55,7 @@ interface TrainingRepository {
 
     suspend fun getErrorsList(trainingSessionId: String): List<TrainingError>
 
-    suspend fun getDeckNameAndTrainingSessionTime(trainingSessionId: String): Pair<String, Long>
+    suspend fun getDeckNameAndTrainingSessionTime(trainingSessionId: String): Triple<String, Long, Source>
 
     suspend fun getInfoForNavigationToDeck(trainingSessionId: String): Pair<String, Source>
 }

@@ -151,10 +151,19 @@ fun MainScreen(navController: NavHostController) {
                     onDeckClickListener = { deckId ->
                         navigationState.navigateTo(Screen.DeckDetails(deckId, Source.NETWORK))
                     },
-                    onDeckLongClickListener = { deckId, source ->
+                    onTrainClick = { deckId, source ->
                         navigationState.navigateWithSaveState(
                             Screen.Training(
                                 deckId = deckId,
+                                source = source
+                            )
+                        )
+                    },
+                    onScheduleClick = { deckId, deckName, source ->
+                        navigationState.navigateWithSaveState(
+                            Screen.Reminder(
+                                deckId = deckId,
+                                deckName = deckName,
                                 source = source
                             )
                         )
@@ -194,10 +203,19 @@ fun MainScreen(navController: NavHostController) {
                             )
                         )
                     },
-                    onDeckLongClickListener = { deckId ->
+                    onTrainClick = { deckId ->
                         navigationState.navigateWithSaveState(
                             Screen.Training(
                                 deckId = deckId,
+                                source = Source.NETWORK
+                            )
+                        )
+                    },
+                    onScheduleClick = { deckId, deckName ->
+                        navigationState.navigateWithSaveState(
+                            Screen.Reminder(
+                                deckId = deckId,
+                                deckName = deckName,
                                 source = Source.NETWORK
                             )
                         )
@@ -330,10 +348,19 @@ fun MainScreen(navController: NavHostController) {
                     onAddClick = {
                         navigationState.navigateWithSaveState(Screen.AddEditDeck(deckId = null))
                     },
-                    onDeckLongClickListener = { deckId ->
+                    onTrainClick = { deckId ->
                         navigationState.navigateWithSaveState(
                             Screen.Training(
                                 deckId = deckId,
+                                source = Source.LOCAL
+                            )
+                        )
+                    },
+                    onScheduleClick = { deckId, deckName ->
+                        navigationState.navigateWithSaveState(
+                            Screen.Reminder(
+                                deckId = deckId,
+                                deckName = deckName,
                                 source = Source.LOCAL
                             )
                         )
