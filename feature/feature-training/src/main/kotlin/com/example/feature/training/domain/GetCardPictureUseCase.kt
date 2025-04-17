@@ -1,5 +1,6 @@
 package com.example.feature.training.domain
 
+import android.net.Uri
 import com.example.database.models.Source
 import com.example.training.domain.repository.TrainingRepository
 import javax.inject.Inject
@@ -13,11 +14,10 @@ internal class GetCardPictureUseCase @Inject constructor(
         cardId: Int,
         source: Source,
         attachment: String?,
-    ) =
-        repository.getCardPicture(
-            deckId = deckId,
-            cardId = cardId,
-            source = source,
-            attachment = attachment
-        )
+    ): Uri? = repository.getCardPicture(
+        deckId = deckId,
+        cardId = cardId,
+        source = source,
+        attachment = attachment
+    )
 }

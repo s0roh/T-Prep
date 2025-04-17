@@ -13,6 +13,7 @@ sealed interface TrainingScreenState {
         val cards: List<TrainingCard>,
         val currentCardIndex: Int = 0,
         val currentCardPictureUri: Uri? = null,
+        val nextCardPictureUri: Uri? = null,
         val correctAnswers: Int = 0,
         val selectedAnswer: String? = null
     ) : TrainingScreenState
