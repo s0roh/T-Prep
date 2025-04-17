@@ -16,16 +16,17 @@ internal class RecordAnswerUseCase @Inject constructor(
         fillInTheBlankAnswer: String? = null,
         incorrectAnswer: String? = null,
         trainingSessionId: String,
-        trainingMode: TrainingMode
-    ) =
-        repository.recordAnswer(
-            cardId = cardId,
-            isCorrect = isCorrect,
-            question = question,
-            correctAnswer = correctAnswer,
-            fillInTheBlankAnswer = fillInTheBlankAnswer,
-            incorrectAnswer = incorrectAnswer,
-            trainingSessionId = trainingSessionId,
-            trainingMode = trainingMode
-        )
+        trainingMode: TrainingMode,
+        attachment: String? = null,
+    ) = repository.recordAnswer(
+        cardId = cardId,
+        isCorrect = isCorrect,
+        question = question,
+        correctAnswer = correctAnswer,
+        fillInTheBlankAnswer = fillInTheBlankAnswer,
+        incorrectAnswer = incorrectAnswer,
+        trainingSessionId = trainingSessionId,
+        trainingMode = trainingMode,
+        attachment = attachment
+    )
 }

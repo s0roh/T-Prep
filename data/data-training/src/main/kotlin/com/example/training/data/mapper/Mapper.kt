@@ -9,13 +9,16 @@ import com.example.training.domain.entity.TrainingModes
 internal fun ErrorAnswerWithTimeDBO.toEntity(): TrainingError =
     TrainingError(
         id = id,
+        cardId = cardId,
+        deckId = deckId,
         trainingSessionId = trainingSessionId,
         trainingSessionTime = trainingSessionTime,
         question = question,
         answer = answer,
         blankAnswer = blankAnswer,
         userAnswer = userAnswer,
-        trainingMode = trainingMode
+        trainingMode = trainingMode,
+        attachment = attachment
     )
 
 internal fun TrainingModesHistoryDBO.toEntity(): TrainingModes =

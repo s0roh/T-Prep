@@ -11,4 +11,5 @@ data class ErrorAnswerDto(
     @SerialName("type") val type: String,
     @SerialName("user_answer") val userAnswer: String,
     @SerialName("blank_answer") val blankAnswer: String?,
+    @SerialName("attachment") val attachment: String?,
 )
