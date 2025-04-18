@@ -60,7 +60,7 @@ class TPrepDatabase internal constructor(private val database: TPrepRoomDatabase
         TrainingReminderDBO::class,
         TrainingModesHistoryDBO::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

@@ -9,6 +9,7 @@ import java.util.UUID
 @Entity(
     tableName = "decks",
     indices = [
+        Index(value = ["isHide"]),
         Index(value = ["isDeleted"])
     ]
 )
@@ -17,6 +18,7 @@ data class DeckDBO(
     @ColumnInfo("serverDeckId") val serverDeckId: String?,
     @ColumnInfo("name") val name: String,
     @ColumnInfo("isPublic") val isPublic: Boolean,
+    @ColumnInfo("isHide") val isHide: Boolean = false,
     @ColumnInfo("isDeleted") val isDeleted: Boolean = false,
     @ColumnInfo("userId") val userId: String
 )

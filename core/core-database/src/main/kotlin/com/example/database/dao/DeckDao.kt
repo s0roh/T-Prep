@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DeckDao {
 
-    @Query("SELECT * FROM decks WHERE isDeleted = 0 ORDER BY id DESC")
+    @Query("SELECT * FROM decks WHERE isHide = 0 AND isDeleted = 0 ORDER BY id DESC")
     fun getDecks(): Flow<List<DeckDBO>>
 
     @Query("SELECT * FROM decks ORDER BY id DESC")
@@ -21,8 +21,11 @@ interface DeckDao {
     @Query("SELECT * FROM decks WHERE id = :deckId")
     suspend fun getDeckById(deckId: String): DeckDBO?
 
-    @Query("SELECT * FROM decks WHERE serverDeckId = :serverDeckId AND isDeleted is 0")
+    @Query("SELECT * FROM decks WHERE serverDeckId = :serverDeckId AND isHide is 0 AND isDeleted is 0")
     suspend fun getDeckByServerId(serverDeckId: String): DeckDBO?
+
+    @Query("SELECT * FROM decks WHERE serverDeckId = :serverDeckId")
+    suspend fun getAnyDeckByServerId(serverDeckId: String): DeckDBO?
 
     @Query("SELECT id FROM decks WHERE id = :id")
     suspend fun getDeckId(id: String): String?

@@ -1,5 +1,6 @@
 package com.example.feature.training.presentation.training
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
@@ -143,6 +144,7 @@ fun TrainingScreen(
 }
 
 
+@SuppressLint("MissingPermission")
 @Composable
 private fun TrainingCardsContent(
     paddingValues: PaddingValues,
@@ -159,6 +161,7 @@ private fun TrainingCardsContent(
     val coroutineScope = rememberCoroutineScope()
     val shakeOffset = remember { Animatable(0f) }
     val correctAnswer = currentCard.displayedAnswer == currentCard.answer
+    val context = LocalContext.current
 
     // Общее состояние для всех типов карточек
     var isAnswered by remember { mutableStateOf(false) }
@@ -234,6 +237,10 @@ private fun TrainingCardsContent(
                             onAnswerSelected = { answer ->
                                 selectedAnswer = answer
                                 isAnswered = true
+
+                                val correct = answer == card.answer
+                                viewModel.playFeedback(context, correct)
+
                                 onAnswer(
                                     answer == card.answer,
                                     card.question,
@@ -274,7 +281,11 @@ private fun TrainingCardsContent(
                     if (!isAnswered) {
                         selectedAnswer = answer
                         isAnswered = true
-                        if (answer != correctAnswer) {
+
+                        val correct = answer == correctAnswer
+                        viewModel.playFeedback(context, correct)
+
+                        if (!correct) {
                             coroutineScope.launch { launchShakeAnimation(shakeOffset) }
                         }
                         onAnswer(
@@ -318,6 +329,7 @@ private fun TrainingCardsContent(
                     ) { result ->
                         isCorrect = result
                         isAnswered = true
+                        viewModel.playFeedback(context, result)
                         onAnswer(
                             isCorrect,
                             currentCard.question,
@@ -344,7 +356,7 @@ private fun MultipleChoiceContent(
     selectedAnswer: String?,
     onAnswerSelected: (String) -> Unit,
     coroutineScope: CoroutineScope,
-    shakeOffset: Animatable<Float, AnimationVector1D>
+    shakeOffset: Animatable<Float, AnimationVector1D>,
 ) {
     val shuffledAnswers = rememberSaveable(card.id) {
         (listOf(card.answer) + card.wrongAnswers).shuffled()

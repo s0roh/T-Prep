@@ -128,7 +128,12 @@ fun TrainingErrorsScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                AnimatedErrorContent(currentError, isNavigatingForward, errorPictures, pictureErrors)
+                AnimatedErrorContent(
+                    currentError,
+                    isNavigatingForward,
+                    errorPictures,
+                    pictureErrors
+                )
 
                 Spacer(modifier = Modifier.height(40.dp))
             }
@@ -222,7 +227,7 @@ private fun ErrorItem(error: TrainingError, pictureUri: Uri?, pictureErrorMessag
                 }
             }
 
-            pictureUri == null && error.attachment != null -> {
+            pictureUri == null && !error.attachment.isNullOrBlank() -> {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
