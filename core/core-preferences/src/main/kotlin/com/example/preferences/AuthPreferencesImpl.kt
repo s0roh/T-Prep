@@ -64,6 +64,20 @@ class AuthPreferencesImpl @Inject constructor(
 
     override fun getUserProfileImage(): String? = prefs.getString(USER_PROFILE_IMAGE_KEY, null)
 
+    override fun isVibrationEnabled(): Boolean = prefs.getBoolean(VIBRATION_ENABLED_KEY, true)
+
+    override fun isSoundEnabled(): Boolean = prefs.getBoolean(SOUND_ENABLED_KEY, true)
+
+    override fun toggleVibration() {
+        val current = isVibrationEnabled()
+        setVibrationEnabled(!current)
+    }
+
+    override fun toggleSound() {
+        val current = isSoundEnabled()
+        setSoundEnabled(!current)
+    }
+
     override fun deleteUserProfileImage() {
         prefs.edit {
             remove(USER_PROFILE_IMAGE_KEY)
@@ -103,6 +117,14 @@ class AuthPreferencesImpl @Inject constructor(
         }
     }
 
+    private fun setVibrationEnabled(enabled: Boolean) {
+        prefs.edit { putBoolean(VIBRATION_ENABLED_KEY, enabled) }
+    }
+
+    private fun setSoundEnabled(enabled: Boolean) {
+        prefs.edit { putBoolean(SOUND_ENABLED_KEY, enabled) }
+    }
+
     companion object {
 
         private const val PREFS_NAME = "auth_prefs"
@@ -114,6 +136,8 @@ class AuthPreferencesImpl @Inject constructor(
         private const val USER_NAME_KEY = "user_name"
         private const val USER_EMAIL_KEY = "user_email"
         private const val USER_PROFILE_IMAGE_KEY = "user_profile_image"
+        private const val VIBRATION_ENABLED_KEY = "vibration_enabled"
+        private const val SOUND_ENABLED_KEY = "sound_enabled"
         private const val DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS Z 'UTC'"
     }
 }

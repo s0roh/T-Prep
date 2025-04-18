@@ -31,6 +31,7 @@ import com.example.feature.localdecks.presentation.add_edit_deck.AddEditDeckScre
 import com.example.feature.localdecks.presentation.local_decks.LocalDecksScreen
 import com.example.feature.profile.presentation.owner_profile.OwnerProfileScreen
 import com.example.feature.profile.presentation.profile.ProfileScreen
+import com.example.feature.profile.presentation.settings.SettingsScreen
 import com.example.feature.reminder.presentation.add_reminder.AddReminderScreen
 import com.example.feature.reminder.presentation.reminder.ReminderScreen
 import com.example.feature.training.presentation.training.TrainingScreen
@@ -183,11 +184,17 @@ fun MainScreen(navController: NavHostController) {
                     }
                 )
             },
+            settingsScreenContent = {
+                SettingsScreen(onBackClick = { navigationState.navHostController.popBackStack() })
+            },
             profileScreenContent = {
                 ProfileScreen(
                     paddingValues = paddingValues,
                     onLogoutClick = {
                         navigationState.navigateLogout(Screen.Auth)
+                    },
+                    onSettingsClick = {
+                        navigationState.navigateWithSaveState(Screen.Settings)
                     }
                 )
             },

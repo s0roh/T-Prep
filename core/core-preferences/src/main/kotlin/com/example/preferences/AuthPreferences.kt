@@ -25,6 +25,11 @@ interface AuthPreferences {
     fun getUserEmail(): String?
     fun getUserProfileImage(): String?
 
+    fun isVibrationEnabled(): Boolean
+    fun isSoundEnabled(): Boolean
+    fun toggleVibration()
+    fun toggleSound()
+
     fun deleteUserProfileImage()
 
     fun clearTokens()

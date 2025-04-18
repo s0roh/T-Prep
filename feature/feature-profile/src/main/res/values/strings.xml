@@ -2,4 +2,7 @@
 <resources>
     <string name="deck_owner">Владелец колоды</string>
     <string name="pubic_decks">Публичные колоды</string>
+    <string name="settings">Настройки</string>
+    <string name="vibration">Вибрация</string>
+    <string name="sound">Звук</string>
 </resources>
