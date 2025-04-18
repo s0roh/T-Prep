@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -42,6 +45,7 @@ import com.example.feature.profile.presentation.util.launchCrop
 fun ProfileScreen(
     paddingValues: PaddingValues,
     onLogoutClick: () -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     val viewModel: ProfileViewModel = hiltViewModel()
     val context = LocalContext.current
@@ -88,25 +92,40 @@ fun ProfileScreen(
         )
     }
 
-    when (val currentState = screenState) {
-        ProfileScreenState.Loading -> {
-            LoadingState()
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                modifier = Modifier.padding(paddingValues),
+                onClick = onSettingsClick,
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Настройки"
+                )
+            }
         }
+    ) { innerPadding ->
+        when (val currentState = screenState) {
+            ProfileScreenState.Loading -> {
+                LoadingState()
+            }
 
-        is ProfileScreenState.Success -> {
-            ProfileScreenContent(
-                paddingValues = paddingValues,
-                state = currentState,
-                onLogoutClick = {
-                    viewModel.logout()
-                    onLogoutClick()
-                },
-                onDeleteProfileImage = { viewModel.deleteProfileImage() },
-                onChangeImageClick = { showDialog = true }
-            )
+            is ProfileScreenState.Success -> {
+                ProfileScreenContent(
+                    paddingValues = innerPadding,
+                    state = currentState,
+                    onLogoutClick = {
+                        viewModel.logout()
+                        onLogoutClick()
+                    },
+                    onDeleteProfileImage = { viewModel.deleteProfileImage() },
+                    onChangeImageClick = { showDialog = true }
+                )
+            }
+
+            else -> Unit
         }
-
-        else -> Unit
     }
 }
 

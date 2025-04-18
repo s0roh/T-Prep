@@ -5,8 +5,10 @@ import com.example.auth.data.repository.AuthRepositoryImpl
 import com.example.auth.domain.repository.AuthRepository
 import com.example.data.profile.data.OwnerProfileRepositoryImpl
 import com.example.data.profile.data.ProfileRepositoryImpl
+import com.example.data.profile.data.SettingsRepositoryImpl
 import com.example.data.profile.domain.repository.OwnerProfileRepository
 import com.example.data.profile.domain.repository.ProfileRepository
+import com.example.data.profile.domain.repository.SettingsRepository
 import com.example.data.reminder.data.repository.ReminderSchedulerImpl
 import com.example.data.reminder.data.util.RouteNavigator
 import com.example.data.reminder.domain.repository.ReminderScheduler
@@ -83,6 +85,11 @@ interface AppModule {
     @Singleton
     @Suppress("unused")
     fun bindSyncHelper(syncHelperImpl: SyncHelperImpl): SyncHelper
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
+    fun bindSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl): SettingsRepository
 
     companion object {
 

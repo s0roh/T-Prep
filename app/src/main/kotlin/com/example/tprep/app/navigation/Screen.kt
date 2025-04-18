@@ -22,6 +22,9 @@ sealed interface Screen {
     data object LocalDecks : Screen
 
     @Serializable
+    data object Settings : Screen
+
+    @Serializable
     data class OwnerProfile(
         val ownerId: String,
     ) : Screen

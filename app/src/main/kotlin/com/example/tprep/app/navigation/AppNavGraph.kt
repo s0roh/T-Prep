@@ -13,6 +13,7 @@ fun AppNavGraph(
     authScreenContent: @Composable () -> Unit,
     publicDecksScreenContent: @Composable () -> Unit,
     profileScreenContent: @Composable () -> Unit,
+    settingsScreenContent: @Composable () -> Unit,
     ownerProfileScreenContent: @Composable (String) -> Unit,
     deckDetailsScreenContent: @Composable (String, Source) -> Unit,
     deckDetailsStatisticScreenContent: @Composable (String) -> Unit,
@@ -37,9 +38,13 @@ fun AppNavGraph(
         composable<Screen.PublicDecks> {
             publicDecksScreenContent()
         }
+        composable<Screen.Settings> {
+            settingsScreenContent()
+        }
         composable<Screen.Profile> {
             profileScreenContent()
         }
+
         composable<Screen.OwnerProfile> { backStackEntry ->
             val ownerProfile: Screen.OwnerProfile = backStackEntry.toRoute()
             ownerProfileScreenContent(ownerProfile.ownerId)

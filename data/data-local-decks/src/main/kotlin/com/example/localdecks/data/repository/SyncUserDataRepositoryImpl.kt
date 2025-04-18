@@ -91,9 +91,9 @@ class SyncUserDataRepositoryImpl @Inject constructor(
     private suspend fun handleUserDecks(userDecks: List<DeckDBO>, serverDeckIdsSet: Set<String>) {
         userDecks.forEach { localDeck ->
             if (localDeck.serverDeckId in serverDeckIdsSet) {
-                if (localDeck.isDeleted) {
+                if (localDeck.isHide && !localDeck.isDeleted) {
                     Log.d(TAG, "Восстанавливаем колоду пользователя: $localDeck")
-                    database.deckDao.updateDeck(localDeck.copy(isDeleted = false))
+                    database.deckDao.updateDeck(localDeck.copy(isHide = false))
                 }
             } else {
                 Log.d(TAG, "Удаляем локальную колоду и её содержимое: $localDeck")
@@ -113,16 +113,16 @@ class SyncUserDataRepositoryImpl @Inject constructor(
 
     private suspend fun handleNonUserDecks(nonUserDecks: List<DeckDBO>) {
         nonUserDecks.forEach { localDeck ->
-            if (!localDeck.isDeleted) {
+            if (!localDeck.isHide) {
                 Log.d(TAG, "Скрываем колоду: $localDeck")
-                database.deckDao.updateDeck(localDeck.copy(isDeleted = true))
+                database.deckDao.updateDeck(localDeck.copy(isHide = true))
             }
         }
     }
 
     private suspend fun syncDeckWithServer(deckId: String, userId: String, token: String) {
         val deckDto = apiService.getDeckById(deckId = deckId, authHeader = token)
-        val existingDeck = database.deckDao.getDeckByServerId(deckId)
+        val existingDeck = database.deckDao.getAnyDeckByServerId(deckId)
 
         val deckLocalId = if (existingDeck != null) {
             if (existingDeck.name != deckDto.name || existingDeck.isPublic != deckDto.isPublic) {

@@ -1,16 +1,26 @@
 package com.example.feature.training.presentation.training
 
+import android.Manifest
+import android.content.Context
+import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.domain.entity.Deck
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
+import com.example.feature.training.R
 import com.example.feature.training.domain.CheckFillInTheBlankAnswerUseCase
 import com.example.feature.training.domain.GetCardPictureUseCase
 import com.example.feature.training.domain.GetDeckByIdLocalUseCase
 import com.example.feature.training.domain.GetDeckByIdNetworkUseCase
 import com.example.feature.training.domain.GetTrainingModesUseCase
+import com.example.feature.training.domain.IsSoundEnabledUseCase
+import com.example.feature.training.domain.IsVibrationEnabledUseCase
 import com.example.feature.training.domain.PrepareTrainingCardsUseCase
 import com.example.feature.training.domain.RecordAnswerUseCase
 import com.example.feature.training.domain.RecordTrainingUseCase
@@ -31,6 +41,8 @@ internal class TrainingViewModel @Inject constructor(
     private val checkFillInTheBlankAnswerUseCase: CheckFillInTheBlankAnswerUseCase,
     private val getTrainingModesUseCase: GetTrainingModesUseCase,
     private val getCardPictureUseCase: GetCardPictureUseCase,
+    private val isVibrationEnabledUseCase: IsVibrationEnabledUseCase,
+    private val isSoundEnabledUseCase: IsSoundEnabledUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<TrainingScreenState>(TrainingScreenState.Initial)
@@ -56,7 +68,7 @@ internal class TrainingViewModel @Inject constructor(
             screenState.value = TrainingScreenState.Loading
 
             val cards = loadCardsForTraining(source)
-            val currentCard  = cards.firstOrNull()
+            val currentCard = cards.firstOrNull()
             val nextCard = cards.getOrNull(1)
 
             val currentUri = getCardUriIfExists(currentCard)
@@ -199,5 +211,53 @@ internal class TrainingViewModel @Inject constructor(
 
     private fun generateTrainingSessionId(deckId: String): String {
         return "$deckId-${System.currentTimeMillis()}"
+    }
+
+    @Suppress("DEPRECATION")
+    @RequiresPermission(Manifest.permission.VIBRATE)
+    fun playFeedback(context: Context, isCorrect: Boolean) {
+        viewModelScope.launch {
+            val isSoundEnabled = isSoundEnabledUseCase()
+            val isVibrationEnabled = isVibrationEnabledUseCase()
+
+            if (isSoundEnabled) {
+                val mediaPlayer = MediaPlayer.create(
+                    context,
+                    if (isCorrect) R.raw.correct else R.raw.wrong
+                )
+                mediaPlayer.setOnCompletionListener {
+                    it.release()
+                }
+                mediaPlayer.start()
+            }
+
+            if (!isCorrect && isVibrationEnabled) {
+                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                vibrator.cancel()
+                when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                        // Android 10+ (API 29)
+                        val vibrationPattern = longArrayOf(0, 50, 25, 50, 25, 50, 25, 50, 25, 50)
+                        val amplitudes = intArrayOf(255, 0, 255, 0, 255, 0, 255, 0, 255, 0)
+                        val effect =
+                            VibrationEffect.createWaveform(vibrationPattern, amplitudes, -1)
+                        vibrator.vibrate(effect)
+                    }
+
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+                        // Android 8.0+ (API 26)
+                        val timings = longArrayOf(0, 100, 50, 200, 50, 150)
+                        val amplitudes = intArrayOf(0, 120, 0, 255, 0, 180)
+                        val effect = VibrationEffect.createWaveform(timings, amplitudes, -1)
+                        vibrator.vibrate(effect)
+                    }
+
+                    else -> {
+                        // До Android 8.0
+                        vibrator.vibrate(longArrayOf(0, 100, 50, 150, 50, 100), -1)
+                    }
+                }
+            }
+        }
     }
 }

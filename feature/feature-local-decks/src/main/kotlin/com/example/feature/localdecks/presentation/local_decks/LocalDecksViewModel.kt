@@ -10,6 +10,7 @@ import com.example.common.ui.entity.DeckUiModel
 import com.example.common.ui.snackbar_controller.SnackbarAction
 import com.example.common.ui.snackbar_controller.SnackbarController
 import com.example.common.ui.snackbar_controller.SnackbarEvent
+import com.example.feature.localdecks.domain.usecase.DeleteDeckUseCase
 import com.example.feature.localdecks.domain.usecase.GetDecksFlowUseCase
 import com.example.feature.localdecks.domain.usecase.RestoreDeckUseCase
 import com.example.feature.localdecks.domain.usecase.SoftDeleteDeckUseCase
@@ -27,7 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 internal class LocalDecksViewModel @Inject constructor(
     getDecksFlowUseCase: GetDecksFlowUseCase,
-    private val deleteDeckUseCase: SoftDeleteDeckUseCase,
+    private val deleteDeckUseCase: DeleteDeckUseCase,
     private val softDeleteDeckUseCase: SoftDeleteDeckUseCase,
     private val restoreDeckUseCase: RestoreDeckUseCase,
 ) : ViewModel() {
