@@ -63,10 +63,13 @@ import com.example.feature.training.presentation.components.TrainingNavigationBu
 import com.example.feature.training.presentation.components.TrueFalseAnswerSection
 import com.example.feature.training.presentation.components.TrueFalseButtons
 import com.example.feature.training.presentation.util.launchShakeAnimation
+import com.example.feature.training.presentation.util.playSound
+import com.example.feature.training.presentation.util.vibrate
 import com.example.training.domain.entity.TrainingCard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@SuppressLint("MissingPermission")
 @Composable
 fun TrainingScreen(
     deckId: String,
@@ -76,10 +79,25 @@ fun TrainingScreen(
 ) {
     val viewModel: TrainingViewModel = hiltViewModel()
     val screenState = viewModel.screenState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = deckId, key2 = source) {
         if (screenState.value is TrainingScreenState.Initial) {
             viewModel.loadTraining(deckId, source)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is TrainingUiEvent.PlaySound -> playSound(context, event.isCorrect)
+                TrainingUiEvent.VibrateIncorrectAnswer -> vibrate(context)
+                TrainingUiEvent.PlayFinishSound -> playSound(
+                    context,
+                    isCorrect = true,
+                    isFinish = true
+                )
+            }
         }
     }
 
@@ -119,8 +137,8 @@ fun TrainingScreen(
                             trainingMode = trainingMode
                         )
                     },
-                    onExit = { viewModel.exitTraining() },
-                    onNextCard = { viewModel.moveToNextCardOrFinish() },
+                    onExit = viewModel::exitTraining,
+                    onNextCard = viewModel::moveToNextCardOrFinish,
                     viewModel = viewModel
                 )
             }
@@ -131,7 +149,6 @@ fun TrainingScreen(
                 } else {
                     onBackClick()
                 }
-
             }
 
             is TrainingScreenState.Error -> ErrorState(message = currentState.message)
@@ -161,7 +178,6 @@ private fun TrainingCardsContent(
     val coroutineScope = rememberCoroutineScope()
     val shakeOffset = remember { Animatable(0f) }
     val correctAnswer = currentCard.displayedAnswer == currentCard.answer
-    val context = LocalContext.current
 
     // Общее состояние для всех типов карточек
     var isAnswered by remember { mutableStateOf(false) }
@@ -239,7 +255,7 @@ private fun TrainingCardsContent(
                                 isAnswered = true
 
                                 val correct = answer == card.answer
-                                viewModel.playFeedback(context, correct)
+                                viewModel.playFeedback(correct)
 
                                 onAnswer(
                                     answer == card.answer,
@@ -268,8 +284,6 @@ private fun TrainingCardsContent(
             }
         }
 
-
-
         if (currentCard.trainingMode == TrainingMode.TRUE_FALSE) {
             TrueFalseButtons(
                 modifier = Modifier.padding(bottom = 30.dp),
@@ -283,7 +297,7 @@ private fun TrainingCardsContent(
                         isAnswered = true
 
                         val correct = answer == correctAnswer
-                        viewModel.playFeedback(context, correct)
+                        viewModel.playFeedback(correct)
 
                         if (!correct) {
                             coroutineScope.launch { launchShakeAnimation(shakeOffset) }
@@ -329,7 +343,7 @@ private fun TrainingCardsContent(
                     ) { result ->
                         isCorrect = result
                         isAnswered = true
-                        viewModel.playFeedback(context, result)
+                        viewModel.playFeedback(result)
                         onAnswer(
                             isCorrect,
                             currentCard.question,

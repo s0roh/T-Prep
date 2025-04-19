@@ -1,19 +1,11 @@
 package com.example.feature.training.presentation.training
 
-import android.Manifest
-import android.content.Context
-import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.common.domain.entity.Deck
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
-import com.example.feature.training.R
 import com.example.feature.training.domain.CheckFillInTheBlankAnswerUseCase
 import com.example.feature.training.domain.GetCardPictureUseCase
 import com.example.feature.training.domain.GetDeckByIdLocalUseCase
@@ -27,6 +19,7 @@ import com.example.feature.training.domain.RecordTrainingUseCase
 import com.example.training.domain.entity.TrainingCard
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,6 +39,9 @@ internal class TrainingViewModel @Inject constructor(
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<TrainingScreenState>(TrainingScreenState.Initial)
+        private set
+
+    var uiEvent = MutableSharedFlow<TrainingUiEvent>()
         private set
 
     private val exceptionHandler = CoroutineExceptionHandler { _, message ->
@@ -169,33 +165,43 @@ internal class TrainingViewModel @Inject constructor(
     fun moveToNextCardOrFinish() {
         val currentState = screenState.value as? TrainingScreenState.Success ?: return
         val nextIndex = currentState.currentCardIndex + 1
-        val cards = currentState.cards
 
-        if (nextIndex < cards.size) {
-            val newCurrentUri = currentState.nextCardPictureUri
-            val nextNextCard = cards.getOrNull(nextIndex + 1)
-
-            viewModelScope.launch(exceptionHandler) {
-                val newNextUri = getCardUriIfExists(nextNextCard)
-
-                screenState.value = currentState.copy(
-                    currentCardIndex = nextIndex,
-                    correctAnswers = correctAnswersCount,
-                    currentCardPictureUri = newCurrentUri,
-                    nextCardPictureUri = newNextUri,
-                )
-            }
+        if (nextIndex < currentState.cards.size) {
+            loadNextCard(currentState, nextIndex)
         } else {
             finishTraining()
         }
     }
 
+    private fun loadNextCard(currentState: TrainingScreenState.Success, nextIndex: Int) {
+        val newCurrentUri = currentState.nextCardPictureUri
+        val nextNextCard = currentState.cards.getOrNull(nextIndex + 1)
+
+        viewModelScope.launch(exceptionHandler) {
+            val newNextUri = getCardUriIfExists(nextNextCard)
+
+            screenState.value = currentState.copy(
+                currentCardIndex = nextIndex,
+                correctAnswers = correctAnswersCount,
+                currentCardPictureUri = newCurrentUri,
+                nextCardPictureUri = newNextUri,
+            )
+        }
+    }
+
     private fun finishTraining() {
-        screenState.value = TrainingScreenState.Finished(
-            totalCardsCompleted = cardsCompleted,
-            correctAnswers = correctAnswersCount,
-            trainingSessionId = trainingSessionId
-        )
+        viewModelScope.launch {
+            screenState.value = TrainingScreenState.Finished(
+                totalCardsCompleted = cardsCompleted,
+                correctAnswers = correctAnswersCount,
+                trainingSessionId = trainingSessionId
+            )
+
+            val currentState = screenState.value
+            if (currentState is TrainingScreenState.Finished && currentState.totalCardsCompleted != 0) {
+                uiEvent.emit(TrainingUiEvent.PlayFinishSound)
+            }
+        }
     }
 
     private suspend fun getCardUriIfExists(card: TrainingCard?): Uri? {
@@ -213,50 +219,14 @@ internal class TrainingViewModel @Inject constructor(
         return "$deckId-${System.currentTimeMillis()}"
     }
 
-    @Suppress("DEPRECATION")
-    @RequiresPermission(Manifest.permission.VIBRATE)
-    fun playFeedback(context: Context, isCorrect: Boolean) {
+    fun playFeedback(isCorrect: Boolean) {
         viewModelScope.launch {
-            val isSoundEnabled = isSoundEnabledUseCase()
-            val isVibrationEnabled = isVibrationEnabledUseCase()
-
-            if (isSoundEnabled) {
-                val mediaPlayer = MediaPlayer.create(
-                    context,
-                    if (isCorrect) R.raw.correct else R.raw.wrong
-                )
-                mediaPlayer.setOnCompletionListener {
-                    it.release()
-                }
-                mediaPlayer.start()
+            if (isSoundEnabledUseCase()) {
+                uiEvent.emit(TrainingUiEvent.PlaySound(isCorrect))
             }
 
-            if (!isCorrect && isVibrationEnabled) {
-                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                vibrator.cancel()
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                        // Android 10+ (API 29)
-                        val vibrationPattern = longArrayOf(0, 50, 25, 50, 25, 50, 25, 50, 25, 50)
-                        val amplitudes = intArrayOf(255, 0, 255, 0, 255, 0, 255, 0, 255, 0)
-                        val effect =
-                            VibrationEffect.createWaveform(vibrationPattern, amplitudes, -1)
-                        vibrator.vibrate(effect)
-                    }
-
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
-                        // Android 8.0+ (API 26)
-                        val timings = longArrayOf(0, 100, 50, 200, 50, 150)
-                        val amplitudes = intArrayOf(0, 120, 0, 255, 0, 180)
-                        val effect = VibrationEffect.createWaveform(timings, amplitudes, -1)
-                        vibrator.vibrate(effect)
-                    }
-
-                    else -> {
-                        // До Android 8.0
-                        vibrator.vibrate(longArrayOf(0, 100, 50, 150, 50, 100), -1)
-                    }
-                }
+            if (!isCorrect && isVibrationEnabledUseCase()) {
+                uiEvent.emit(TrainingUiEvent.VibrateIncorrectAnswer)
             }
         }
     }
