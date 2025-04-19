@@ -197,9 +197,11 @@ internal class TrainingViewModel @Inject constructor(
                 trainingSessionId = trainingSessionId
             )
 
-            val currentState = screenState.value
-            if (currentState is TrainingScreenState.Finished && currentState.totalCardsCompleted != 0) {
-                uiEvent.emit(TrainingUiEvent.PlayFinishSound)
+            if (isSoundEnabledUseCase()) {
+                val currentState = screenState.value
+                if (currentState is TrainingScreenState.Finished && currentState.totalCardsCompleted != 0) {
+                    uiEvent.emit(TrainingUiEvent.PlayFinishSound)
+                }
             }
         }
     }
