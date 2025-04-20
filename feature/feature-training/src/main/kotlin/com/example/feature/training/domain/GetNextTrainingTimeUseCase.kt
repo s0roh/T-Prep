@@ -7,6 +7,6 @@ class GetNextTrainingTimeUseCase @Inject constructor(
     private val repository: TrainingRepository,
 ) {
 
-    suspend operator fun invoke(trainingSessionId: String) =
+    suspend operator fun invoke(trainingSessionId: String): Long? =
         repository.getNextTrainingTime(trainingSessionId)
 }

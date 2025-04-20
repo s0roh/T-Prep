@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.dependencies
-
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -12,6 +10,9 @@ android {
     baseModuleConfig()
     buildFeatures {
         compose = true
+    }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
     }
 }
 
@@ -29,5 +30,17 @@ dependencies {
     add("implementation", libs.findLibrary("dagger-hilt-android").get())
     add("ksp", libs.findLibrary("dagger-hilt-compiler").get())
     add("implementation", libs.findLibrary("hilt-navigation-compose").get())
-    add("testImplementation", libs.findLibrary("junit").get())
+
+    add("testImplementation", libs.findLibrary("junit-jupiter-api").get())
+    add("testImplementation", libs.findLibrary("junit-jupiter-params").get())
+    add("testRuntimeOnly", libs.findLibrary("junit-jupiter-engine").get())
+    add("testRuntimeOnly", libs.findLibrary("junit-platform-launcher").get())
+    add("testImplementation", libs.findLibrary("mockk").get())
+    add("testImplementation", libs.findLibrary("truth").get())
+    add("testImplementation", libs.findLibrary("coroutines-test").get())
+    add("testImplementation", libs.findLibrary("turbine").get())
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
