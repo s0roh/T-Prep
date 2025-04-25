@@ -13,6 +13,7 @@ internal sealed interface DeckDetailScreenState {
     data class Success(
         val deck: Deck,
         val source: Source,
+        val shouldShowTooltip: Boolean = false,
         val nextTrainingTime: Long?,
     ) : DeckDetailScreenState
 }

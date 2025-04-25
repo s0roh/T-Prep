@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":data-local-decks"))
     implementation(project(":core-common"))
     implementation(project(":core-database"))
+    implementation(project(":core-preferences"))
 
     implementation (libs.compose.charts)
     implementation(libs.coil.compose)

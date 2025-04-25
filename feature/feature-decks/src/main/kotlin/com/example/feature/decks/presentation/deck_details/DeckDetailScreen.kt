@@ -223,7 +223,8 @@ private fun DeckDetailContent(
                 onTrainingSettings = { onTrainingModeSettingsClick(deck.id) },
                 onDeleteDeck = { showDeleteDialog = true },
                 isPublic = deck.isPublic,
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                shouldShowTooltip = state.shouldShowTooltip
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -477,11 +478,10 @@ private fun ExpandableCardItem(
                 }
             }
 
-
             AnimatedVisibility(visible = isExpanded) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
                     when {
-                        card.attachment != null && imageUri.value == null -> {
+                        !card.attachment.isNullOrBlank() && imageUri.value == null -> {
                             Box(
                                 modifier = Modifier
                                     .width(144.dp)

@@ -68,6 +68,18 @@ class AuthPreferencesImpl @Inject constructor(
 
     override fun isSoundEnabled(): Boolean = prefs.getBoolean(SOUND_ENABLED_KEY, true)
 
+    override fun isLocalTooltipEnabled(): Boolean = prefs.getBoolean(LOCAL_TOOLTIP_ENABLED_KEY, true)
+
+    override fun isPublicTooltipEnabled(): Boolean  = prefs.getBoolean(PUBLIC_TOOLTIP_ENABLED_KEY, true)
+
+    override fun setLocalTooltipShown() {
+        prefs.edit { putBoolean(LOCAL_TOOLTIP_ENABLED_KEY, false) }
+    }
+
+    override fun setPublicTooltipShown() {
+        prefs.edit { putBoolean(PUBLIC_TOOLTIP_ENABLED_KEY, false) }
+    }
+
     override fun toggleVibration() {
         val current = isVibrationEnabled()
         setVibrationEnabled(!current)
@@ -138,6 +150,8 @@ class AuthPreferencesImpl @Inject constructor(
         private const val USER_PROFILE_IMAGE_KEY = "user_profile_image"
         private const val VIBRATION_ENABLED_KEY = "vibration_enabled"
         private const val SOUND_ENABLED_KEY = "sound_enabled"
+        private const val LOCAL_TOOLTIP_ENABLED_KEY = "local_tooltip_enabled"
+        private const val PUBLIC_TOOLTIP_ENABLED_KEY = "public_tooltip_enabled"
         private const val DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS Z 'UTC'"
     }
 }

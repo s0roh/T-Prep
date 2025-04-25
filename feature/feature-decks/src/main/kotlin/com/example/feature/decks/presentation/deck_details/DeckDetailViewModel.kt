@@ -14,7 +14,9 @@ import com.example.feature.decks.domain.usecase.GetCardPictureUseCase
 import com.example.feature.decks.domain.usecase.GetDeckByIdFromLocalUseCase
 import com.example.feature.decks.domain.usecase.GetDeckByIdFromNetworkUseCase
 import com.example.feature.decks.domain.usecase.GetNextTrainingTimeUseCase
+import com.example.feature.decks.domain.usecase.IsTooltipEnabledUseCase
 import com.example.feature.decks.domain.usecase.RestoreDeckUseCase
+import com.example.feature.decks.domain.usecase.SetTooltipShownUseCase
 import com.example.feature.decks.domain.usecase.SoftDeleteDeckUseCase
 import com.example.feature.decks.domain.usecase.UpdateDeckUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +37,8 @@ internal class DeckDetailViewModel @Inject constructor(
     private val getNextTrainingTimeUseCase: GetNextTrainingTimeUseCase,
     private val updateDeckUseCase: UpdateDeckUseCase,
     private val getCardPictureUseCase: GetCardPictureUseCase,
+    private val isTooltipEnabledUseCase: IsTooltipEnabledUseCase,
+    private val setTooltipShownUseCase: SetTooltipShownUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<DeckDetailScreenState>(DeckDetailScreenState.Loading)
@@ -53,11 +57,16 @@ internal class DeckDetailViewModel @Inject constructor(
                 currentDeckId = deckId
                 viewModelScope.launch {
                     nextTrainingTime = getNextTrainingTimeUseCase(deckId = deckId)
+                    val shouldShowTooltip = isTooltipEnabledUseCase(source = Source.LOCAL)
+                    if (shouldShowTooltip) {
+                        setTooltipShownUseCase(source = Source.LOCAL)
+                    }
                     getDeckByIdFromLocalUseCase(deckId)?.also { deck ->
                         screenState.value = DeckDetailScreenState.Success(
                             deck = deck,
                             source = Source.LOCAL,
-                            nextTrainingTime = nextTrainingTime
+                            nextTrainingTime = nextTrainingTime,
+                            shouldShowTooltip = shouldShowTooltip
                         )
                     }
                 }
@@ -65,14 +74,18 @@ internal class DeckDetailViewModel @Inject constructor(
 
             Source.NETWORK -> {
                 viewModelScope.launch(exceptionHandler) {
-
                     getDeckByIdFromNetworkUseCase(deckId).also { (deck, source) ->
                         currentDeckId = deck.id
                         nextTrainingTime = getNextTrainingTimeUseCase(deckId = deck.id)
+                        val shouldShowTooltip = isTooltipEnabledUseCase(source = source)
+                        if (shouldShowTooltip) {
+                            setTooltipShownUseCase(source = source)
+                        }
                         screenState.value = DeckDetailScreenState.Success(
                             deck = deck,
                             source = source,
-                            nextTrainingTime = nextTrainingTime
+                            nextTrainingTime = nextTrainingTime,
+                            shouldShowTooltip = shouldShowTooltip
                         )
                     }
                 }
@@ -140,7 +153,13 @@ internal class DeckDetailViewModel @Inject constructor(
         }
     }
 
-    fun getCardPicture(deckId: String, cardId: Int, source: Source, attachment: String?, onResult: (Uri?) -> Unit) {
+    fun getCardPicture(
+        deckId: String,
+        cardId: Int,
+        source: Source,
+        attachment: String?,
+        onResult: (Uri?) -> Unit,
+    ) {
         viewModelScope.launch(exceptionHandler) {
             val uri = getCardPictureUseCase(
                 deckId = deckId,

@@ -5,4 +5,13 @@
     <string name="decks_private">Приватная</string>
     <string name="public_deck">Публичная</string>
     <string name="private_deck">Приватная</string>
+    <string name="delete">Удалить</string>
+    <string name="train_settings">Настройки тренировки</string>
+    <string name="statistic">Статистика</string>
+    <string name="go_to_owner">Перейти к владельцу</string>
+    <string name="make_private">Сделать приватной</string>
+    <string name="make_public">Сделать публичной</string>
+    <string name="edit_name">Изменить название</string>
+    <string name="local_text_balloon">Управляйте режимами тренировки, редактируйте или удаляйте колоду и смотрите статистику</string>
+    <string name="public_text_balloon">Управляйте режимами тренировки и смотрите статистику</string>
 </resources>

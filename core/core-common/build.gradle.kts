@@ -11,6 +11,8 @@ android {
 }
 
 dependencies {
+    api(libs.balloon.compose)
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.ui)

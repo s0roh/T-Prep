@@ -15,11 +15,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun AppElevatedButton(
+    modifier: Modifier = Modifier,
     title: String,
     shouldShowIcon: Boolean = false,
     iconResId: Int? = null,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     ElevatedButton(
         modifier = modifier,

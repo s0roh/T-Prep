@@ -1,6 +1,7 @@
 package com.example.common.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -16,10 +17,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.example.common.R
+import com.skydoves.balloon.ArrowOrientation
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.compose.Balloon
+import com.skydoves.balloon.compose.BalloonWindow
+import com.skydoves.balloon.compose.rememberBalloonBuilder
 
 enum class NavigationIconType {
     NONE, BACK, CLOSE
@@ -41,8 +53,30 @@ fun CenteredTopAppBar(
     onTrainingSettings: (() -> Unit)? = null,
     onDeleteDeck: (() -> Unit)? = null,
     isPublic: Boolean? = null,
+    shouldShowTooltip: Boolean = false,
 ) {
     var expanded by remember { mutableStateOf(false) }
+
+    val overlayColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f).toArgb()
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant.toArgb()
+
+    val builder = rememberBalloonBuilder {
+        setArrowSize(7)
+        setArrowPosition(0.5f)
+        setArrowPositionRules(ArrowPositionRules.ALIGN_BALLOON)
+        setWidth(BalloonSizeSpec.WRAP)
+        setHeight(BalloonSizeSpec.WRAP)
+        setArrowOrientation(ArrowOrientation.END)
+        setMarginRight(60)
+        setCornerRadius(8f)
+        setBackgroundColor(backgroundColor)
+        setBalloonAnimation(BalloonAnimation.OVERSHOOT)
+        setIsVisibleOverlay(true)
+        setOverlayColor(overlayColor)
+        setDismissWhenTouchOutside(true)
+    }
+
+    var balloonWindow: BalloonWindow? by remember { mutableStateOf(null) }
 
     CenterAlignedTopAppBar(
         colors = containerColor?.let {
@@ -86,15 +120,42 @@ fun CenteredTopAppBar(
         },
         actions = {
             if (onRenameDeck != null || onChangePrivacy != null || onTrainingSettings != null || onDeleteDeck != null) {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(painterResource(R.drawable.ic_menu), contentDescription = "Actions Icon")
+                Balloon(
+                    builder = builder,
+                    onBalloonWindowInitialized = { balloonWindow = it },
+                    onComposedAnchor = { if (shouldShowTooltip) balloonWindow?.showAlignEnd() },
+                    balloonContent = {
+                        Text(
+                            text = if (showActions == true) {
+                                stringResource(R.string.local_text_balloon)
+                            } else {
+                                stringResource(R.string.public_text_balloon)
+                            },
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurface
+                            ),
+                            modifier = Modifier.padding(
+                                start = 6.dp,
+                                end = 10.dp,
+                                top = 6.dp,
+                                bottom = 6.dp
+                            )
+                        )
+                    }
+                ) {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            painterResource(R.drawable.ic_menu),
+                            contentDescription = "Actions Icon"
+                        )
+                    }
                 }
 
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                     if (showActions == true) {
                         onRenameDeck?.let {
                             DropdownMenuItem(
-                                text = { Text("Изменить название") },
+                                text = { Text(stringResource(R.string.edit_name)) },
                                 onClick = {
                                     expanded = false
                                     it()
@@ -113,7 +174,10 @@ fun CenteredTopAppBar(
                             DropdownMenuItem(
                                 text = {
                                     isPublic?.let {
-                                        Text(if (isPublic) "Сделать приватной" else "Сделать публичной")
+                                        Text(
+                                            if (isPublic) stringResource(R.string.make_private)
+                                            else stringResource(R.string.make_public)
+                                        )
                                     }
                                 },
                                 onClick = {
@@ -132,7 +196,7 @@ fun CenteredTopAppBar(
                     if (showActions != true) {
                         onOwner?.let {
                             DropdownMenuItem(
-                                text = { Text("Перейти к владельцу") },
+                                text = { Text(stringResource(R.string.go_to_owner)) },
                                 onClick = {
                                     expanded = false
                                     it()
@@ -148,7 +212,7 @@ fun CenteredTopAppBar(
                     }
                     onDeckStatistic?.let {
                         DropdownMenuItem(
-                            text = { Text("Статистика") },
+                            text = { Text(stringResource(R.string.statistic)) },
                             onClick = {
                                 expanded = false
                                 it()
@@ -163,7 +227,7 @@ fun CenteredTopAppBar(
                     }
                     onTrainingSettings?.let {
                         DropdownMenuItem(
-                            text = { Text("Настройки тренировки") },
+                            text = { Text(stringResource(R.string.train_settings)) },
                             onClick = {
                                 expanded = false
                                 it()
@@ -179,7 +243,7 @@ fun CenteredTopAppBar(
                     if (showActions == true) {
                         onDeleteDeck?.let {
                             DropdownMenuItem(
-                                text = { Text("Удалить") },
+                                text = { Text(stringResource(R.string.delete)) },
                                 onClick = {
                                     expanded = false
                                     it()
