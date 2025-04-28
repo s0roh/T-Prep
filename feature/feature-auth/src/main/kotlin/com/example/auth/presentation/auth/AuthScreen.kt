@@ -87,8 +87,6 @@ fun AuthScreen(
             }
         )
     }
-
-
 }
 
 @Composable
@@ -106,9 +104,12 @@ private fun AuthScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         var tabState by remember { mutableIntStateOf(0) }
-        val titles = listOf("Вход", "Регистрация")
+        val titles = listOf(
+            stringResource(R.string.entrance),
+            stringResource(R.string.registration)
+        )
 
-        Text(text = "T-Prep", style = MaterialTheme.typography.displayLarge)
+        Text(text = stringResource(R.string.t_prep), style = MaterialTheme.typography.displayLarge)
 
         Spacer(modifier = Modifier.height(34.dp))
 
@@ -132,7 +133,7 @@ private fun AuthScreenContent(
                             slideOutHorizontally { width -> width } + fadeOut()
                 }.using(SizeTransform(clip = false))
             },
-            label = "Tab switch animation"
+            label = stringResource(R.string.tab_switch_animation)
         ) { currentTab ->
             when (currentTab) {
                 0 -> {
@@ -182,11 +183,11 @@ private fun ButtonWithIcon(
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-            contentDescription = "Continue",
+            contentDescription = stringResource(R.string.next_description),
             modifier = Modifier.size(ButtonDefaults.IconSize)
         )
         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-        Text(text = "Продолжить")
+        Text(text = stringResource(R.string.next))
     }
 }
 
@@ -217,7 +218,7 @@ private fun SignupTabContent(
 
         AuthTextField(
             value = email,
-            onValueChange =  {
+            onValueChange = {
                 email = it
                 emailError = if (!isEmailValid(it)) "Введите корректную электронную почту" else ""
             },
@@ -248,7 +249,7 @@ private fun SignupTabContent(
                 IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                     Icon(
                         imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Toggle password visibility"
+                        contentDescription = stringResource(R.string.toggle_password_visibility)
                     )
                 }
             },
@@ -318,7 +319,7 @@ private fun LoginTabContent(
                 IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                     Icon(
                         imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Toggle password visibility"
+                        contentDescription = stringResource(R.string.toggle_password_visibility)
                     )
                 }
             },

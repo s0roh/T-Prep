@@ -16,13 +16,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.feature.reminder.R
 
 @Composable
 internal fun TimePickerDialog(
-    title: String = "Select Time",
+    title: String = stringResource(R.string.select_time),
     onCancel: () -> Unit,
     onConfirm: () -> Unit,
     toggle: @Composable () -> Unit = {},
@@ -63,8 +65,8 @@ internal fun TimePickerDialog(
                 ) {
                     toggle()
                     Spacer(modifier = Modifier.weight(1f))
-                    TextButton(onClick = onCancel) { Text("Cancel") }
-                    TextButton(onClick = onConfirm) { Text("OK") }
+                    TextButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
+                    TextButton(onClick = onConfirm) { Text(stringResource(R.string.ok)) }
                 }
             }
         }

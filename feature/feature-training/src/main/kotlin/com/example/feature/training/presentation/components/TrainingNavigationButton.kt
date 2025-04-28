@@ -6,7 +6,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.feature.training.R
 
 @Composable
 internal fun TrainingNavigationButton(
@@ -19,9 +21,9 @@ internal fun TrainingNavigationButton(
     onSubmit: (() -> Unit)? = null,
 ) {
     val buttonText = when {
-        isAnswered -> "Далее"
-        onSubmit != null && userInput.isNotBlank() -> "Проверить ответ"
-        else -> "Пропустить"
+        isAnswered -> stringResource(R.string.next)
+        onSubmit != null && userInput.isNotBlank() -> stringResource(R.string.check_answer)
+        else -> stringResource(R.string.skip)
     }
 
     Button(

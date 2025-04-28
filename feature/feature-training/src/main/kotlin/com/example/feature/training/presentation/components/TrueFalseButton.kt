@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,7 +33,7 @@ internal fun TrueFalseButtons(
     correctAnswer: Boolean,
     shakeOffset: Animatable<Float, AnimationVector1D>,
     onAnswerSelected: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
@@ -41,7 +42,7 @@ internal fun TrueFalseButtons(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         TrueFalseButtonItem(
-            text = "ЛОЖЬ",
+            text = stringResource(R.string.false_answer),
             isAnswered = isAnswered,
             selectedAnswer = selectedAnswer,
             correctAnswer = correctAnswer,
@@ -51,7 +52,7 @@ internal fun TrueFalseButtons(
                 .weight(1f)
         )
         TrueFalseButtonItem(
-            text = "ИСТИНА",
+            text = stringResource(R.string.true_answer),
             isAnswered = isAnswered,
             selectedAnswer = selectedAnswer,
             correctAnswer = correctAnswer,
@@ -70,11 +71,21 @@ private fun TrueFalseButtonItem(
     selectedAnswer: Boolean?,
     correctAnswer: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val containerColor =
-        getContainerColor(isAnswered, selectedAnswer, text == "ИСТИНА", correctAnswer)
-    val borderColor = getBorderColor(isAnswered, selectedAnswer, text == "ИСТИНА", correctAnswer)
+        getContainerColor(
+            isAnswered,
+            selectedAnswer,
+            text == stringResource(R.string.true_answer),
+            correctAnswer
+        )
+    val borderColor = getBorderColor(
+        isAnswered,
+        selectedAnswer,
+        text == stringResource(R.string.true_answer),
+        correctAnswer
+    )
 
     Column(
         modifier = modifier,
@@ -98,13 +109,14 @@ private fun TrueFalseButtonItem(
             ) {
                 Icon(
                     painter = painterResource(
-                        id = if (text == "ИСТИНА") R.drawable.ic_true
+                        id = if (text == stringResource(R.string.true_answer)) R.drawable.ic_true
                         else R.drawable.ic_false
                     ),
                     contentDescription = null,
-                    tint = if (text == "ИСТИНА") MaterialTheme.colorScheme.primary
+                    tint = if (text == stringResource(R.string.true_answer)) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.error,
-                    modifier = if (text == "ИСТИНА") Modifier.size(100.dp) else Modifier.size((70.dp))
+                    modifier = if (text == stringResource(R.string.true_answer)) Modifier.size(100.dp)
+                    else Modifier.size((70.dp))
                 )
             }
         }

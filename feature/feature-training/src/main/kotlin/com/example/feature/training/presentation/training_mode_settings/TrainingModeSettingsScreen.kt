@@ -19,11 +19,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
 import com.example.database.models.TrainingMode
+import com.example.feature.training.R
 import com.example.training.domain.entity.TrainingModes
 import com.example.feature.training.presentation.util.updateMode
 
@@ -47,7 +49,7 @@ fun TrainingModeSettingsScreen(
     Scaffold(
         topBar = {
             CenteredTopAppBar(
-                title = "Настройки",
+                title = stringResource(R.string.settings),
                 navigationIconType = NavigationIconType.BACK,
                 onNavigationClick = {
                     viewModel.saveModeSettings()
@@ -64,7 +66,7 @@ fun TrainingModeSettingsScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 TrainingModeSwitch(
-                    label = "Режим выбора ответов",
+                    label = stringResource(R.string.answer_selection_mode),
                     checked = modes.modes.contains(TrainingMode.MULTIPLE_CHOICE),
                     onCheckedChange = { isChecked ->
                         val updatedModes = updateMode(modes, TrainingMode.MULTIPLE_CHOICE, isChecked)
@@ -74,7 +76,7 @@ fun TrainingModeSettingsScreen(
                 )
 
                 TrainingModeSwitch(
-                    label = "Режим истина / ложь",
+                    label = stringResource(R.string.true_false_mode),
                     checked = modes.modes.contains(TrainingMode.TRUE_FALSE),
                     onCheckedChange = { isChecked ->
                         val updatedModes = updateMode(modes, TrainingMode.TRUE_FALSE, isChecked)
@@ -84,7 +86,7 @@ fun TrainingModeSettingsScreen(
                 )
 
                 TrainingModeSwitch(
-                    label = "Ввод части ответа",
+                    label = stringResource(R.string.part_of_answer_mode),
                     checked = modes.modes.contains(TrainingMode.FILL_IN_THE_BLANK),
                     onCheckedChange = { isChecked ->
                         val updatedModes = updateMode(modes, TrainingMode.FILL_IN_THE_BLANK, isChecked)

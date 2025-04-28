@@ -49,17 +49,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
-import com.example.common.R
 import com.example.common.ui.AppButton
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
+import com.example.feature.localdecks.R
 import com.example.feature.localdecks.presentation.components.TextFieldWithError
 import com.example.feature.localdecks.presentation.util.CropImageContract
 import com.example.feature.localdecks.presentation.util.launchCrop
@@ -107,7 +109,8 @@ fun AddEditCardScreen(
     Scaffold(
         topBar = {
             CenteredTopAppBar(
-                title = if (cardId == null) "Создание карточки" else "Изменить карточку",
+                title = if (cardId == null) stringResource(R.string.card_creation)
+                else stringResource(R.string.edit_card),
                 navigationIconType = NavigationIconType.BACK,
                 onNavigationClick = onBackClick
             )
@@ -160,7 +163,7 @@ private fun AddEditCardForm(
             TextFieldWithError(
                 value = screenState.question,
                 onValueChange = onQuestionChange,
-                label = "Вопрос",
+                labelResId = R.string.question,
                 error = screenState.questionError,
                 imeAction = ImeAction.Next,
                 onImeAction = { focusManager.moveFocus(FocusDirection.Down) },
@@ -180,11 +183,11 @@ private fun AddEditCardForm(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_image),
+                            painter = painterResource(com.example.common.R.drawable.ic_image),
                             contentDescription = null
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Добавить картинку")
+                        Text(stringResource(R.string.add_image))
                     }
                 } else {
                     CardPicture(
@@ -198,7 +201,7 @@ private fun AddEditCardForm(
             TextFieldWithError(
                 value = screenState.answer,
                 onValueChange = onAnswerChange,
-                label = "Ответ",
+                labelResId = R.string.answer,
                 error = screenState.answerError,
                 imeAction = ImeAction.Done,
                 onImeAction = {
@@ -223,7 +226,8 @@ private fun AddEditCardForm(
         }
 
         AppButton(
-            title = if (cardId == null) "Добавить карточку" else "Изменить карточку",
+            title = if (cardId == null) stringResource(R.string.add_card)
+            else stringResource(R.string.edit_card),
             onClick = onSave,
             enabled = screenState.isSaveButtonEnabled,
             modifier = Modifier
@@ -259,8 +263,20 @@ private fun WrongAnswersSection(
                 onClick = onAddWrongAnswer,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Добавить неправильный ответ")
+                Text(stringResource(R.string.add_wrong_answer))
             }
+        }
+
+        if (wrongAnswers.isEmpty()) {
+            Text(
+                text = stringResource(R.string.wrong_answers_hint),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+            )
         }
     }
 }
@@ -278,7 +294,7 @@ private fun WrongAnswerField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text("Неправильный ответ") },
+            label = { Text(stringResource(R.string.wrong_answer)) },
             modifier = Modifier.weight(1f)
         )
 
@@ -287,8 +303,8 @@ private fun WrongAnswerField(
             modifier = Modifier.size(24.dp)
         ) {
             Icon(
-                painter = painterResource(R.drawable.ic_trash),
-                contentDescription = "Удалить",
+                painter = painterResource(com.example.common.R.drawable.ic_trash),
+                contentDescription = stringResource(R.string.delete),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -325,14 +341,14 @@ fun CardPicture(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_trash),
-                        contentDescription = "Удалить",
+                        painter = painterResource(com.example.common.R.drawable.ic_trash),
+                        contentDescription = stringResource(R.string.delete),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Удалить",
+                        text = stringResource(R.string.delete),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.W500)
                     )
@@ -347,7 +363,7 @@ fun CardPicture(
                 .memoryCachePolicy(CachePolicy.DISABLED)
                 .diskCachePolicy(CachePolicy.DISABLED)
                 .build(),
-            contentDescription = "Картинка карточки",
+            contentDescription = stringResource(R.string.image_of_card),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()

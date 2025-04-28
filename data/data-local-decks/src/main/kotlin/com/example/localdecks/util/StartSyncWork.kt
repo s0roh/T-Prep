@@ -9,6 +9,15 @@ import androidx.work.WorkManager
 import com.example.localdecks.sync.SyncWorker
 import java.util.UUID
 
+/**
+ * Запускает однократную задачу синхронизации данных через WorkManager.
+ *
+ * - Задача будет выполнена только при наличии сетевого подключения.
+ * - Если задача с именем "SyncWork" уже запущена или запланирована, новая задача не будет создана (ExistingWorkPolicy.KEEP).
+ *
+ * @param context Контекст приложения.
+ * @return UUID созданной задачи синхронизации.
+ */
 fun startSyncWork(context: Context): UUID {
     val constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)

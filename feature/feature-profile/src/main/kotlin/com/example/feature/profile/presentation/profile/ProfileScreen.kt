@@ -33,9 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.LoadingState
+import com.example.feature.profile.R
 import com.example.feature.profile.presentation.components.CropImageContract
 import com.example.feature.profile.presentation.components.ProfileHeader
 import com.example.feature.profile.presentation.components.StatisticsSection
@@ -101,7 +103,7 @@ fun ProfileScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Настройки"
+                    contentDescription = stringResource(R.string.settings)
                 )
             }
         }
@@ -152,7 +154,7 @@ private fun ProfileScreenContent(
 
         Spacer(modifier = Modifier.height(41.dp))
 
-        StatisticsSection(state)
+        StatisticsSection(state = state)
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -167,11 +169,11 @@ private fun ProfileScreenContent(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                contentDescription = "Logout",
+                contentDescription = stringResource(R.string.logout),
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-            Text(text = "Выйти")
+            Text(text = stringResource(R.string.exit))
         }
     }
 }
@@ -184,13 +186,13 @@ private fun ImageSourceDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Выберите источник изображения") },
+        title = { Text(stringResource(R.string.select_image_source)) },
         confirmButton = {
             TextButton(onClick = {
                 onDismiss()
                 onGalleryClick()
             }) {
-                Text("Галерея")
+                Text(stringResource(R.string.gallery))
             }
         },
         dismissButton = {
@@ -198,7 +200,7 @@ private fun ImageSourceDialog(
                 onDismiss()
                 onCameraClick()
             }) {
-                Text("Камера")
+                Text(stringResource(R.string.camera))
             }
         }
     )

@@ -41,6 +41,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults.InputField
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -65,8 +66,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.common.ui.DeckCard
 import com.example.common.ui.entity.DeckUiModel
 import com.example.database.models.Source
-import com.example.decks.R
-import com.example.feature.decks.presentation.components.AppPullToRefreshBox
+import com.example.feature.decks.R
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -93,13 +93,12 @@ fun PublicDecksScreen(
 
     val animatedPadding by animateDpAsState(
         targetValue = if (searchBarExpanded.value) 0.dp else 24.dp,
-        label = "searchBarPadding"
+        label = stringResource(R.string.searchbarpadding)
     )
 
-    AppPullToRefreshBox(
+    PullToRefreshBox(
         isRefreshing = decksFlow.loadState.refresh is LoadState.Loading,
         onRefresh = { decksFlow.refresh() },
-        enabled = !searchBarExpanded.value
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -149,11 +148,7 @@ fun PublicDecksScreen(
                 onRetry = { decksFlow.retry() }
             ) {
                 LazyColumn(
-                    modifier = Modifier.padding(
-                        bottom = paddingValues.calculateBottomPadding(),
-                        start = 24.dp,
-                        end = 24.dp
-                    ),
+                    modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                     state = listState,
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
@@ -186,7 +181,9 @@ fun PublicDecksScreen(
                                         onScheduleClick(deck.id, deck.name, source)
                                     }
                                 },
-                                modifier = Modifier.animateItem()
+                                modifier = Modifier
+                                    .padding(horizontal = 24.dp)
+                                    .animateItem()
                             )
                         }
                     }
@@ -219,7 +216,7 @@ private fun SortAndCategoryFilters(
                     targetValue = if (selectedSortType == sortType)
                         MaterialTheme.colorScheme.secondaryContainer
                     else MaterialTheme.colorScheme.surface,
-                    label = "SortTypeBackground"
+                    label = stringResource(R.string.sorttypebackground)
                 )
 
                 AssistChip(
@@ -228,8 +225,8 @@ private fun SortAndCategoryFilters(
                         Crossfade(targetState = sortType) { targetSortType ->
                             Text(
                                 text = when (targetSortType) {
-                                    SortType.LIKES -> "По лайкам"
-                                    SortType.TRAININGS -> "По тренировкам"
+                                    SortType.LIKES -> stringResource(R.string.by_likes)
+                                    SortType.TRAININGS -> stringResource(R.string.by_train)
                                 }
                             )
                         }
@@ -242,7 +239,10 @@ private fun SortAndCategoryFilters(
                         if (selectedSortType == sortType) {
                             Crossfade(targetState = selectedSortType) { selected ->
                                 if (selected == sortType) {
-                                    Icon(Icons.Filled.Check, contentDescription = "Выбрано")
+                                    Icon(
+                                        Icons.Filled.Check,
+                                        contentDescription = stringResource(R.string.selected_mark)
+                                    )
                                 }
                             }
                         }
@@ -260,7 +260,7 @@ private fun SortAndCategoryFilters(
                         updateCategory(DeckCategory.LIKED)
                     }
                 },
-                label = { Text("Избранное") },
+                label = { Text(stringResource(R.string.favorites)) },
                 colors = AssistChipDefaults.assistChipColors(
                     if (selectedCategory == DeckCategory.LIKED)
                         MaterialTheme.colorScheme.secondaryContainer
@@ -271,7 +271,7 @@ private fun SortAndCategoryFilters(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Favorite Icon",
+                        contentDescription = stringResource(R.string.favorite_icon),
                         tint = if (selectedCategory == DeckCategory.LIKED) {
                             MaterialTheme.colorScheme.onSecondaryContainer
                         } else {
@@ -322,13 +322,13 @@ private fun EmptyContent(modifier: Modifier = Modifier) {
     ) {
         Icon(
             imageVector = Icons.Default.Inbox,
-            contentDescription = "No Data",
+            contentDescription = stringResource(R.string.no_data),
             modifier = Modifier.size(64.dp),
             tint = Color.Gray
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Нет результатов",
+            text = stringResource(R.string.no_results),
             style = MaterialTheme.typography.bodyLarge,
             color = Color.Gray,
             textAlign = TextAlign.Center
@@ -410,7 +410,7 @@ private fun SearchBarComponent(
             },
             expanded = searchBarExpanded.value,
             onExpandedChange = { searchBarExpanded.value = it },
-            placeholder = { Text("Поиск колод") },
+            placeholder = { Text(stringResource(R.string.search_decks)) },
             leadingIcon = {
                 if (searchBarExpanded.value) {
                     IconButton(
@@ -421,7 +421,12 @@ private fun SearchBarComponent(
                             }
                         }
                     ) {
-                        Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Назад")
+                        Icon(
+                            Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = stringResource(
+                                R.string.back
+                            )
+                        )
                     }
                 } else {
                     Icon(Icons.Default.Search, contentDescription = null)
@@ -434,7 +439,10 @@ private fun SearchBarComponent(
                     exit = fadeOut()
                 ) {
                     IconButton(onClick = { query.value = "" }) {
-                        Icon(Icons.Default.Close, contentDescription = "Очистить поиск")
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = stringResource(R.string.clear_search)
+                        )
                     }
                 }
             }
@@ -460,7 +468,7 @@ private fun SearchBarComponent(
         ) {
             val decksList = lazyPagingItems.itemSnapshotList.items
             if (decksList.isEmpty()) {
-                Text("Нет результатов", modifier = Modifier.padding(16.dp))
+                Text(text = stringResource(R.string.no_results), modifier = Modifier.padding(16.dp))
             } else {
                 LazyColumn(
                     modifier = Modifier.padding(horizontal = 24.dp),

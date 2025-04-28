@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -77,7 +78,7 @@ fun DeckDetailsStatisticScreen(
 
     when (val currentState = screenState.value) {
         is DeckDetailsStatisticScreenState.Error -> {
-            ErrorState(message = "Не удалось загрузить данные")
+            ErrorState(message = stringResource(R.string.failed_to_load_data))
         }
 
         is DeckDetailsStatisticScreenState.Loading -> {
@@ -182,6 +183,9 @@ private fun ChartWithDialog(
 
 @Composable
 private fun TrainingSuccessLineChart(trainingData: List<Double>) {
+    val statisticStartColor = colorResource(id = R.color.color_statistic_gradient_start)
+    val statisticEndColor = colorResource(id = R.color.color_statistic_gradient_end)
+
     LineChart(
         modifier = Modifier
             .fillMaxSize()
@@ -214,8 +218,8 @@ private fun TrainingSuccessLineChart(trainingData: List<Double>) {
                 Line(
                     label = "Процент успеха",
                     values = trainingData,
-                    color = SolidColor(Color(0xFF23af92)),
-                    firstGradientFillColor = Color(0xFF2BC0A1).copy(alpha = .5f),
+                    color = SolidColor(statisticStartColor),
+                    firstGradientFillColor = statisticEndColor.copy(alpha = .5f),
                     secondGradientFillColor = Color.Transparent,
                     strokeAnimationSpec = tween(2000, easing = EaseInOutCubic),
                     gradientAnimationDelay = 1000,
@@ -228,6 +232,13 @@ private fun TrainingSuccessLineChart(trainingData: List<Double>) {
 
 @Composable
 private fun TrainingModesColumnChart(trainingData: List<TrainingModeStats>) {
+    val totalGradientStart = colorResource(id = R.color.color_total_gradient_start)
+    val totalGradientEnd = colorResource(id = R.color.color_total_gradient_end)
+    val correctGradientStart = colorResource(id = R.color.color_correct_gradient_start)
+    val correctGradientEnd = colorResource(id = R.color.color_correct_gradient_end)
+    val incorrectGradientStart = colorResource(id = R.color.color_incorrect_gradient_start)
+    val incorrectGradientEnd = colorResource(id = R.color.color_incorrect_gradient_end)
+
     ColumnChart(
         modifier = Modifier
             .height(300.dp)
@@ -272,21 +283,21 @@ private fun TrainingModesColumnChart(trainingData: List<TrainingModeStats>) {
                             label = "Всего",
                             value = data.totalAttempts,
                             color = Brush.verticalGradient(
-                                colors = listOf(Color(0xFF2E37C1), Color(0xFF4B8DFB))
+                                colors = listOf(totalGradientStart, totalGradientEnd)
                             )
                         ),
                         Bars.Data(
                             label = "Успешно",
                             value = data.correctAttempts,
                             color = Brush.verticalGradient(
-                                colors = listOf(Color(0xFF1E7F4B), Color(0xFF3DDC84))
+                                colors = listOf(correctGradientStart, correctGradientEnd)
                             )
                         ),
                         Bars.Data(
                             label = "Провалено",
                             value = data.incorrectAttempts,
                             color = Brush.verticalGradient(
-                                colors = listOf(Color(0xFFc92724), Color(0xFFea5086))
+                                colors = listOf(incorrectGradientStart, incorrectGradientEnd)
                             )
                         )
                     ),

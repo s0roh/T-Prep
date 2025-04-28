@@ -1,5 +1,6 @@
 package com.example.feature.profile.presentation.settings
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,23 +12,41 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
+import com.example.common.util.playSound
+import com.example.common.util.vibrate
 import com.example.feature.profile.R
 
+@SuppressLint("MissingPermission")
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
 ) {
     val viewModel: SettingsViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                SettingsUiEvent.PlaySound -> playSound(
+                    context = context,
+                    soundResId = R.raw.correct
+                )
+                SettingsUiEvent.PlayVibration -> vibrate(context)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {

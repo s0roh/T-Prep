@@ -7,6 +7,7 @@ import com.example.feature.profile.domain.IsVibrationEnabledUseCase
 import com.example.feature.profile.domain.ToggleSoundUseCase
 import com.example.feature.profile.domain.ToggleVibrationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -21,6 +22,9 @@ internal class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<SettingsScreenState>(SettingsScreenState())
+        private set
+
+    var uiEvent = MutableSharedFlow<SettingsUiEvent>()
         private set
 
     init {
@@ -39,6 +43,10 @@ internal class SettingsViewModel @Inject constructor(
             toggleVibrationUseCase()
             val updated = isVibrationEnabledUseCase()
             screenState.update { it.copy(isVibrationEnabled = updated) }
+
+            if (updated) {
+                uiEvent.emit(SettingsUiEvent.PlayVibration)
+            }
         }
     }
 
@@ -47,6 +55,10 @@ internal class SettingsViewModel @Inject constructor(
             toggleSoundUseCase()
             val updated = isSoundEnabledUseCase()
             screenState.update { it.copy(isSoundEnabled = updated) }
+
+            if (updated) {
+                uiEvent.emit(SettingsUiEvent.PlaySound)
+            }
         }
     }
 }

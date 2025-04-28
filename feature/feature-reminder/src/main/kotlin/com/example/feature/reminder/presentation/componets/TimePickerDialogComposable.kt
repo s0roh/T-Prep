@@ -1,5 +1,6 @@
 package com.example.feature.reminder.presentation.componets
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Keyboard
@@ -16,11 +17,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
+import com.example.feature.reminder.R
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TimePickerDialogComposable(
@@ -37,9 +41,9 @@ internal fun TimePickerDialogComposable(
     Box {
         TimePickerDialog(
             title = if (showPicker.value) {
-                "Select Time"
+                stringResource(R.string.select_time)
             } else {
-                "Enter Time"
+                stringResource(R.string.enter_time)
             },
             onCancel = onDismissRequest,
             onConfirm = {
@@ -65,9 +69,9 @@ internal fun TimePickerDialogComposable(
                             icon,
                             contentDescription =
                             if (showPicker.value) {
-                                "Switch to Text Input"
+                                stringResource(R.string.switch_to_text_input)
                             } else {
-                                "Switch to Touch Input"
+                                stringResource(R.string.switch_to_touch_input)
                             }
                         )
                     }

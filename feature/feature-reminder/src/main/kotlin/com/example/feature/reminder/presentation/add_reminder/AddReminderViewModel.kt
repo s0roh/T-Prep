@@ -110,13 +110,17 @@ internal class AddReminderViewModel @Inject constructor(
         val dateTimeInMillis = combineDateAndTime(selectedDate, selectedTime)
             ?: return "Выберите дату и время"
 
+        if (dateTimeInMillis < System.currentTimeMillis()) {
+            return "Нельзя установить напоминание на прошедшее время"
+        }
+
         val reminder = createReminderIfValid(deckId, source, dateTimeInMillis, deckName)
             ?: return "Напоминание на это время уже установлено"
 
         val reminderId = insertReminder(reminder)
         scheduleReminder(reminderId, dateTimeInMillis)
 
-        return null
+        return "Тренировка успешно запланирована"
     }
 
     companion object {

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">T-Prep</string>
+    <string name="review">Обзор</string>
+    <string name="decks">Колоды</string>
+    <string name="history">История</string>
+    <string name="profile">Профиль</string>
 </resources>

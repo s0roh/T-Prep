@@ -53,6 +53,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -63,6 +64,7 @@ import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
 import com.example.common.util.getFormattedTime
 import com.example.database.models.TrainingMode
+import com.example.feature.training.R
 import com.example.training.domain.entity.TrainingError
 
 @Composable
@@ -106,7 +108,7 @@ fun TrainingErrorsScreen(
     Scaffold(
         topBar = {
             CenteredTopAppBar(
-                title = "Ошибки тренировки",
+                title = stringResource(R.string.training_mistakes),
                 subtitle = getFormattedTime(trainingSessionTime),
                 navigationIconType = NavigationIconType.BACK,
                 onNavigationClick = onBackClick
@@ -151,7 +153,7 @@ fun TrainingErrorsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Previous",
+                        contentDescription = stringResource(R.string.previous),
                         modifier = Modifier.padding(start = 32.dp)
                     )
                 }
@@ -165,7 +167,7 @@ fun TrainingErrorsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Next",
+                        contentDescription = stringResource(R.string.next),
                         modifier = Modifier.padding(end = 32.dp)
                     )
                 }
@@ -192,7 +194,7 @@ private fun AnimatedErrorContent(
                         slideOutHorizontally { width -> width } + fadeOut()
             }.using(SizeTransform(clip = false))
         },
-        label = "Error Animation"
+        label = stringResource(R.string.error_animation)
     ) { error ->
         error?.let {
             val pictureUri = errorPictures[it.cardId]
@@ -245,7 +247,7 @@ private fun ErrorItem(error: TrainingError, pictureUri: Uri?, pictureErrorMessag
                         .memoryCachePolicy(CachePolicy.DISABLED)
                         .diskCachePolicy(CachePolicy.DISABLED)
                         .build(),
-                    contentDescription = "Картинка карточки",
+                    contentDescription = stringResource(R.string.image_of_card),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -263,7 +265,7 @@ private fun ErrorItem(error: TrainingError, pictureUri: Uri?, pictureErrorMessag
                 error.answer != error.blankAnswer
             ) {
                 AnswerSection(
-                    title = "Полный ответ:",
+                    title = stringResource(R.string.full_answer),
                     answer = error.answer,
                     containerColor = MaterialTheme.colorScheme.secondaryContainer
                 )
@@ -271,19 +273,19 @@ private fun ErrorItem(error: TrainingError, pictureUri: Uri?, pictureErrorMessag
             }
 
             AnswerSection(
-                title = "Правильный ответ:",
+                title = stringResource(R.string.correct_answer),
                 answer = error.blankAnswer?.takeIf { it.isNotBlank() } ?: error.answer,
                 containerColor = MaterialTheme.colorScheme.secondaryContainer
             )
             Spacer(modifier = Modifier.height(19.dp))
 
-            val userAnswer = if (error.userAnswer.isBlank()) "Вы не ответили на данный вопрос"
+            val userAnswer = if (error.userAnswer.isBlank()) stringResource(R.string.dont_answered)
             else error.userAnswer
 
             when (error.trainingMode) {
                 TrainingMode.MULTIPLE_CHOICE -> {
                     AnswerSection(
-                        title = "Ваш ответ:",
+                        title = stringResource(R.string.your_answer),
                         answer = userAnswer,
                         containerColor = MaterialTheme.colorScheme.errorContainer
                     )
@@ -292,7 +294,7 @@ private fun ErrorItem(error: TrainingError, pictureUri: Uri?, pictureErrorMessag
                 TrainingMode.TRUE_FALSE -> {}
                 TrainingMode.FILL_IN_THE_BLANK -> {
                     AnswerSection(
-                        title = "Ваш ответ:",
+                        title = stringResource(R.string.your_answer),
                         answer = userAnswer,
                         containerColor = MaterialTheme.colorScheme.errorContainer
                     )
@@ -321,7 +323,7 @@ private fun AnswerSection(title: String, answer: String, containerColor: Color) 
 @Composable
 private fun NoErrorMessage() {
     Text(
-        text = "Нет данных",
+        text = stringResource(R.string.no_data),
         style = MaterialTheme.typography.bodyLarge
     )
 }

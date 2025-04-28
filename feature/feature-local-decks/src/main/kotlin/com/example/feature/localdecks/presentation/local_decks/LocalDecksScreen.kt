@@ -27,10 +27,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.DeckCard
+import com.example.feature.localdecks.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +54,7 @@ fun LocalDecksScreen(
 
     Scaffold(
         topBar = {
-            CenteredTopAppBar(title = "Мои колоды")
+            CenteredTopAppBar(title = stringResource(R.string.my_decks))
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -62,11 +64,11 @@ fun LocalDecksScreen(
                 icon = {
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = "Add deck",
+                        contentDescription = stringResource(R.string.add_deck),
                     )
                 },
                 text = {
-                    Text(text = "Создать колоду")
+                    Text(text = stringResource(R.string.create_deck))
                 },
                 containerColor = MaterialTheme.colorScheme.primary
             )
@@ -81,9 +83,7 @@ fun LocalDecksScreen(
         ) {
             LazyColumn(
                 state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp),
+                modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 items(
@@ -92,7 +92,9 @@ fun LocalDecksScreen(
                 ) { deck ->
                     DeckCard(
                         deck = deck,
-                        modifier = Modifier.animateItem(),
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp)
+                            .animateItem(),
                         onDeckClickListener = { onDeckClick(deck.id) },
                         onTrainClick = onTrainClick,
                         onScheduleClick = { onScheduleClick(deck.id, deck.name) },

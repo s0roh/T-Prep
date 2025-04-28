@@ -28,12 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.CenteredTopAppBar
+import com.example.feature.history.R
 import com.example.feature.history.util.getFormattedDateForItem
 import com.example.feature.history.util.groupHistoryByDate
 import com.example.history.domain.entity.TrainingHistoryItem
@@ -51,7 +53,7 @@ fun HistoryScreen(
     }
 
     Scaffold(
-        topBar = { CenteredTopAppBar(title = "История") }
+        topBar = { CenteredTopAppBar(title = stringResource(R.string.history)) }
     ) { innerPadding ->
         val combinedPadding = PaddingValues(
             start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
@@ -83,7 +85,7 @@ private fun EmptyHistoryMessage(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "У вас пока нет истории тренировок",
+            text = stringResource(R.string.you_dont_have_any_training_history_yet),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
