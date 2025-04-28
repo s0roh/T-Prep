@@ -22,10 +22,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.common.R
 import com.example.common.ui.AppElevatedButton
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
@@ -34,6 +34,7 @@ import com.example.feature.training.presentation.components.AnimatedDonutChart
 import com.example.feature.training.presentation.components.ChartSegment
 import com.example.common.util.getCardWordForm
 import com.example.common.util.getFormattedTime
+import com.example.feature.training.R
 
 @Composable
 fun TrainingResultsScreen(
@@ -104,9 +105,9 @@ private fun TrainingResultsContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(26.dp))
-            StatisticRow(title = "Всего пройдено", count = state.totalAnswers)
+            StatisticRow(title = stringResource(R.string.total_completed), count = state.totalAnswers)
             Spacer(modifier = Modifier.height(12.dp))
-            StatisticRow(title = "Правильных", count = state.correctAnswers)
+            StatisticRow(title = stringResource(R.string.correct), count = state.correctAnswers)
             Spacer(modifier = Modifier.height(60.dp))
 
             AnimatedDonutChart(
@@ -127,10 +128,12 @@ private fun TrainingResultsContent(
 
             if (state.errorsList.isNotEmpty()) {
                 AppElevatedButton(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    title = "Посмотреть ошибки",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    title = stringResource(R.string.see_wrong_answers),
                     shouldShowIcon = true,
-                    iconResId = R.drawable.ic_loupe,
+                    iconResId = com.example.common.R.drawable.ic_loupe,
                     onClick = { onErrorsClick(trainingSessionId) }
                 )
             }
@@ -138,9 +141,9 @@ private fun TrainingResultsContent(
             if (cameFromHistoryScreen && deckId != null && source != null) {
                 AppElevatedButton(
                     modifier = Modifier.fillMaxWidth(),
-                    title = "Перейти к колоде",
+                    title = stringResource(R.string.go_to_deck),
                     shouldShowIcon = true,
-                    iconResId = R.drawable.ic_inbox,
+                    iconResId = com.example.common.R.drawable.ic_inbox,
                     onClick = { onNavigateToDeck(deckId, source) }
                 )
             }
@@ -151,7 +154,7 @@ private fun TrainingResultsContent(
 @Composable
 private fun NextTrainingReminderInfo(time: Long) {
     Text(
-        text = "Следующая тренировка",
+        text = stringResource(R.string.next_train),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )

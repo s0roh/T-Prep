@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -122,7 +123,7 @@ private fun DeckDropdownMenu(
         onDismissRequest = onDismiss,
     ) {
         DropdownMenuItem(
-            text = { Text("Тренироваться") },
+            text = { Text(stringResource(R.string.go_train)) },
             onClick = onTrainClick,
             leadingIcon = {
                 Icon(
@@ -132,7 +133,7 @@ private fun DeckDropdownMenu(
             }
         )
         DropdownMenuItem(
-            text = { Text("Запланировать тренировку") },
+            text = { Text(stringResource(R.string.schedule_training_session)) },
             onClick = onScheduleClick,
             leadingIcon = {
                 Icon(
@@ -143,7 +144,7 @@ private fun DeckDropdownMenu(
         )
         onDeleteClick?.let {
             DropdownMenuItem(
-                text = { Text("Удалить") },
+                text = { Text(stringResource(R.string.delete)) },
                 onClick = { onDeleteClick(deck.id, deck.name) },
                 leadingIcon = {
                     Icon(
@@ -198,7 +199,7 @@ private fun DeckVisibility(deck: DeckUiModel) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = if (deck.isPublic) "Публичная" else "Приватная",
+            text = if (deck.isPublic) stringResource(R.string.public_deck) else stringResource(R.string.private_deck),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(bottom = 4.dp)
         )

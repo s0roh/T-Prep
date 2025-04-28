@@ -1,16 +1,15 @@
 package com.example.common.domain.entity
 
 /**
- * Represents a deck of flashcards used in the spaced repetition system.
+ * Представляет собой колоду карточек.
  *
- * A Deck contains information about the deck itself and the cards associated with it.
- * This is the business model used for operations in the application, such as displaying deck information to the user
- * and managing cards within the deck.
+ * Колода содержит информацию о себе и связанных с ней карточках.
  *
- * @property id Unique identifier for the deck.
- * @property name The name of the deck.
- * @property isPublic Flag indicating whether the deck is public or private.
- * @property cards List of [Card] objects that belong to this deck.
+ * @property id Уникальный идентификатор колоды.
+ * @property name Название колоды.
+ * @property isPublic Флаг, указывающий, является ли колода публичной или приватной.
+ * @property authorId Идентификатор автора колоды (может отсутствовать для локальных колод).
+ * @property cards Список объектов [Card], принадлежащих этой колоде.
  */
 data class Deck(
     val id: String,

@@ -2,14 +2,16 @@ package com.example.common.domain.entity
 
 
 /**
- * Represents a flashcard used in the spaced repetition system.
+ * Представляет собой карточку.
  *
- * A Card contains the question displayed to the user and the correct answer. It is used
- * during the spaced repetition training to assess how well the user remembers the material.
+ * Карточка содержит вопрос, отображаемый пользователю, и правильный ответ на него.
  *
- * @property id Unique identifier for the card.
- * @property question The question displayed to the user.
- * @property answer The correct answer to the question.
+ * @property id Уникальный идентификатор карточки.
+ * @property question Вопрос, отображаемый пользователю.
+ * @property answer Правильный ответ на вопрос.
+ * @property wrongAnswers Список неправильных ответов (используется, например, в режиме выбора).
+ * @property attachment Идентификатор вложения, который можно использовать для загрузки с сервера.
+ * @property picturePath Путь к изображению, связанному с карточкой (может отсутствовать).
  */
 data class Card(
     val id: Int,

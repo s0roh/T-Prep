@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.feature.reminder.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,11 +33,11 @@ internal fun DatePickerDialogComposable(
                 },
                 enabled = confirmEnabled.value
             ) {
-                Text("OK")
+                Text(stringResource(R.string.ok))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismissRequest) { Text("Отмена") }
+            TextButton(onClick = onDismissRequest) { Text(stringResource(R.string.cancel)) }
         }
     ) {
         DatePicker(

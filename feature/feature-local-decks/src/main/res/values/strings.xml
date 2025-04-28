@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="wrong_answers_hint">Если не указаны неправильные ответы, они будут автоматически подбираться из других вопросов</string>
+    <string name="card_creation">Создание карточки</string>
+    <string name="edit_card">Изменить карточку</string>
+    <string name="add_image">Добавить картинку</string>
+    <string name="question">Вопрос</string>
+    <string name="answer">Ответ</string>
+    <string name="add_card">Добавить карточку</string>
+    <string name="add_wrong_answer">Добавить неправильный ответ</string>
+    <string name="wrong_answer">Неправильный ответ</string>
+    <string name="delete">Удалить</string>
+    <string name="image_of_card">Картинка карточки</string>
+    <string name="deck_creation">Создание колоды</string>
+    <string name="edit_deck">Изменить колоду</string>
+    <string name="name">Название</string>
+    <string name="add_deck">Добавить колоду</string>
+    <string name="create_deck">Создать колоду</string>
+    <string name="my_decks">Мои колоды</string>
+</resources>

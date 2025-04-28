@@ -31,6 +31,14 @@ class SyncUserDataRepositoryImpl @Inject constructor(
     private val preferences: AuthPreferences,
 ) : SyncUserDataRepository {
 
+    /**
+     * Синхронизирует данные пользователя:
+     * - Получает информацию о пользователе с сервера (ID, имя, email, список ID колод).
+     * - Сохраняет полученные данные в локальные Preferences.
+     * - Синхронизирует колоды пользователя и историю тренировок.
+     *
+     * Выполняется только при наличии валидного токена.
+     */
     override suspend fun syncUserData() {
         authRequestWrapper.executeWithAuth { token ->
             if (token.isNullOrEmpty()) {
@@ -69,6 +77,15 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Синхронизирует колоды пользователя с сервером:
+     * - Обновляет, восстанавливает или скрывает локальные колоды в зависимости от состояния на сервере.
+     * - Синхронизирует содержимое каждой колоды (карточки).
+     *
+     * @param userId Идентификатор пользователя.
+     * @param serverDeckIds Список идентификаторов колод пользователя на сервере.
+     * @param token Токен авторизации.
+     */
     private suspend fun syncDecksWithServer(
         userId: String,
         serverDeckIds: List<String>,
@@ -88,6 +105,14 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Обрабатывает колоды пользователя:
+     * - Восстанавливает скрытые колоды, если они не удалены на сервере.
+     * - Удаляет локальные колоды и их содержимое, если они больше не присутствуют на сервере.
+     *
+     * @param userDecks Список локальных колод пользователя.
+     * @param serverDeckIdsSet Набор идентификаторов колод, существующих на сервере.
+     */
     private suspend fun handleUserDecks(userDecks: List<DeckDBO>, serverDeckIdsSet: Set<String>) {
         userDecks.forEach { localDeck ->
             if (localDeck.serverDeckId in serverDeckIdsSet) {
@@ -111,6 +136,12 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Обрабатывает колоды, которые не принадлежат пользователю:
+     * - Скрывает колоды, если они не скрыты.
+     *
+     * @param nonUserDecks Список колод, не принадлежащих пользователю.
+     */
     private suspend fun handleNonUserDecks(nonUserDecks: List<DeckDBO>) {
         nonUserDecks.forEach { localDeck ->
             if (!localDeck.isHide) {
@@ -120,6 +151,15 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Синхронизирует колоду с сервером:
+     * - Обновляет или добавляет колоду, если она существует на сервере.
+     * - Синхронизирует карточки для указанной колоды.
+     *
+     * @param deckId Идентификатор колоды.
+     * @param userId Идентификатор пользователя.
+     * @param token Токен авторизации.
+     */
     private suspend fun syncDeckWithServer(deckId: String, userId: String, token: String) {
         val deckDto = apiService.getDeckById(deckId = deckId, authHeader = token)
         val existingDeck = database.deckDao.getAnyDeckByServerId(deckId)
@@ -150,6 +190,21 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         syncCardsWithServer(deckDto.cards, deckLocalId, deckId)
     }
 
+    /**
+     * Синхронизирует локальные карточки колоды с карточками, полученными с сервера.
+     *
+     * Для каждой карточки из сервера:
+     * - Если карточка уже существует локально, обновляет её данные (вопрос, ответ, варианты неправильных ответов).
+     * - Если изменилось вложение (attachment), загружает новое изображение и сохраняет его локально.
+     * - Если карточка отсутствует локально, создаёт новую запись в базе данных и загружает изображение, если оно есть.
+     *
+     * После обработки всех серверных карточек:
+     * - Удаляет локальные карточки, которых больше нет на сервере, вместе с их локальными изображениями.
+     *
+     * @param cards Список карточек [CardDto], полученных с сервера.
+     * @param localDeckId Идентификатор локальной колоды, к которой привязаны карточки.
+     * @param serverDeckId Идентификатор колоды на сервере, необходимый для загрузки изображений карточек.
+     */
     private suspend fun syncCardsWithServer(
         cards: List<CardDto>,
         localDeckId: String,
@@ -302,6 +357,15 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Синхронизирует историю тренировок между локальной базой данных и сервером.
+     *
+     * Сначала запрашивает новые записи истории с сервера, начиная с последней синхронизации,
+     * затем сохраняет полученные данные в локальную базу данных. После этого отправляет локальные несинхронизированные записи на сервер.
+     *
+     * @param userId Идентификатор пользователя.
+     * @param token Токен авторизации для запросов к серверу.
+     */
     private suspend fun syncTrainingHistoryWithServer(
         userId: String,
         token: String,
@@ -319,15 +383,34 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         syncLocalHistoryWithServer(userId, token)
     }
 
+    /**
+     * Получает время последней синхронизации истории тренировок для указанного пользователя.
+     *
+     * @param userId Идентификатор пользователя.
+     * @return Время последней синхронизации в секундах. Если синхронизация не выполнялась, возвращает 0.
+     */
     private suspend fun getLastSyncTime(userId: String): Int {
         return database.historyDao.getLastSyncTime(userId)
             ?.let { (it / MILLIS_IN_SECOND + ONE_SECOND).toInt() }
             ?: 0
     }
 
+    /**
+     * Выполняет запрос истории тренировок пользователя с сервера, начиная с указанного времени.
+     *
+     * @param fromTime Время в секундах, с которого нужно получить записи истории.
+     * @param token Токен авторизации.
+     * @return Ответ сервера с данными истории тренировок.
+     */
     private suspend fun fetchServerHistory(fromTime: Int, token: String) =
         apiService.getUserHistory(fromTime = fromTime, authHeader = token)
 
+    /**
+     * Обрабатывает полученные с сервера записи истории тренировок и сохраняет их в локальную базу данных.
+     *
+     * @param historyItems Список DTO-объектов [HistoryItemDto], представляющих записи истории.
+     * @param userId Идентификатор пользователя.
+     */
     private suspend fun processServerHistory(historyItems: List<HistoryItemDto>, userId: String) {
         if (historyItems.isEmpty()) {
             Log.d(TAG, "Сервер не вернул новые данные истории для синхронизации.")
@@ -339,6 +422,12 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         Log.d(TAG, "История с сервера успешно синхронизирована.")
     }
 
+    /**
+     * Сохраняет элемент истории тренировки в локальную базу данных.
+     *
+     * @param historyItem DTO-объект [HistoryItemDto], содержащий данные о тренировке.
+     * @param userId Идентификатор пользователя, которому принадлежит история.
+     */
     private suspend fun saveHistoryItem(historyItem: HistoryItemDto, userId: String) {
         val deck = database.deckDao.getDeckByServerId(historyItem.collectionId)
         val deckId = deck?.id ?: historyItem.collectionId
@@ -362,6 +451,13 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         historyItem.rightAnswers.forEach { saveCorrectAnswer(it, trainingSessionId, deckId) }
     }
 
+    /**
+     * Сохраняет информацию о неправильном ответе пользователя в базу данных.
+     *
+     * @param errorAnswer DTO-объект [ErrorAnswerDto], содержащий данные о неправильном ответе.
+     * @param trainingSessionId Идентификатор сессии тренировки, к которой относится ответ.
+     * @param deckId Идентификатор колоды, в которой находилась карточка.
+     */
     private suspend fun saveErrorAnswer(
         errorAnswer: ErrorAnswerDto,
         trainingSessionId: String,
@@ -383,6 +479,13 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         database.errorDao.insertError(errorAnswerDBO)
     }
 
+    /**
+     * Сохраняет информацию о правильном ответе пользователя в базу данных.
+     *
+     * @param correctAnswer DTO-объект [CorrectAnswerDto], содержащий данные о правильном ответе.
+     * @param trainingSessionId Идентификатор сессии тренировки, к которой относится ответ.
+     * @param deckId Идентификатор колоды, в которой находилась карточка.
+     */
     private suspend fun saveCorrectAnswer(
         correctAnswer: CorrectAnswerDto,
         trainingSessionId: String,
@@ -399,6 +502,11 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         database.correctAnswerDao.insertCorrectAnswer(correctAnswerDBO)
     }
 
+    /**
+     * Логирует ошибку при получении истории с сервера.
+     *
+     * @param response Ответ сервера с ошибкой [Response].
+     */
     private fun logSyncError(response: Response<*>) {
         Log.e(
             TAG,
@@ -408,6 +516,12 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         )
     }
 
+    /**
+     * Выполняет синхронизацию локальной истории тренировок пользователя с сервером.
+     *
+     * @param userId Идентификатор пользователя.
+     * @param token Токен авторизации для доступа к API.
+     */
     private suspend fun syncLocalHistoryWithServer(userId: String, token: String) {
         val historyToSync = database.historyDao.getHistoryToSync(userId)
         if (historyToSync.isEmpty()) {
@@ -420,6 +534,12 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         Log.d(TAG, "Синхронизация истории тренировок завершена.")
     }
 
+    /**
+     * Выполняет синхронизацию одной записи истории тренировки с сервером.
+     *
+     * @param history Локальная запись истории тренировки [HistoryDBO].
+     * @param token Токен авторизации для доступа к API.
+     */
     private suspend fun syncSingleHistoryItem(history: HistoryDBO, token: String) {
         val serverDeckId =
             database.deckDao.getDeckById(history.deckId)?.serverDeckId ?: history.deckId
@@ -444,6 +564,16 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Подготавливает объект [HistoryItemDto] для сохранения истории тренировки.
+     *
+     * @param deckId Идентификатор колоды.
+     * @param deckName Название колоды.
+     * @param cardsCount Общее количество карточек в тренировке.
+     * @param trainingSessionId Уникальный идентификатор сессии тренировки.
+     * @param timestamp Время завершения тренировки в миллисекундах.
+     * @return Объект [HistoryItemDto], содержащий информацию о тренировке, правильных и неправильных ответах.
+     */
     private suspend fun prepareHistoryDto(
         deckId: String,
         deckName: String,
@@ -484,10 +614,23 @@ class SyncUserDataRepositoryImpl @Inject constructor(
         )
     }
 
+    /**
+     * Генерирует уникальный идентификатор сессии тренировки на основе идентификатора колоды и текущего времени.
+     *
+     * @param deckId Идентификатор колоды.
+     * @return Уникальный идентификатор тренировки в формате: "{deckId}-{timestamp}".
+     */
     private fun generateTrainingSessionId(deckId: String): String {
         return "$deckId-${System.currentTimeMillis()}"
     }
 
+    /**
+     * Преобразует строковое представление режима тренировки в объект [TrainingMode].
+     *
+     * @param mode Строковое название режима тренировки.
+     * @return [TrainingMode], соответствующий переданной строке.
+     * @throws IllegalArgumentException Если передан неизвестный режим тренировки.
+     */
     private fun mapTrainingMode(mode: String): TrainingMode {
         return when (mode) {
             "FILL_IN_THE_BLANK" -> TrainingMode.FILL_IN_THE_BLANK

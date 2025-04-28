@@ -1,5 +1,6 @@
 package com.example.common.ui
 
+import android.view.MotionEvent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -12,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,8 +32,9 @@ import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.BalloonAnimation
 import com.skydoves.balloon.BalloonSizeSpec
 import com.skydoves.balloon.compose.Balloon
-import com.skydoves.balloon.compose.BalloonWindow
 import com.skydoves.balloon.compose.rememberBalloonBuilder
+import com.skydoves.balloon.compose.rememberBalloonWindow
+import kotlinx.coroutines.delay
 
 enum class NavigationIconType {
     NONE, BACK, CLOSE
@@ -57,8 +60,16 @@ fun CenteredTopAppBar(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+    var canDismiss by remember { mutableStateOf(false) }
+
+    var balloonWindow by rememberBalloonWindow(null)
     val overlayColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f).toArgb()
     val backgroundColor = MaterialTheme.colorScheme.surfaceVariant.toArgb()
+
+    LaunchedEffect(Unit) {
+        delay(2000L)
+        canDismiss = true
+    }
 
     val builder = rememberBalloonBuilder {
         setArrowSize(7)
@@ -73,10 +84,17 @@ fun CenteredTopAppBar(
         setBalloonAnimation(BalloonAnimation.OVERSHOOT)
         setIsVisibleOverlay(true)
         setOverlayColor(overlayColor)
-        setDismissWhenTouchOutside(true)
-    }
 
-    var balloonWindow: BalloonWindow? by remember { mutableStateOf(null) }
+        setDismissWhenOverlayClicked(false)
+        setDismissWhenTouchOutside(false)
+        setDismissWhenClicked(true)
+
+        setOnBalloonOutsideTouchListener { view, event ->
+            if (canDismiss && event.action == MotionEvent.ACTION_OUTSIDE) {
+                balloonWindow?.dismiss()
+            }
+        }
+    }
 
     CenterAlignedTopAppBar(
         colors = containerColor?.let {

@@ -134,7 +134,7 @@ private fun SelectionWithDescription(title: String, description: String, onClick
             )
             Icon(
                 painter = painterResource(R.drawable.ic_arrow),
-                contentDescription = "Выбор метода"
+                contentDescription = stringResource(R.string.selecting_mode)
             )
         }
         Text(
@@ -225,7 +225,7 @@ private fun ReminderItem(
             Icon(
                 painter = painterResource(id = R.drawable.ic_trash),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                contentDescription = "Удалить"
+                contentDescription = stringResource(R.string.delete)
             )
         }
     }

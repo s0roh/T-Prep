@@ -42,6 +42,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
@@ -63,8 +64,9 @@ import com.example.feature.training.presentation.components.TrainingNavigationBu
 import com.example.feature.training.presentation.components.TrueFalseAnswerSection
 import com.example.feature.training.presentation.components.TrueFalseButtons
 import com.example.feature.training.presentation.util.launchShakeAnimation
-import com.example.feature.training.presentation.util.playSound
-import com.example.feature.training.presentation.util.vibrate
+import com.example.common.util.playSound
+import com.example.common.util.vibrate
+import com.example.feature.training.R
 import com.example.training.domain.entity.TrainingCard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -90,12 +92,15 @@ fun TrainingScreen(
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
             when (event) {
-                is TrainingUiEvent.PlaySound -> playSound(context, event.isCorrect)
+                is TrainingUiEvent.PlaySound -> playSound(
+                    context = context,
+                    soundResId = if (event.isCorrect) R.raw.correct else R.raw.incorrect
+                )
+
                 TrainingUiEvent.VibrateIncorrectAnswer -> vibrate(context)
                 TrainingUiEvent.PlayFinishSound -> playSound(
-                    context,
-                    isCorrect = true,
-                    isFinish = true
+                    context = context,
+                    soundResId = R.raw.finish_train
                 )
             }
         }
@@ -104,7 +109,7 @@ fun TrainingScreen(
     Scaffold(
         topBar = {
             CenteredTopAppBar(
-                title = "Тренировка",
+                title = stringResource(R.string.train),
                 navigationIconType = NavigationIconType.BACK,
                 onNavigationClick = { viewModel.exitTraining() }
             )
@@ -226,7 +231,7 @@ private fun TrainingCardsContent(
                                 .memoryCachePolicy(CachePolicy.DISABLED)
                                 .diskCachePolicy(CachePolicy.DISABLED)
                                 .build(),
-                            contentDescription = "Картинка карточки",
+                            contentDescription = stringResource(R.string.image_of_card),
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -278,7 +283,7 @@ private fun TrainingCardsContent(
                             isCorrect = isCorrect
                         )
 
-                        else -> Text("Неизвестный режим")
+                        else -> Text(stringResource(R.string.unknown_mode))
                     }
                 }
             }
@@ -434,13 +439,13 @@ private fun FillInTheBlankContent(
         } else {
             if (card.partialAnswer.isNullOrEmpty()) {
                 Text(
-                    text = "Дайте ответ на вопрос:",
+                    text = stringResource(R.string.give_answer),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
             } else {
                 Text(
-                    text = "Дополните ответ:",
+                    text = stringResource(R.string.complete_answer),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -457,7 +462,7 @@ private fun FillInTheBlankContent(
             OutlinedTextField(
                 value = userInput,
                 onValueChange = onUserInputChanged,
-                label = { Text("Введите ответ") },
+                label = { Text(stringResource(R.string.enter_answer)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
@@ -477,7 +482,7 @@ private fun FillInTheBlankContent(
 @Composable
 private fun AnswerWithHighlight(answer: String, missingWords: List<String>) {
     Text(
-        text = "Ответ:",
+        text = stringResource(R.string.answer),
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(bottom = 8.dp)
     )
@@ -527,34 +532,55 @@ private fun UserInputWithHighlight(
     isCorrect: Boolean,
 ) {
     Text(
-        text = "Ваш ответ:",
+        text = stringResource(R.string.your_answer),
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(bottom = 8.dp)
     )
 
     val annotatedUserInput = buildAnnotatedString {
-        val userInputWords = userInput.split(" ")
+        val userInputWords = userInput.split("\\s+".toRegex()).filter { it.isNotBlank() }
+        var missingWordIndex = 0
+        var isAlreadyWrong = false
 
-        if (isCorrect) {
-            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                append(userInput)
-            }
-        } else if (userInput.isBlank()) {
+        if (userInput.isBlank()) {
             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
-                append("Вы не дали ответ")
+                append(stringResource(R.string.you_dont_answered))
             }
         } else {
             userInputWords.forEachIndexed { index, word ->
-                if (missingWords.any { it.equals(word, ignoreCase = true) }) {
-                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                        append(word)
+                val expectedWord = missingWords.getOrNull(missingWordIndex)
+
+                val color = when {
+                    expectedWord == null -> MaterialTheme.colorScheme.error
+                    isAlreadyWrong -> MaterialTheme.colorScheme.error
+                    isCorrect -> {
+                        if (word.equals(expectedWord, ignoreCase = true)) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.tertiary
+                        }
                     }
-                } else {
-                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
-                        append(word)
+
+                    word.equals(
+                        expectedWord,
+                        ignoreCase = true
+                    ) -> MaterialTheme.colorScheme.primary
+
+                    else -> {
+                        isAlreadyWrong = true
+                        MaterialTheme.colorScheme.error
                     }
                 }
-                if (index < userInputWords.size - 1) append(" ")
+
+                withStyle(style = SpanStyle(color = color)) {
+                    append(word)
+                }
+
+                if (index < userInputWords.size - 1) {
+                    append(" ")
+                }
+
+                missingWordIndex++
             }
         }
     }

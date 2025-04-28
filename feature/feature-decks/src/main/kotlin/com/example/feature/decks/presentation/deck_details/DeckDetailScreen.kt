@@ -247,8 +247,8 @@ private fun DeckDetailContent(
             Spacer(modifier = Modifier.height(66.dp))
 
             AppElevatedButton(
-                title = if (state.nextTrainingTime == null) "Запланировать тренировку"
-                else "Открыть план тренировок",
+                title = if (state.nextTrainingTime == null) stringResource(R.string.schedule_train)
+                else stringResource(R.string.open_training_plan),
                 shouldShowIcon = true,
                 iconResId = com.example.common.R.drawable.ic_calendar,
                 onClick = { onRemindClick(deck.name) },
@@ -258,7 +258,7 @@ private fun DeckDetailContent(
             Spacer(modifier = Modifier.height(17.dp))
 
             AppElevatedButton(
-                title = "Показать карточки",
+                title = stringResource(R.string.show_cards),
                 shouldShowIcon = true,
                 iconResId = com.example.common.R.drawable.ic_bookmark,
                 onClick = { isBottomSheetOpen = true },
@@ -273,7 +273,7 @@ private fun DeckDetailContent(
 
             if (state.deck.cards.isNotEmpty()) {
                 AppButton(
-                    title = "Начать тренировку",
+                    title = stringResource(R.string.start_train),
                     shouldShowIcon = true,
                     iconResId = com.example.common.R.drawable.ic_play,
                     onClick = { onStartTraining(deck.id, source) },
@@ -347,7 +347,7 @@ private fun CardListBottomSheet(
                 ) {
                     item {
                         Text(
-                            text = "Коснитесь карточки, чтобы увидеть ответ",
+                            text = stringResource(R.string.tap_the_card_to_see_the_answer),
                             style = MaterialTheme.typography.bodySmall.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
@@ -377,7 +377,7 @@ private fun CardListBottomSheet(
 
             if (source == Source.LOCAL) {
                 AppButton(
-                    title = "Добавить карточку",
+                    title = stringResource(R.string.add_card),
                     onClick = {
                         coroutineScope.launch {
                             sheetState.hide()
@@ -452,7 +452,7 @@ private fun ExpandableCardItem(
                         IconButton(onClick = { isMenuExpanded.value = true }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Меню"
+                                contentDescription = stringResource(R.string.menu)
                             )
                         }
                         DropdownMenu(
@@ -460,7 +460,7 @@ private fun ExpandableCardItem(
                             onDismissRequest = { isMenuExpanded.value = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Изменить") },
+                                text = { Text(stringResource(R.string.edit)) },
                                 onClick = {
                                     isMenuExpanded.value = false
                                     coroutineScope.launch {
@@ -470,7 +470,7 @@ private fun ExpandableCardItem(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Удалить") },
+                                text = { Text(stringResource(R.string.delete)) },
                                 onClick = { onDeleteCard(card) }
                             )
                         }
@@ -499,7 +499,7 @@ private fun ExpandableCardItem(
                                     .memoryCachePolicy(CachePolicy.DISABLED)
                                     .diskCachePolicy(CachePolicy.DISABLED)
                                     .build(),
-                                contentDescription = "Картинка карточки",
+                                contentDescription = stringResource(R.string.image_of_card),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .height(81.dp)
@@ -510,7 +510,7 @@ private fun ExpandableCardItem(
                         }
                     }
                     Text(
-                        text = "Ответ:",
+                        text = stringResource(R.string.answer),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -538,7 +538,7 @@ private fun AppAlertDialog(
         text = { Text(text = message) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(text = "Подтвердить")
+                Text(text = stringResource(R.string.reaffirm))
             }
         },
         dismissButton = {
@@ -569,7 +569,8 @@ private fun DeckInfoRow(deck: Deck) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = if (deck.isPublic) "Публичная" else "Приватная",
+            text = if (deck.isPublic) stringResource(R.string.public_mark)
+            else stringResource(R.string.private_mark),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontSize = 22.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -595,7 +596,7 @@ private fun DeckInfoRow(deck: Deck) {
 @Composable
 private fun TrainingScheduledTime(nextTrainingTime: Long) {
     Text(
-        text = "Тренировка запланирована",
+        text = stringResource(R.string.training_scheduled),
         style = MaterialTheme.typography.titleMedium.copy(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

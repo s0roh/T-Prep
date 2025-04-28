@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import com.example.feature.profile.R
@@ -46,12 +47,12 @@ internal fun ProfileImage(
                 animationSpec = tween(500)
             ) togetherWith fadeOut(animationSpec = tween(300))
         },
-        label = "Profile Image Transition"
+        label = stringResource(R.string.profile_image_transition)
     ) { uri ->
         if (uri != null) {
             SubcomposeAsyncImage(
                 model = uri,
-                contentDescription = "Profile Image",
+                contentDescription = stringResource(R.string.profile_image),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(100.dp)
@@ -68,7 +69,7 @@ internal fun ProfileImage(
         } else {
             Image(
               painter = painterResource(R.drawable.profile_image),
-                contentDescription = "Default Profile Icon",
+                contentDescription = stringResource(R.string.default_profile_icon),
                 modifier = Modifier
                     .size(100.dp)
                     .clip(CircleShape)
@@ -88,7 +89,7 @@ internal fun ProfileImage(
                 onDelete()
             },
             text = {
-                Text("Удалить")
+                Text(stringResource(R.string.delete))
             }
         )
     }

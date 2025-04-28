@@ -18,4 +18,12 @@
     <string name="end_of_training">Конец тренировок</string>
     <string name="preferred_time">Предпочитаемое время</string>
     <string name="select">Выберите</string>
+    <string name="selecting_mode">Выбор метода</string>
+    <string name="delete">Удалить</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Отмена</string>
+    <string name="select_time">Select Time</string>
+    <string name="enter_time">Enter Time</string>
+    <string name="switch_to_text_input">Switch to Text Input</string>
+    <string name="switch_to_touch_input">Switch to Touch Input</string>
 </resources>

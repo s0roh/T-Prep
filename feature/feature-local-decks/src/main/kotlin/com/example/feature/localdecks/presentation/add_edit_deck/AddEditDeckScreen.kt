@@ -19,12 +19,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.AppButton
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
+import com.example.feature.localdecks.R
 import com.example.feature.localdecks.presentation.components.TextFieldWithError
 
 @Composable
@@ -45,15 +47,18 @@ fun AddEditDeckScreen(
     Scaffold(
         topBar = {
             CenteredTopAppBar(
-                title = if (deckId == null) "Создание колоды" else "Изменить колоду",
+                title = if (deckId == null) stringResource(R.string.deck_creation)
+                else stringResource(R.string.edit_deck),
                 navigationIconType = NavigationIconType.BACK,
                 onNavigationClick = onBackClick
             )
         }
     ) { paddingValues ->
-        Column(modifier = Modifier
-            .padding(paddingValues)
-            .imePadding()) {
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .imePadding()
+        ) {
             AddEditDeckForm(
                 deckId = deckId,
                 screenState = screenState,
@@ -95,7 +100,7 @@ private fun AddEditDeckForm(
         TextFieldWithError(
             value = screenState.name,
             onValueChange = onNameChange,
-            label = "Название",
+            labelResId = R.string.name,
             error = screenState.nameError,
             imeAction = ImeAction.Done,
             onImeAction = {
@@ -110,7 +115,8 @@ private fun AddEditDeckForm(
         Spacer(modifier = Modifier.weight(1f))
 
         AppButton(
-            title = if (deckId == null) "Добавить колоду" else "Изменить колоду",
+            title = if (deckId == null) stringResource(R.string.add_deck)
+            else stringResource(R.string.edit_deck),
             onClick = onSave,
             enabled = screenState.isSaveButtonEnabled,
             modifier = Modifier.fillMaxWidth()

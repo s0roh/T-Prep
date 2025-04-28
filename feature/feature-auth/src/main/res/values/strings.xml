@@ -5,4 +5,11 @@
     <string name="auth_email">Электронная почта</string>
     <string name="auth_user_name">Имя пользователя</string>
     <string name="auth_password">Пароль</string>
+    <string name="entrance">Вход</string>
+    <string name="registration">Регистрация</string>
+    <string name="t_prep">T-Prep</string>
+    <string name="tab_switch_animation">Tab switch animation</string>
+    <string name="next">Продолжить</string>
+    <string name="next_description">Continue</string>
+    <string name="toggle_password_visibility">Toggle password visibility</string>
 </resources>

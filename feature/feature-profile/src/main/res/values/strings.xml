@@ -5,4 +5,16 @@
     <string name="settings">Настройки</string>
     <string name="vibration">Вибрация</string>
     <string name="sound">Звук</string>
+    <string name="logout">Logout</string>
+    <string name="exit">Выйти</string>
+    <string name="select_image_source">Выберите источник изображения</string>
+    <string name="gallery">Галерея</string>
+    <string name="camera">Камера</string>
+    <string name="profile_image">Profile Image</string>
+    <string name="default_profile_icon">Default Profile Icon</string>
+    <string name="profile_image_transition">Profile Image Transition</string>
+    <string name="delete">Удалить</string>
+    <string name="general_statistics">Общая статистика</string>
+    <string name="training_completed">Тренировок завершено</string>
+    <string name="percentage_of_correct_answers">Процент правильных ответов</string>
 </resources>

@@ -14,4 +14,6 @@
     <string name="edit_name">Изменить название</string>
     <string name="local_text_balloon">Управляйте режимами тренировки, редактируйте или удаляйте колоду и смотрите статистику</string>
     <string name="public_text_balloon">Управляйте режимами тренировки и смотрите статистику</string>
+    <string name="go_train">Тренироваться</string>
+    <string name="schedule_training_session">Запланировать тренировку</string>
 </resources>

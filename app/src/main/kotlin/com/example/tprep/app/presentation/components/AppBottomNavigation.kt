@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,12 +44,12 @@ fun AppBottomNavigation(navigationState: NavigationState) {
                     Icon(
                         imageVector = ImageVector.vectorResource(item.icon),
                         modifier = Modifier.size(20.dp),
-                        contentDescription = item.name
+                        contentDescription = stringResource(id = item.nameResId)
                     )
                 },
                 label = {
                     Text(
-                        text = item.name,
+                        text = stringResource(id = item.nameResId),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray

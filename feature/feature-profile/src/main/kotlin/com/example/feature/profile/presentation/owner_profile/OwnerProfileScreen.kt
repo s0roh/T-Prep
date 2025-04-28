@@ -108,29 +108,30 @@ private fun OwnerProfileContent(
     ) { paddingValues ->
         Column(
             modifier = Modifier
-                .padding(horizontal = 25.dp)
                 .padding(paddingValues)
                 .fillMaxSize(),
         ) {
-            OwnerProfileHeader(state = state)
+            OwnerProfileHeader(state = state, modifier = Modifier.padding(horizontal = 24.dp))
 
             Spacer(modifier = Modifier.height(41.dp))
 
-            StatisticsSection(state)
+            StatisticsSection(modifier = Modifier.padding(horizontal = 24.dp), state = state)
 
             Spacer(modifier = Modifier.height(31.dp))
 
 
             Text(
                 text = stringResource(R.string.pubic_decks),
-                style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp)
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp),
+                modifier = Modifier.padding(horizontal = 24.dp)
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             HorizontalDivider(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outlineVariant
             )
@@ -148,7 +149,9 @@ private fun OwnerProfileContent(
                         onTrainClick = onTrainClick,
                         onScheduleClick = { onScheduleClick(deck.id, deck.name) },
                         onLikeClickListener = onLikeClickListener,
-                        modifier = Modifier.animateItem()
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp)
+                            .animateItem()
                     )
                 }
                 item {
@@ -161,13 +164,17 @@ private fun OwnerProfileContent(
 
 @Composable
 private fun OwnerProfileHeader(
+    modifier: Modifier = Modifier,
     state: OwnerProfileScreenState.Success,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         if (state.profileImageUri != null) {
             SubcomposeAsyncImage(
                 model = state.profileImageUri,
-                contentDescription = "Profile Image",
+                contentDescription = stringResource(R.string.profile_image),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(100.dp)
@@ -180,7 +187,7 @@ private fun OwnerProfileHeader(
         } else {
             Image(
                 painter = painterResource(R.drawable.profile_image),
-                contentDescription = "Default Profile Icon",
+                contentDescription = stringResource(R.string.default_profile_icon),
                 modifier = Modifier
                     .size(100.dp)
                     .clip(CircleShape)
