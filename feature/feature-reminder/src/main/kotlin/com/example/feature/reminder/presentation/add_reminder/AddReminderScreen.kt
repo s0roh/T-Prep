@@ -7,17 +7,29 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,10 +39,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.AppButton
@@ -153,6 +170,7 @@ private fun ManualGeneration(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AutoGeneration(
     startDate: Long?,
@@ -162,26 +180,108 @@ private fun AutoGeneration(
     onEndDateSelected: (Long) -> Unit,
     onPreferredTimeSelected: (Long) -> Unit,
 ) {
-    Column(
+    var isBottomSheetOpen by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val imageRes = if (isSystemInDarkTheme()) {
+        R.drawable.auto_planing_dark
+    } else {
+        R.drawable.auto_planing_light
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        DateTimeSelectionRow(
-            stringResource(R.string.beginning_of_training),
-            startDate,
-            onDateSelected
-        )
-        DateTimeSelectionRow(
-            stringResource(R.string.end_of_training),
-            endDate,
-            onEndDateSelected
-        )
-        DateTimeSelectionRow(
-            stringResource(R.string.preferred_time),
-            preferredTime,
-            onPreferredTimeSelected
-        )
+        Column {
+            DateTimeSelectionRow(
+                stringResource(R.string.beginning_of_training),
+                startDate,
+                onDateSelected
+            )
+            DateTimeSelectionRow(
+                stringResource(R.string.end_of_training),
+                endDate,
+                onEndDateSelected
+            )
+            DateTimeSelectionRow(
+                stringResource(R.string.preferred_time),
+                preferredTime,
+                onPreferredTimeSelected
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .clip(MaterialTheme.shapes.large)
+                    .clickable { isBottomSheetOpen = true }
+                    .padding(vertical = 8.dp)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.HelpOutline,
+                    contentDescription = stringResource(R.string.how_it_works),
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .size(20.dp)
+                )
+                Text(
+                    text = stringResource(R.string.how_it_works),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(end = 16.dp)
+                )
+
+            }
+        }
+    }
+
+    if (isBottomSheetOpen) {
+        ModalBottomSheet(
+            onDismissRequest = { isBottomSheetOpen = false },
+            sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            tonalElevation = 8.dp,
+            dragHandle = {}
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(id = imageRes),
+                    contentDescription = stringResource(id = R.string.auto_generation_image_description),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 35.dp)
+                )
+                Text(
+                    text = stringResource(id = R.string.auto_generation_title),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.W600,
+                        fontSize = 18.sp
+                    ),
+                    modifier = Modifier.padding(horizontal = 28.dp)
+                )
+                Spacer(modifier = Modifier.height(11.dp))
+                Text(
+                    text = stringResource(id = R.string.auto_generation_description),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Start,
+                        fontWeight = FontWeight.W400,
+                        fontSize = 14.sp
+                    ),
+                    modifier = Modifier.padding(horizontal = 28.dp)
+
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
     }
 }
 
@@ -271,7 +371,14 @@ private fun handleScheduleReminder(
 
     coroutineScope.launch(exceptionHandler) {
         val message = if (isAutoGeneration) {
-            viewModel.createAutoReminders(startDate, endDate, preferredTime, deckId, deckName, source)
+            viewModel.createAutoReminders(
+                startDate,
+                endDate,
+                preferredTime,
+                deckId,
+                deckName,
+                source
+            )
         } else {
             viewModel.createManualReminder(selectedDate, selectedTime, deckId, deckName, source)
         }

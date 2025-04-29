@@ -297,10 +297,7 @@ private fun HandlePagingLoadState(
             if (isLikeCategorySelected) {
                 EmptyContent(modifier = Modifier.fillMaxSize())
             } else {
-                val errorMessage =
-                    loadState.error.localizedMessage ?: stringResource(R.string.error_occurred)
                 ErrorContent(
-                    message = errorMessage,
                     onRetry = onRetry,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -352,11 +349,10 @@ private fun LoadingIndicator(
 @Composable
 private fun ErrorContent(
     modifier: Modifier = Modifier,
-    message: String,
     onRetry: () -> Unit,
 ) {
     Box(
-        modifier = modifier.padding(16.dp),
+        modifier = modifier.fillMaxSize().padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -368,7 +364,7 @@ private fun ErrorContent(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = message,
+                text = stringResource(R.string.wifi_error),
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(horizontal = 16.dp),
                 textAlign = TextAlign.Center
@@ -377,6 +373,8 @@ private fun ErrorContent(
             Button(onClick = onRetry) {
                 Text(stringResource(R.string.retry))
             }
+            Spacer(modifier = Modifier.height(48.dp))
+
         }
     }
 }
