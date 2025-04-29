@@ -8,7 +8,6 @@
     <string name="card_answer">Ответ: %1$s</string>
     <string name="cards_title">Карточки</string>
     <string name="start_training">Тренироваться</string>
-    <string name="error_occurred">Произошла ошибка</string>
     <string name="retry">Повторить</string>
     <string name="no_cards_placeholder">Здесь пока нет карточек</string>
     <string name="confirm_delete_title">Подтверждение удаления</string>
@@ -54,4 +53,5 @@
     <string name="public_mark">Публичная</string>
     <string name="private_mark">Приватная</string>
     <string name="training_scheduled">Тренировка запланирована</string>
+    <string name="wifi_error">Ошибка подключения</string>
 </resources>

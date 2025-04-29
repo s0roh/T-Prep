@@ -3,6 +3,7 @@ agp = "8.9.2"
 androidImageCropper = "4.6.0"
 coilCompose = "3.1.0"
 composeCharts = "0.1.2"
+foundation = "1.8.0"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -35,9 +36,9 @@ kaspresso = "1.6.0"
 balloon = "1.6.12"
 
 [libraries]
-
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 android-image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "androidImageCropper" }
+androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeCharts" }

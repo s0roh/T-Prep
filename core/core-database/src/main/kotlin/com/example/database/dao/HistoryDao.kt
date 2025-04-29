@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RoomWarnings
 import androidx.room.Update
 import com.example.database.models.AnswerStatsDBO
 import com.example.database.models.HistoryDBO
@@ -14,6 +15,7 @@ interface HistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHistory(history: HistoryDBO)
 
+    @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
     @Query("""
     SELECT 
         (SELECT COUNT(*) FROM correct_answer ca 

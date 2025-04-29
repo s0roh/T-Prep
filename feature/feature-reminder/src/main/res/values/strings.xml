@@ -26,4 +26,8 @@
     <string name="enter_time">Enter Time</string>
     <string name="switch_to_text_input">Switch to Text Input</string>
     <string name="switch_to_touch_input">Switch to Touch Input</string>
+    <string name="how_it_works">Как это работает?</string>
+    <string name="auto_generation_title">Автоматическое планирование</string>
+    <string name="auto_generation_description">Система автоматически создаст график тренировок с постепенным увеличением интервалов, обеспечивая долговременное запоминание материала.</string>
+    <string name="auto_generation_image_description">Изображение автоматического планирования</string>
 </resources>
