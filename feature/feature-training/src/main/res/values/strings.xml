@@ -38,4 +38,11 @@
     <string name="display_error">Ошибка отображения</string>
     <string name="false_answer">ЛОЖЬ</string>
     <string name="true_answer">ИСТИНА</string>
+    <string name="about_train_modes">О режимах</string>
+    <string name="choice_help_title">Выбор ответа</string>
+    <string name="choice_help_description">Выбирается один вариант ответа, а неправильные варианты берутся из других вопросов, если не указаны заранее.</string>
+    <string name="true_false_help_title">Истина или ложь</string>
+    <string name="true_false_help_description">Нужно определить, верен предложенный ответ на вопрос или нет.</string>
+    <string name="input_help_title">Ввод ответа</string>
+    <string name="input_help_description">Укажите недостающий фрагмент ответа. Подходит для длинных формулировок.</string>
 </resources>

@@ -235,7 +235,6 @@ private fun AutoGeneration(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(end = 16.dp)
                 )
-
             }
         }
     }
