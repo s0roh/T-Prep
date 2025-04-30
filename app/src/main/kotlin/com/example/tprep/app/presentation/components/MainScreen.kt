@@ -235,9 +235,9 @@ fun MainScreen(navController: NavHostController) {
                             Screen.TrainingModeSettings(deckId = deckId)
                         )
                     },
-                    onDeckStatisticClick = { deckId ->
+                    onDeckStatisticClick = { deckId, deckName ->
                         navigationState.navigateWithSaveState(
-                            Screen.DeckDetailsStatistic(deckId = deckId)
+                            Screen.DeckDetailsStatistic(deckId = deckId, deckName = deckName)
                         )
                     },
                     onOwnerProfileClick = { ownerId ->
@@ -247,9 +247,10 @@ fun MainScreen(navController: NavHostController) {
                     }
                 )
             },
-            deckDetailsStatisticScreenContent = { deckId ->
+            deckDetailsStatisticScreenContent = { deckId, deckName ->
                 DeckDetailsStatisticScreen(
                     deckId = deckId,
+                    deckName = deckName,
                     onBackClick = { navigationState.navHostController.popBackStack() }
                 )
             },

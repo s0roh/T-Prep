@@ -91,13 +91,13 @@ fun DeckDetailScreen(
     onEditCard: (deckId: String, cardId: Int?) -> Unit,
     onRemindClick: (deckName: String) -> Unit,
     onTrainingModeSettingsClick: (String) -> Unit,
-    onDeckStatisticClick: (String) -> Unit,
+    onDeckStatisticClick: (String, String) -> Unit,
     onOwnerProfileClick: (String) -> Unit,
 ) {
     val viewModel: DeckDetailViewModel = hiltViewModel()
     val screenState = viewModel.screenState.collectAsState()
 
-    LaunchedEffect(deckId) {
+    LaunchedEffect(key1 = deckId) {
         viewModel.loadDeckById(deckId = deckId, source = source)
     }
 
@@ -162,7 +162,7 @@ private fun DeckDetailContent(
     onDeleteCard: (Card) -> Unit,
     onRemindClick: (deckName: String) -> Unit,
     onTrainingModeSettingsClick: (String) -> Unit,
-    onDeckStatisticClick: (String) -> Unit,
+    onDeckStatisticClick: (String, String) -> Unit,
     onOwnerProfileClick: (String) -> Unit,
     onGetCardPicture: (cardId: Int, attachment: String?, onResult: (Uri?) -> Unit) -> Unit,
 ) {
@@ -172,7 +172,6 @@ private fun DeckDetailContent(
 
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
 
     if (showDeleteDialog) {
         AppAlertDialog(
@@ -219,7 +218,7 @@ private fun DeckDetailContent(
                             ?: throw IllegalStateException("Author ID is missing in deck: ${deck.id}")
                     )
                 },
-                onDeckStatistic = { onDeckStatisticClick(deck.id) },
+                onDeckStatistic = { onDeckStatisticClick(deck.id, deck.name) },
                 onTrainingSettings = { onTrainingModeSettingsClick(deck.id) },
                 onDeleteDeck = { showDeleteDialog = true },
                 isPublic = deck.isPublic,

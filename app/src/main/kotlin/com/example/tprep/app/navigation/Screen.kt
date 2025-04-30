@@ -61,7 +61,8 @@ sealed interface Screen {
 
     @Serializable
     data class DeckDetailsStatistic(
-        val deckId: String
+        val deckId: String,
+        val deckName: String
     ): Screen
 
     @Serializable
