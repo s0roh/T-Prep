@@ -34,6 +34,7 @@ junitJupiter = "5.12.2"
 junitJupiterLauncher = "1.12.2"
 kaspresso = "1.6.0"
 balloon = "1.6.12"
+coreSplashscreen ="1.0.1"
 
 [libraries]
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -81,11 +82,11 @@ work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "w
 hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
 hilt-work-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
 balloon-compose = { module = "com.github.skydoves:balloon-compose", version.ref = "balloon" }
+core-splashscreen = {group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen"}
 
 # Kaspresso
 kaspresso = { group = "com.kaspersky.android-components", name = "kaspresso", version.ref = "kaspresso" }
 kaspresso-compose-support = { group = "com.kaspersky.android-components", name = "kaspresso-compose-support", version.ref = "kaspresso" }
-
 # JUnit 5
 junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junitJupiter" }
 junit-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junitJupiter" }
