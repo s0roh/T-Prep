@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Цвета для графика статистики -->
-    <color name="color_statistic_gradient_start">#FF23af92</color>
-    <color name="color_statistic_gradient_end">#FF2BC0A1</color>
-
     <!-- Цвета для общего количества -->
     <color name="color_total_gradient_start">#FF2E37C1</color>
-    <color name="color_total_gradient_end">#FF4B8DFB</color>
+    <color name="color_total_gradient_end">#FF0063e4</color>
 
     <!-- Цвета для правильных ответов -->
-    <color name="color_correct_gradient_start">#FF1E7F4B</color>
-    <color name="color_correct_gradient_end">#FF3DDC84</color>
+    <color name="color_correct_gradient_start">#FF476730</color>
+    <color name="color_correct_gradient_end">#FF6A994E</color>
 
     <!-- Цвета для ошибок -->
-    <color name="color_incorrect_gradient_start">#FFC92724</color>
-    <color name="color_incorrect_gradient_end">#FFEA5086</color>
+    <color name="color_incorrect_gradient_start">#FFBA1A1A</color>
+    <color name="color_incorrect_gradient_end">#FFFF4C4C</color>
 </resources>

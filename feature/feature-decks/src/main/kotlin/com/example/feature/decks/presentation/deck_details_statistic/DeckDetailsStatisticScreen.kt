@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -41,6 +42,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -67,6 +70,7 @@ import ir.ehsannarmani.compose_charts.models.StrokeStyle
 @Composable
 fun DeckDetailsStatisticScreen(
     deckId: String,
+    deckName: String,
     onBackClick: () -> Unit,
 ) {
     val viewModel: DeckDetailStatisticViewModel = hiltViewModel()
@@ -87,7 +91,11 @@ fun DeckDetailsStatisticScreen(
 
         is DeckDetailsStatisticScreenState.Success -> {
 
-            DeckDetailsStatisticScreenContent(state = currentState, onBackClick = onBackClick)
+            DeckDetailsStatisticScreenContent(
+                state = currentState,
+                deckName = deckName,
+                onBackClick = onBackClick
+            )
 
         }
     }
@@ -97,11 +105,14 @@ fun DeckDetailsStatisticScreen(
 @Composable
 private fun DeckDetailsStatisticScreenContent(
     state: DeckDetailsStatisticScreenState.Success,
+    deckName: String,
     onBackClick: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             CenteredTopAppBar(
+                title = stringResource(R.string.deck_statistic),
+                subtitle = deckName,
                 navigationIconType = NavigationIconType.BACK,
                 onNavigationClick = onBackClick
             )
@@ -113,26 +124,31 @@ private fun DeckDetailsStatisticScreenContent(
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
         ) {
+            Spacer(modifier = Modifier.height(14.dp))
+
             if (state.deckTrainingStats.size < 2) {
                 Text(
                     text = stringResource(R.string.statistics_warning),
                     style = TextStyle(fontSize = 16.sp),
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
+                    textAlign = TextAlign.Center
                 )
                 return@Column
             }
             ChartWithDialog(
                 chart = { TrainingSuccessLineChart(state.deckTrainingStats) },
+                title = stringResource(R.string.training_success_title),
                 description = stringResource(R.string.training_success_line_chart_description),
                 modifier = Modifier.height(200.dp)
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             ChartWithDialog(
                 chart = { TrainingModesColumnChart(state.deckTrainingModeStats) },
+                title = stringResource(R.string.training_modes_title),
                 description = stringResource(R.string.training_modes_column_chart_description),
-                modifier = Modifier.height(360.dp)
+                modifier = Modifier.height(340.dp)
             )
         }
     }
@@ -140,18 +156,33 @@ private fun DeckDetailsStatisticScreenContent(
 
 @Composable
 private fun ChartWithDialog(
-    chart: @Composable () -> Unit,
-    description: String,
     modifier: Modifier = Modifier,
+    title: String,
+    description: String,
+    chart: @Composable () -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     Column {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.W400,
+                    fontSize = 20.sp
+                )
+            )
             IconButton(onClick = { showDialog = true }) {
                 Icon(
-                    imageVector = Icons.Filled.Info,
+                    imageVector = Icons.Outlined.Info,
                     contentDescription = stringResource(R.string.graph_description),
-                    tint = Color.DarkGray,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -160,7 +191,10 @@ private fun ChartWithDialog(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .background(Color.DarkGray, shape = MaterialTheme.shapes.medium)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = MaterialTheme.shapes.medium
+                )
         ) {
             chart()
         }
@@ -183,8 +217,8 @@ private fun ChartWithDialog(
 
 @Composable
 private fun TrainingSuccessLineChart(trainingData: List<Double>) {
-    val statisticStartColor = colorResource(id = R.color.color_statistic_gradient_start)
-    val statisticEndColor = colorResource(id = R.color.color_statistic_gradient_end)
+    val statisticStartColor = MaterialTheme.colorScheme.primary
+    val statisticEndColor = colorResource(id = R.color.color_correct_gradient_end)
 
     LineChart(
         modifier = Modifier
@@ -194,12 +228,14 @@ private fun TrainingSuccessLineChart(trainingData: List<Double>) {
         dividerProperties = DividerProperties(enabled = false),
         gridProperties = GridProperties(
             xAxisProperties = GridProperties.AxisProperties(
+                color = SolidColor(MaterialTheme.colorScheme.onSurfaceVariant),
                 style = StrokeStyle.Dashed(
                     intervals = floatArrayOf(10f, 10f),
                     phase = 0f
                 )
             ),
             yAxisProperties = GridProperties.AxisProperties(
+                color = SolidColor(MaterialTheme.colorScheme.onSurfaceVariant),
                 style = StrokeStyle.Dashed(
                     intervals = floatArrayOf(10f, 10f),
                     phase = 0f
@@ -210,7 +246,7 @@ private fun TrainingSuccessLineChart(trainingData: List<Double>) {
         indicatorProperties = HorizontalIndicatorProperties(
             textStyle = TextStyle.Default.copy(
                 fontSize = 10.sp,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         ),
         data = remember {
@@ -246,25 +282,27 @@ private fun TrainingModesColumnChart(trainingData: List<TrainingModeStats>) {
         labelProperties = LabelProperties(
             textStyle = TextStyle.Default.copy(
                 fontSize = 12.sp,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             ),
             enabled = true
         ),
         indicatorProperties = HorizontalIndicatorProperties(
             textStyle = TextStyle.Default.copy(
                 fontSize = 10.sp,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         ),
         dividerProperties = DividerProperties(enabled = false),
         gridProperties = GridProperties(
             xAxisProperties = GridProperties.AxisProperties(
+                color = SolidColor(MaterialTheme.colorScheme.onSurfaceVariant),
                 style = StrokeStyle.Dashed(
                     intervals = floatArrayOf(10f, 10f),
                     phase = 0f
                 )
             ),
             yAxisProperties = GridProperties.AxisProperties(
+                color = SolidColor(MaterialTheme.colorScheme.onSurfaceVariant),
                 style = StrokeStyle.Dashed(
                     intervals = floatArrayOf(10f, 10f),
                     phase = 0f
@@ -272,7 +310,7 @@ private fun TrainingModesColumnChart(trainingData: List<TrainingModeStats>) {
             )
         ),
         labelHelperProperties = LabelHelperProperties(
-            textStyle = TextStyle.Default.copy(color = Color.White)
+            textStyle = TextStyle.Default.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
         ),
         data = remember {
             trainingData.map { data ->

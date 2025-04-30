@@ -16,7 +16,7 @@ fun AppNavGraph(
     settingsScreenContent: @Composable () -> Unit,
     ownerProfileScreenContent: @Composable (String) -> Unit,
     deckDetailsScreenContent: @Composable (String, Source) -> Unit,
-    deckDetailsStatisticScreenContent: @Composable (String) -> Unit,
+    deckDetailsStatisticScreenContent: @Composable (String, String) -> Unit,
     trainingScreenContent: @Composable (String, Source) -> Unit,
     trainingResultsScreenContent: @Composable (String, Boolean) -> Unit,
     trainingErrorsScreenContent: @Composable (String) -> Unit,
@@ -44,7 +44,6 @@ fun AppNavGraph(
         composable<Screen.Profile> {
             profileScreenContent()
         }
-
         composable<Screen.OwnerProfile> { backStackEntry ->
             val ownerProfile: Screen.OwnerProfile = backStackEntry.toRoute()
             ownerProfileScreenContent(ownerProfile.ownerId)
@@ -55,7 +54,7 @@ fun AppNavGraph(
         }
         composable<Screen.DeckDetailsStatistic> { backStackEntry ->
             val statistic: Screen.DeckDetailsStatistic = backStackEntry.toRoute()
-            deckDetailsStatisticScreenContent(statistic.deckId)
+            deckDetailsStatisticScreenContent(statistic.deckId, statistic.deckName)
         }
         composable<Screen.Training> { backStackEntry ->
             val training: Screen.Training = backStackEntry.toRoute()

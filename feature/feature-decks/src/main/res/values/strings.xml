@@ -54,4 +54,7 @@
     <string name="private_mark">Приватная</string>
     <string name="training_scheduled">Тренировка запланирована</string>
     <string name="wifi_error">Ошибка подключения</string>
+    <string name="deck_statistic">Статистика по колоде</string>
+    <string name="training_success_title">Успешность прохождения</string>
+    <string name="training_modes_title">Режимы</string>
 </resources>

@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,10 +60,9 @@ fun CenteredTopAppBar(
     shouldShowTooltip: Boolean = false,
 ) {
     var expanded by remember { mutableStateOf(false) }
-
     var canDismiss by remember { mutableStateOf(false) }
-
     var balloonWindow by rememberBalloonWindow(null)
+    var isBalloonShown by rememberSaveable { mutableStateOf(false) }
     val overlayColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f).toArgb()
     val backgroundColor = MaterialTheme.colorScheme.surfaceVariant.toArgb()
 
@@ -116,6 +116,8 @@ fun CenteredTopAppBar(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -141,7 +143,12 @@ fun CenteredTopAppBar(
                 Balloon(
                     builder = builder,
                     onBalloonWindowInitialized = { balloonWindow = it },
-                    onComposedAnchor = { if (shouldShowTooltip) balloonWindow?.showAlignEnd() },
+                    onComposedAnchor = {
+                        if (shouldShowTooltip && !isBalloonShown) {
+                            balloonWindow?.showAlignEnd()
+                            isBalloonShown = true
+                        }
+                    },
                     balloonContent = {
                         Text(
                             text = if (showActions == true) {
