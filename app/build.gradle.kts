@@ -75,4 +75,6 @@ dependencies {
     implementation(libs.work.runtime.ktx)
 
     implementation(libs.android.image.cropper)
+
+    implementation(libs.core.splashscreen)
 }
