@@ -21,14 +21,14 @@ internal class AuthViewModel @Inject constructor(
     private val isRefreshTokenValidUseCase: IsRefreshTokenValidUseCase,
     private val refreshTokensUseCase: RefreshTokensUseCase,
     private val loginUseCase: LoginUseCase,
-    private val signupUseCase: SignupUseCase
+    private val signupUseCase: SignupUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<AuthScreenState>(AuthScreenState.Initial)
         private set
 
-    private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-        screenState.tryEmit(AuthScreenState.Error("Ошибка авторизации: ${exception.message}"))
+    private val exceptionHandler = CoroutineExceptionHandler { _, _ ->
+        screenState.tryEmit(AuthScreenState.Error("Ошибка авторизации: Отсутствует подключение к интернету"))
     }
 
     init {
@@ -41,9 +41,11 @@ internal class AuthViewModel @Inject constructor(
                 isAccessTokenValidUseCase() -> {
                     screenState.emit(AuthScreenState.Success("User is authenticated"))
                 }
+
                 isRefreshTokenValidUseCase() && refreshTokensUseCase() -> {
                     screenState.emit(AuthScreenState.Success("User is authenticated"))
                 }
+
                 else -> {
                     screenState.emit(AuthScreenState.Initial)
                 }

@@ -51,9 +51,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.auth.R
 import com.example.auth.presentation.components.AuthTextField
@@ -384,8 +386,10 @@ private fun AuthScreenStateContent(screenState: AuthScreenState) {
         is AuthScreenState.Error -> {
             Text(
                 text = screenState.message,
+                fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp)
+                modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
+                textAlign = TextAlign.Center
             )
         }
 

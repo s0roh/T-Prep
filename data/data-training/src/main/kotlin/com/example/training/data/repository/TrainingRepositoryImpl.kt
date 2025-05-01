@@ -112,7 +112,7 @@ class TrainingRepositoryImpl @Inject constructor(
             }
 
             TrainingMode.FILL_IN_THE_BLANK -> {
-                val (partialAnswer, missingWords) = generatePartialAnswer(card.answer)
+                val (partialAnswer, missingWords, startIndex) = generatePartialAnswer(card.answer)
                 TrainingCard(
                     id = card.id,
                     trainingMode = mode,
@@ -120,6 +120,7 @@ class TrainingRepositoryImpl @Inject constructor(
                     answer = card.answer,
                     partialAnswer = partialAnswer,
                     missingWords = missingWords,
+                    missingWordStartIndex = startIndex,
                     attachment = card.attachment,
                 )
             }
