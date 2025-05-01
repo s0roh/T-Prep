@@ -1,6 +1,5 @@
 package com.example.common.ui
 
-import android.view.MotionEvent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -28,12 +27,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.common.R
-import com.skydoves.balloon.ArrowOrientation
-import com.skydoves.balloon.ArrowPositionRules
-import com.skydoves.balloon.BalloonAnimation
-import com.skydoves.balloon.BalloonSizeSpec
+import com.example.common.util.rememberConfiguredBalloonBuilder
 import com.skydoves.balloon.compose.Balloon
-import com.skydoves.balloon.compose.rememberBalloonBuilder
 import com.skydoves.balloon.compose.rememberBalloonWindow
 import kotlinx.coroutines.delay
 
@@ -63,38 +58,23 @@ fun CenteredTopAppBar(
     var canDismiss by remember { mutableStateOf(false) }
     var balloonWindow by rememberBalloonWindow(null)
     var isBalloonShown by rememberSaveable { mutableStateOf(false) }
+
     val overlayColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f).toArgb()
     val backgroundColor = MaterialTheme.colorScheme.surfaceVariant.toArgb()
 
     LaunchedEffect(Unit) {
-        delay(2000L)
-        canDismiss = true
-    }
-
-    val builder = rememberBalloonBuilder {
-        setArrowSize(7)
-        setArrowPosition(0.5f)
-        setArrowPositionRules(ArrowPositionRules.ALIGN_BALLOON)
-        setWidth(BalloonSizeSpec.WRAP)
-        setHeight(BalloonSizeSpec.WRAP)
-        setArrowOrientation(ArrowOrientation.END)
-        setMarginRight(60)
-        setCornerRadius(8f)
-        setBackgroundColor(backgroundColor)
-        setBalloonAnimation(BalloonAnimation.OVERSHOOT)
-        setIsVisibleOverlay(true)
-        setOverlayColor(overlayColor)
-
-        setDismissWhenOverlayClicked(false)
-        setDismissWhenTouchOutside(false)
-        setDismissWhenClicked(true)
-
-        setOnBalloonOutsideTouchListener { view, event ->
-            if (canDismiss && event.action == MotionEvent.ACTION_OUTSIDE) {
-                balloonWindow?.dismiss()
-            }
+        if (shouldShowTooltip) {
+            delay(2000L)
+            canDismiss = true
         }
     }
+
+    val builder = rememberConfiguredBalloonBuilder(
+        backgroundColor = backgroundColor,
+        overlayColor = overlayColor,
+        canDismissProvider = { canDismiss },
+        onDismissRequest = { balloonWindow?.dismiss() }
+    )
 
     CenterAlignedTopAppBar(
         colors = containerColor?.let {
@@ -168,7 +148,13 @@ fun CenteredTopAppBar(
                         )
                     }
                 ) {
-                    IconButton(onClick = { expanded = true }) {
+                    IconButton(onClick = {
+                        if (isBalloonShown) {
+                            balloonWindow?.dismiss()
+                            isBalloonShown = false
+                        }
+                        expanded = true
+                    }) {
                         Icon(
                             painterResource(R.drawable.ic_menu),
                             contentDescription = "Actions Icon"

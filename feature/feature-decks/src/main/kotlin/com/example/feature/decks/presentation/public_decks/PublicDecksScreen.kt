@@ -43,6 +43,7 @@ import androidx.compose.material3.SearchBarDefaults.InputField
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -56,6 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -67,6 +69,10 @@ import com.example.common.ui.DeckCard
 import com.example.common.ui.entity.DeckUiModel
 import com.example.database.models.Source
 import com.example.feature.decks.R
+import com.example.feature.decks.presentation.util.rememberPublicDecksBalloonBuilder
+import com.skydoves.balloon.compose.Balloon
+import com.skydoves.balloon.compose.rememberBalloonWindow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -82,13 +88,14 @@ fun PublicDecksScreen(
     val screenState by viewModel.screenState.collectAsState()
     val query = rememberSaveable { mutableStateOf("") }
     val searchBarExpanded = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
+
     val decksFlow = remember(query.value) {
         if (query.value.isBlank()) viewModel.decksFlow
         else viewModel.searchPublicDecks(query.value)
     }.collectAsLazyPagingItems()
 
-    val coroutineScope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
     val isScrollingDown = remember { derivedStateOf { listState.firstVisibleItemScrollOffset > 0 } }
 
     val animatedPadding by animateDpAsState(
@@ -96,13 +103,34 @@ fun PublicDecksScreen(
         label = stringResource(R.string.searchbarpadding)
     )
 
+    val showDeckCardTooltip = rememberSaveable { mutableStateOf(true) }
+    var balloonWindow by rememberBalloonWindow(null)
+    var canDismiss by remember { mutableStateOf(false) }
+    var isBalloonShown by rememberSaveable { mutableStateOf(false) }
+
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant.toArgb()
+    val overlayColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f).toArgb()
+    val shouldShowTooltip = screenState.shouldShowTooltip
+
+    LaunchedEffect(Unit) {
+        if (shouldShowTooltip) {
+            delay(2000L)
+            canDismiss = true
+        }
+    }
+
+    val builder = rememberPublicDecksBalloonBuilder(
+        backgroundColor = backgroundColor,
+        overlayColor = overlayColor,
+        canDismissProvider = { canDismiss },
+        onDismissRequest = { balloonWindow?.dismiss() }
+    )
+
     PullToRefreshBox(
         isRefreshing = decksFlow.loadState.refresh is LoadState.Loading,
         onRefresh = { decksFlow.refresh() },
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             SearchBarComponent(
                 query = query,
                 searchBarExpanded = searchBarExpanded,
@@ -157,34 +185,70 @@ fun PublicDecksScreen(
                             var isLiked by remember { mutableStateOf(deck.isLiked) }
                             var likes by remember { mutableIntStateOf(deck.likes) }
 
-                            DeckCard(
-                                deck = deck.copy(isLiked = isLiked, likes = likes),
-                                onDeckClickListener = onDeckClickListener,
-                                onTrainClick = { deckId ->
-                                    coroutineScope.launch {
-                                        val (deck, source) = viewModel.getDeckById(deckId)
-                                        onTrainClick(deck.id, source)
-                                    }
-                                },
-                                onLikeClickListener = { deckId, newIsLiked ->
-                                    viewModel.onLikeClick(
-                                        deckId,
-                                        newIsLiked
-                                    ) { updatedIsLiked, updatedLikes ->
-                                        isLiked = updatedIsLiked
-                                        likes = updatedLikes
-                                    }
-                                },
-                                onScheduleClick = { deckId ->
-                                    coroutineScope.launch {
-                                        val (deck, source) = viewModel.getDeckById(deckId)
-                                        onScheduleClick(deck.id, deck.name, source)
-                                    }
-                                },
-                                modifier = Modifier
+                            val cardModifier = if (index == 0 && showDeckCardTooltip.value) {
+                                Modifier.animateItem()
+                            } else {
+                                Modifier
                                     .padding(horizontal = 24.dp)
                                     .animateItem()
-                            )
+                            }
+
+                            val deckCard = @Composable {
+                                DeckCard(
+                                    deck = deck.copy(isLiked = isLiked, likes = likes),
+                                    onDeckClickListener = onDeckClickListener,
+                                    onTrainClick = { id ->
+                                        coroutineScope.launch {
+                                            val (deck, source) = viewModel.getDeckById(id)
+                                            onTrainClick(deck.id, source)
+                                        }
+                                    },
+                                    onLikeClickListener = { id, liked ->
+                                        viewModel.onLikeClick(
+                                            id,
+                                            liked
+                                        ) { updatedLiked, updatedLikes ->
+                                            isLiked = updatedLiked
+                                            likes = updatedLikes
+                                        }
+                                    },
+                                    onScheduleClick = { id ->
+                                        coroutineScope.launch {
+                                            val (deck, source) = viewModel.getDeckById(id)
+                                            onScheduleClick(deck.id, deck.name, source)
+                                        }
+                                    },
+                                    modifier = cardModifier
+                                )
+                            }
+
+                            if (index == 0 && showDeckCardTooltip.value) {
+                                Box(modifier = Modifier.padding(horizontal = 24.dp)) {
+                                    Balloon(
+                                        builder = builder,
+                                        onBalloonWindowInitialized = { balloonWindow = it },
+                                        onComposedAnchor = {
+                                            if (shouldShowTooltip && !isBalloonShown) {
+                                                balloonWindow?.showAlignBottom()
+                                                isBalloonShown = true
+                                            }
+                                        },
+                                        balloonContent = {
+                                            Text(
+                                                text = stringResource(R.string.deck_card_long_press_tooltip),
+                                                modifier = Modifier.padding(8.dp),
+                                                style = MaterialTheme.typography.labelLarge.copy(
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            )
+                                        }
+                                    ) {
+                                        deckCard()
+                                    }
+                                }
+                            } else {
+                                deckCard()
+                            }
                         }
                     }
                     item {
@@ -352,7 +416,9 @@ private fun ErrorContent(
     onRetry: () -> Unit,
 ) {
     Box(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
