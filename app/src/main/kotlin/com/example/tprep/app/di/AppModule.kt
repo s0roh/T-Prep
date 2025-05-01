@@ -33,6 +33,8 @@ import com.example.network.api.ApiService
 import com.example.preferences.AuthPreferences
 import com.example.preferences.AuthPreferencesImpl
 import com.example.preferences.AuthRequestWrapper
+import com.example.preferences.TooltipPreferences
+import com.example.preferences.TooltipPreferencesImpl
 import com.example.tprep.app.reminder.AppRouteNavigator
 import com.example.tprep.app.utils.getApiBaseUrl
 import com.example.training.data.repository.TrainingRepositoryImpl
@@ -128,6 +130,12 @@ interface AppModule {
         @Singleton
         fun provideAuthPreferences(@ApplicationContext context: Context): AuthPreferences {
             return AuthPreferencesImpl(context)
+        }
+
+        @Provides
+        @Singleton
+        fun provideTooltipPreferences(@ApplicationContext context: Context): TooltipPreferences {
+            return TooltipPreferencesImpl(context)
         }
 
         @Provides

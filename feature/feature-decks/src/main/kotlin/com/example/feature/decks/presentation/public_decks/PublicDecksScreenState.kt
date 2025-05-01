@@ -8,7 +8,8 @@ data class PublicDecksScreenState(
     val decks: Flow<PagingData<DeckUiModel>>? = null,
     val sortType: SortType = SortType.LIKES,
     val category: DeckCategory = DeckCategory.ALL,
-    val query: String = ""
+    val query: String = "",
+    val shouldShowTooltip: Boolean = false,
 )
 
 enum class SortType(val value: String) {

@@ -47,6 +47,7 @@ import com.example.common.R
 import com.example.common.ui.entity.DeckUiModel
 import com.example.common.util.formatCount
 import com.example.common.util.getCardWordForm
+import com.skydoves.balloon.compose.BalloonWindow
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -58,17 +59,26 @@ fun DeckCard(
     onScheduleClick: (String) -> Unit,
     onDeleteClick: ((String, String) -> Unit)? = null,
     onLikeClickListener: ((String, Boolean) -> Unit)? = null,
+    balloonWindow: BalloonWindow? = null,
 ) {
     val context = LocalContext.current
     var menuExpanded by remember { mutableStateOf(false) }
+
+    val dismissTooltip: () -> Unit = {
+        balloonWindow?.dismiss()
+    }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .shadow(2.dp, MaterialTheme.shapes.medium)
             .combinedClickable(
-                onClick = { onDeckClickListener(deck.id) },
+                onClick = {
+                    onDeckClickListener(deck.id)
+                    dismissTooltip()
+                },
                 onLongClick = {
+                    dismissTooltip()
                     menuExpanded = true
                 }
             ),

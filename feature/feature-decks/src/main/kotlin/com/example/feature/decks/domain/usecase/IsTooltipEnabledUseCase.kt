@@ -1,11 +1,11 @@
 package com.example.feature.decks.domain.usecase
 
 import com.example.database.models.Source
-import com.example.preferences.AuthPreferences
+import com.example.preferences.TooltipPreferences
 import javax.inject.Inject
 
 internal class IsTooltipEnabledUseCase @Inject constructor(
-    private val preferences: AuthPreferences,
+    private val preferences: TooltipPreferences,
 ) {
 
     operator fun invoke(source: Source): Boolean = when (source) {

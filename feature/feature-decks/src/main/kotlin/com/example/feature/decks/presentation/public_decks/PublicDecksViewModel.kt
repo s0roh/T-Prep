@@ -11,8 +11,10 @@ import com.example.database.models.Source
 import com.example.feature.decks.domain.entity.PublicDeckFilters
 import com.example.feature.decks.domain.usecase.GetDeckByIdFromNetworkUseCase
 import com.example.feature.decks.domain.usecase.GetPublicDecksUseCase
+import com.example.feature.decks.domain.usecase.IsPublicDecksTooltipEnabledUseCase
 import com.example.feature.decks.domain.usecase.LikeOrUnlikeUseCase
 import com.example.feature.decks.domain.usecase.SearchPublicDecksUseCase
+import com.example.feature.decks.domain.usecase.SetPublicDecksTooltipShownUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +28,9 @@ internal class PublicDecksViewModel @Inject constructor(
     getPublicDecksUseCase: GetPublicDecksUseCase,
     private val likeOrUnlikeUseCase: LikeOrUnlikeUseCase,
     private val searchPublicDecksUseCase: SearchPublicDecksUseCase,
-    private val getDeckByIdFromNetworkUseCase: GetDeckByIdFromNetworkUseCase
+    private val getDeckByIdFromNetworkUseCase: GetDeckByIdFromNetworkUseCase,
+    isPublicDecksTooltipEnabledUseCase: IsPublicDecksTooltipEnabledUseCase,
+    setPublicDecksTooltipShownUseCase: SetPublicDecksTooltipShownUseCase,
 ) : ViewModel() {
 
     private val filtersFlow = MutableStateFlow(PublicDeckFilters())
@@ -37,11 +41,17 @@ internal class PublicDecksViewModel @Inject constructor(
     var screenState = MutableStateFlow<PublicDecksScreenState>(PublicDecksScreenState())
         private set
 
+    init {
+        val shouldShowTooltip = isPublicDecksTooltipEnabledUseCase()
+        if (shouldShowTooltip) setPublicDecksTooltipShownUseCase()
+        screenState.value = screenState.value.copy(shouldShowTooltip = shouldShowTooltip)
+    }
+
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e("PublicDecksViewModel", "Error: ${throwable.message}")
     }
 
-    fun onLikeClick(deckId: String, isLiked: Boolean,  onUpdate: (Boolean, Int) -> Unit) {
+    fun onLikeClick(deckId: String, isLiked: Boolean, onUpdate: (Boolean, Int) -> Unit) {
         viewModelScope.launch(exceptionHandler) {
             val updatedLikes = likeOrUnlikeUseCase(deckId, isLiked)
             onUpdate(!isLiked, updatedLikes)

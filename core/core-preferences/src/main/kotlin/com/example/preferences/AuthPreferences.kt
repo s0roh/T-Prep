@@ -25,11 +25,6 @@ interface AuthPreferences {
     fun getUserEmail(): String?
     fun getUserProfileImage(): String?
 
-    fun isLocalTooltipEnabled(): Boolean
-    fun isPublicTooltipEnabled(): Boolean
-    fun setLocalTooltipShown()
-    fun setPublicTooltipShown()
-
     fun isVibrationEnabled(): Boolean
     fun isSoundEnabled(): Boolean
     fun toggleVibration()
