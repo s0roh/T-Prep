@@ -16,6 +16,7 @@ import com.example.database.models.TrainingMode
  * @property displayedAnswer Отображаемый ответ в режиме "Правильно или нет".
  * @property partialAnswer Частичный ответ в режиме "Дополнить ответ", где часть ответа скрыта.
  * @property missingWords Список слов, которые необходимо дополнить в режиме "Дополнить ответ".
+ * @property missingWordStartIndex Индекс в ответе, с которого начинаются пропуски.
  */
 data class TrainingCard(
     val id: Int,
@@ -26,5 +27,6 @@ data class TrainingCard(
     val displayedAnswer: String? = null,
     val partialAnswer: String? = null,
     val attachment: String? = null,
-    val missingWords: List<String> = emptyList()
+    val missingWords: List<String> = emptyList(),
+    val missingWordStartIndex: Int = -1,
 )

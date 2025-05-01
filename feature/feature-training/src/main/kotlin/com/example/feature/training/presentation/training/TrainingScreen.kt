@@ -43,10 +43,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
@@ -56,17 +53,19 @@ import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.ErrorState
 import com.example.common.ui.LoadingState
 import com.example.common.ui.NavigationIconType
+import com.example.common.util.playSound
+import com.example.common.util.vibrate
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
+import com.example.feature.training.R
+import com.example.feature.training.presentation.components.AnswerWithHighlight
 import com.example.feature.training.presentation.components.MultipleChoiceAnswerList
 import com.example.feature.training.presentation.components.QuestionArea
 import com.example.feature.training.presentation.components.TrainingNavigationButton
 import com.example.feature.training.presentation.components.TrueFalseAnswerSection
 import com.example.feature.training.presentation.components.TrueFalseButtons
+import com.example.feature.training.presentation.components.UserInputWithHighlight
 import com.example.feature.training.presentation.util.launchShakeAnimation
-import com.example.common.util.playSound
-import com.example.common.util.vibrate
-import com.example.feature.training.R
 import com.example.training.domain.entity.TrainingCard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -433,7 +432,7 @@ private fun FillInTheBlankContent(
             .padding(horizontal = 25.dp)
     ) {
         if (isAnswered) {
-            AnswerWithHighlight(card.answer, card.missingWords)
+            AnswerWithHighlight(card.answer, card.missingWords, card.missingWordStartIndex)
             UserInputWithHighlight(userInput, card.missingWords, isCorrect)
             Spacer(modifier = Modifier.height(20.dp))
         } else {
@@ -477,117 +476,4 @@ private fun FillInTheBlankContent(
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
-}
-
-@Composable
-private fun AnswerWithHighlight(answer: String, missingWords: List<String>) {
-    Text(
-        text = stringResource(R.string.answer),
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
-
-    // Подсвечиваем только слова из missingWords, соединенные в единую строку
-    val annotatedAnswer = buildAnnotatedString {
-        val answerText = answer
-        val missingText = missingWords.joinToString(" ")
-
-        // Индекс для отслеживания начала позиции missingWords в полном ответе
-        var currentIndex = 0
-
-        // Перебираем ответ, подсвечиваем только missingWords
-        while (currentIndex < answerText.length) {
-            // Ищем, где начинается строка, соответствующая missingWords
-            val startIndex = answerText.indexOf(missingText, currentIndex)
-            if (startIndex != -1) {
-                // Если нашли, добавляем до этого места обычный текст
-                append(answerText.substring(currentIndex, startIndex))
-
-                // Подсвечиваем missingWords
-                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                    append(missingText)
-                }
-
-                // Обновляем currentIndex для продолжения после подсвеченной строки
-                currentIndex = startIndex + missingText.length
-            } else {
-                // Если больше нет match, добавляем оставшийся текст
-                append(answerText.substring(currentIndex))
-                break
-            }
-        }
-    }
-
-    Text(
-        text = annotatedAnswer,
-        style = MaterialTheme.typography.labelLarge,
-        modifier = Modifier.padding(bottom = 40.dp)
-    )
-}
-
-@Composable
-private fun UserInputWithHighlight(
-    userInput: String,
-    missingWords: List<String>,
-    isCorrect: Boolean,
-) {
-    Text(
-        text = stringResource(R.string.your_answer),
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
-
-    val annotatedUserInput = buildAnnotatedString {
-        val userInputWords = userInput.split("\\s+".toRegex()).filter { it.isNotBlank() }
-        var missingWordIndex = 0
-        var isAlreadyWrong = false
-
-        if (userInput.isBlank()) {
-            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
-                append(stringResource(R.string.you_dont_answered))
-            }
-        } else {
-            userInputWords.forEachIndexed { index, word ->
-                val expectedWord = missingWords.getOrNull(missingWordIndex)
-
-                val color = when {
-                    expectedWord == null -> MaterialTheme.colorScheme.error
-                    isAlreadyWrong -> MaterialTheme.colorScheme.error
-                    isCorrect -> {
-                        if (word.equals(expectedWord, ignoreCase = true)) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.tertiary
-                        }
-                    }
-
-                    word.equals(
-                        expectedWord,
-                        ignoreCase = true
-                    ) -> MaterialTheme.colorScheme.primary
-
-                    else -> {
-                        isAlreadyWrong = true
-                        MaterialTheme.colorScheme.error
-                    }
-                }
-
-                withStyle(style = SpanStyle(color = color)) {
-                    append(word)
-                }
-
-                if (index < userInputWords.size - 1) {
-                    append(" ")
-                }
-
-                missingWordIndex++
-            }
-        }
-    }
-
-    Text(
-        text = annotatedUserInput,
-        style = MaterialTheme.typography.labelLarge,
-        modifier = Modifier.padding(bottom = 16.dp)
-    )
 }
