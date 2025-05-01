@@ -148,13 +148,7 @@ fun CenteredTopAppBar(
                         )
                     }
                 ) {
-                    IconButton(onClick = {
-                        if (isBalloonShown) {
-                            balloonWindow?.dismiss()
-                            isBalloonShown = false
-                        }
-                        expanded = true
-                    }) {
+                    IconButton(onClick = { expanded = true }) {
                         Icon(
                             painterResource(R.drawable.ic_menu),
                             contentDescription = "Actions Icon"

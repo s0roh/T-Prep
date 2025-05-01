@@ -31,7 +31,7 @@ internal fun rememberConfiguredBalloonBuilder(
         setOverlayColor(overlayColor)
 
         setDismissWhenOverlayClicked(false)
-        setDismissWhenTouchOutside(true)
+        setDismissWhenTouchOutside(false)
         setDismissWhenClicked(true)
 
         setOnBalloonOutsideTouchListener { _, event ->

@@ -218,6 +218,7 @@ fun PublicDecksScreen(
                                             onScheduleClick(deck.id, deck.name, source)
                                         }
                                     },
+                                    balloonWindow = balloonWindow,
                                     modifier = cardModifier
                                 )
                             }

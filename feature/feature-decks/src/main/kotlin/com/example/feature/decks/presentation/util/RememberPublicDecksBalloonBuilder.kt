@@ -38,6 +38,8 @@ internal fun rememberPublicDecksBalloonBuilder(
         setOverlayColor(overlayColor)
         setOverlayShape(BalloonOverlayRoundRect(cornerRadiusPx, cornerRadiusPx))
 
+        setShouldPassTouchEventToAnchor(true)
+
         setDismissWhenOverlayClicked(false)
         setDismissWhenTouchOutside(false)
         setDismissWhenClicked(true)
