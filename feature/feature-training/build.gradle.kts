@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":data-profile"))
 
     implementation (libs.androidx.foundation)
+    implementation(libs.konfetti.compose)
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)

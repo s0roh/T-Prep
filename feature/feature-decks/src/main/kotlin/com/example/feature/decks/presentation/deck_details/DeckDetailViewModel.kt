@@ -55,7 +55,7 @@ internal class DeckDetailViewModel @Inject constructor(
         when (source) {
             Source.LOCAL -> {
                 currentDeckId = deckId
-                viewModelScope.launch {
+                viewModelScope.launch(exceptionHandler) {
                     nextTrainingTime = getNextTrainingTimeUseCase(deckId = deckId)
                     val shouldShowTooltip = isTooltipEnabledUseCase(source = Source.LOCAL)
                     if (shouldShowTooltip) {
@@ -68,7 +68,7 @@ internal class DeckDetailViewModel @Inject constructor(
                             nextTrainingTime = nextTrainingTime,
                             shouldShowTooltip = shouldShowTooltip
                         )
-                    }
+                    } ?: throw IllegalStateException("Колода с ID $deckId не найден")
                 }
             }
 

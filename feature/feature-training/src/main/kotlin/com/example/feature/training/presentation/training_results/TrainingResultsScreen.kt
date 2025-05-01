@@ -29,12 +29,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.common.ui.AppElevatedButton
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.NavigationIconType
-import com.example.database.models.Source
-import com.example.feature.training.presentation.components.AnimatedDonutChart
-import com.example.feature.training.presentation.components.ChartSegment
 import com.example.common.util.getCardWordForm
 import com.example.common.util.getFormattedTime
+import com.example.database.models.Source
 import com.example.feature.training.R
+import com.example.feature.training.presentation.components.AnimatedDonutChart
+import com.example.feature.training.presentation.components.ChartSegment
+import nl.dionsegijn.konfetti.compose.KonfettiView
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.Rotation
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun TrainingResultsScreen(
@@ -105,7 +111,10 @@ private fun TrainingResultsContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(26.dp))
-            StatisticRow(title = stringResource(R.string.total_completed), count = state.totalAnswers)
+            StatisticRow(
+                title = stringResource(R.string.total_completed),
+                count = state.totalAnswers
+            )
             Spacer(modifier = Modifier.height(12.dp))
             StatisticRow(title = stringResource(R.string.correct), count = state.correctAnswers)
             Spacer(modifier = Modifier.height(60.dp))
@@ -147,6 +156,35 @@ private fun TrainingResultsContent(
                     onClick = { onNavigateToDeck(deckId, source) }
                 )
             }
+        }
+        if (state.correctPercentage > 50 && !cameFromHistoryScreen) {
+            KonfettiView(
+                modifier = Modifier.fillMaxSize(),
+                parties = listOf(
+                    Party(
+                        angle = 290,
+                        spread = 60,
+                        speed = 30f,
+                        maxSpeed = 50f,
+                        timeToLive = 2500,
+                        fadeOutEnabled = true,
+                        position = Position.Relative(0.0, 0.6),
+                        emitter = Emitter(duration = 3, TimeUnit.SECONDS).perSecond(80),
+                        rotation = Rotation.enabled()
+                    ),
+                    Party(
+                        angle = 250,
+                        spread = 60,
+                        speed = 30f,
+                        maxSpeed = 50f,
+                        timeToLive = 2500,
+                        fadeOutEnabled = true,
+                        position = Position.Relative(1.0, 0.6),
+                        emitter = Emitter(duration = 3, TimeUnit.SECONDS).perSecond(80),
+                        rotation = Rotation.enabled()
+                    )
+                )
+            )
         }
     }
 }

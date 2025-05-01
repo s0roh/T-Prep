@@ -102,13 +102,9 @@ fun DeckDetailScreen(
     }
 
     when (val currentState = screenState.value) {
-        is DeckDetailScreenState.Loading -> {
-            LoadingState()
-        }
+        is DeckDetailScreenState.Loading -> LoadingState()
 
-        is DeckDetailScreenState.Error -> {
-            ErrorState(message = stringResource(R.string.error_loading_deck))
-        }
+        is DeckDetailScreenState.Error -> ErrorContent(onBackClick = onBackClick)
 
         is DeckDetailScreenState.Success -> {
             DeckDetailContent(
@@ -177,6 +173,7 @@ private fun DeckDetailContent(
         AppAlertDialog(
             title = stringResource(R.string.delete_deck_title),
             message = stringResource(R.string.delete_deck_message),
+            confirmButtonText = stringResource(R.string.reaffirm),
             onConfirm = {
                 showDeleteDialog = false
                 onDeleteDeck()
@@ -196,6 +193,7 @@ private fun DeckDetailContent(
         AppAlertDialog(
             title = title,
             message = message,
+            confirmButtonText = stringResource(R.string.confirm),
             onConfirm = {
                 showPrivacyDialog = false
                 onEditDeckPrivateState()
@@ -528,6 +526,7 @@ private fun ExpandableCardItem(
 private fun AppAlertDialog(
     title: String,
     message: String,
+    confirmButtonText: String,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
 ) {
@@ -537,7 +536,7 @@ private fun AppAlertDialog(
         text = { Text(text = message) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(text = stringResource(R.string.reaffirm))
+                Text(text = confirmButtonText)
             }
         },
         dismissButton = {
@@ -610,7 +609,7 @@ private fun TrainingScheduledTime(nextTrainingTime: Long) {
 }
 
 @Composable
-fun NoCardsPlaceholder(
+private fun NoCardsPlaceholder(
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -631,6 +630,26 @@ fun NoCardsPlaceholder(
             text = stringResource(R.string.no_cards_placeholder),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+private fun ErrorContent(
+    onBackClick: () -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            CenteredTopAppBar(
+                navigationIconType = NavigationIconType.BACK,
+                onNavigationClick = onBackClick
+            )
+        }
+    ) { paddingValues ->
+        ErrorState(
+            modifier = Modifier.padding(paddingValues),
+            iconResId = R.drawable.ic_error,
+            message = stringResource(R.string.error_loading_deck)
         )
     }
 }
