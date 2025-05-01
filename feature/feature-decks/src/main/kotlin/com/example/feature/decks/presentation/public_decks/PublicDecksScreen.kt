@@ -180,7 +180,14 @@ fun PublicDecksScreen(
                     state = listState,
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
-                    items(decksFlow.itemCount) { index ->
+                    items(
+                        count = decksFlow.itemCount,
+                        key = { index ->
+                            val deck = decksFlow[index]
+                            val prefix = if (searchBarExpanded.value) "search_" else "list_"
+                            prefix + (deck?.id ?: "default_key_$index")
+                        }
+                    ) { index ->
                         decksFlow[index]?.let { deck ->
                             var isLiked by remember { mutableStateOf(deck.isLiked) }
                             var likes by remember { mutableIntStateOf(deck.likes) }
@@ -542,7 +549,7 @@ private fun SearchBarComponent(
                     item {
                         Spacer(modifier = Modifier)
                     }
-                    items(decksList) { deck ->
+                    items(items = decksList, key = { deck -> deck.id }) { deck ->
                         var isLiked by remember(deck.id) { mutableStateOf(deck.isLiked) }
                         var likes by remember(deck.id) { mutableIntStateOf(deck.likes) }
 
