@@ -29,6 +29,7 @@ import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import kotlin.math.max
+import kotlin.random.Random
 
 
 class TrainingRepositoryImpl @Inject constructor(
@@ -57,18 +58,28 @@ class TrainingRepositoryImpl @Inject constructor(
                     deckId = deckId,
                     userId = userId
                 )
+                val lastAnswerCorrect = database.historyDao.wasLastAnswerCorrect(
+                    cardId = card.id,
+                    deckId = deckId,
+                    userId = userId
+                )
+
                 val isNew = answerStats.correctCount == 0 && answerStats.errorCount == 0
                 val coefficient =
                     if (isNew) DEFAULT_COEFFICIENT else calculateCoefficientFromHistory(answerStats)
-                card to Pair(isNew, coefficient)
+
+                val isStable = !isNew && lastAnswerCorrect && coefficient >= 2.0
+                val randomKey = if (isStable) Random.nextDouble() else null
+
+                Triple(card, isNew, Pair(coefficient, randomKey))
             }
 
             // Сортировка карт по приоритету и коэффициенту
             val sortedCards = cardsWithSortingData
                 .sortedWith(
                     compareBy(
-                        { if (it.second.first) NEW_CARD_PRIORITY else EXISTING_CARD_PRIORITY },
-                        { it.second.second }
+                        { if (it.second) NEW_CARD_PRIORITY else EXISTING_CARD_PRIORITY },
+                        { it.third.second ?: it.third.first }
                     ))
                 .map { it.first }
 
