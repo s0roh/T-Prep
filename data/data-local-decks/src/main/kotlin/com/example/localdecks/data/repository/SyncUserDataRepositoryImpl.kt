@@ -16,8 +16,8 @@ import com.example.network.dto.collection.history.CorrectAnswerDto
 import com.example.network.dto.collection.history.ErrorAnswerDto
 import com.example.network.dto.collection.history.HistoryItemDto
 import com.example.network.dto.global.CardDto
-import com.example.preferences.AuthPreferences
-import com.example.preferences.AuthRequestWrapper
+import com.example.preferences.auth.AuthPreferences
+import com.example.preferences.auth.util.AuthRequestWrapper
 import kotlinx.coroutines.flow.first
 import retrofit2.Response
 import java.io.File

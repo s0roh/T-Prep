@@ -83,13 +83,25 @@ fun PublicDecksScreen(
     onDeckClickListener: (String) -> Unit,
     onTrainClick: (String, Source) -> Unit,
     onScheduleClick: (String, String, Source) -> Unit,
+    isShowingLikedDecks: Boolean = false
 ) {
     val viewModel: PublicDecksViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        val initialCategory = if (isShowingLikedDecks) DeckCategory.LIKED else DeckCategory.ALL
+        viewModel.updateCategory(initialCategory)
+    }
+
     val query = rememberSaveable { mutableStateOf("") }
     val searchBarExpanded = remember { mutableStateOf(false) }
+    val previousExpanded = remember { mutableStateOf(searchBarExpanded.value) }
+
     val coroutineScope = rememberCoroutineScope()
+
     val listState = rememberLazyListState()
+    val savedScrollPosition = rememberSaveable { mutableIntStateOf(0) }
+    val savedScrollOffset = rememberSaveable { mutableIntStateOf(0) }
 
     val decksFlow = remember(query.value) {
         if (query.value.isBlank()) viewModel.decksFlow
@@ -125,6 +137,21 @@ fun PublicDecksScreen(
         canDismissProvider = { canDismiss },
         onDismissRequest = { balloonWindow?.dismiss() }
     )
+
+    // Восстановление позиции скролла только при переходе searchBarExpanded: true -> false
+    LaunchedEffect(searchBarExpanded.value) {
+        val wasExpanded = previousExpanded.value
+        val isNowCollapsed = !searchBarExpanded.value
+
+        if (wasExpanded && isNowCollapsed && query.value.isBlank()) {
+            listState.scrollToItem(savedScrollPosition.intValue, savedScrollOffset.intValue)
+        }
+
+        savedScrollPosition.intValue = listState.firstVisibleItemIndex
+        savedScrollOffset.intValue = listState.firstVisibleItemScrollOffset
+
+        previousExpanded.value = searchBarExpanded.value
+    }
 
     PullToRefreshBox(
         isRefreshing = decksFlow.loadState.refresh is LoadState.Loading,
@@ -181,7 +208,11 @@ fun PublicDecksScreen(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     items(
-                        count = decksFlow.itemCount
+                        count = decksFlow.itemCount,
+                        key = { index ->
+                            val deck = decksFlow[index]
+                            (deck?.id ?: "default_key_$index")
+                        }
                     ) { index ->
                         decksFlow[index]?.let { deck ->
                             var isLiked by remember(deck.id) { mutableStateOf(deck.isLiked) }

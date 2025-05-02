@@ -11,7 +11,7 @@ import com.example.database.models.Source
 fun AppNavGraph(
     navHostController: NavHostController,
     authScreenContent: @Composable () -> Unit,
-    publicDecksScreenContent: @Composable () -> Unit,
+    publicDecksScreenContent: @Composable (Boolean) -> Unit,
     profileScreenContent: @Composable () -> Unit,
     settingsScreenContent: @Composable () -> Unit,
     ownerProfileScreenContent: @Composable (String) -> Unit,
@@ -35,8 +35,9 @@ fun AppNavGraph(
         composable<Screen.Auth> {
             authScreenContent()
         }
-        composable<Screen.PublicDecks> {
-            publicDecksScreenContent()
+        composable<Screen.PublicDecks> { backStackEntry ->
+            val publicDecks: Screen.PublicDecks = backStackEntry.toRoute()
+            publicDecksScreenContent(publicDecks.isShowingLikedDecks)
         }
         composable<Screen.Settings> {
             settingsScreenContent()

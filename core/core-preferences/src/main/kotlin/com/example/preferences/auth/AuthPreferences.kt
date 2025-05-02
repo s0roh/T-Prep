@@ -1,4 +1,4 @@
-package com.example.preferences
+package com.example.preferences.auth
 
 interface AuthPreferences {
 

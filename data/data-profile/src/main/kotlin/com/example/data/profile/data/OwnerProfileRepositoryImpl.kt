@@ -7,7 +7,7 @@ import com.example.common.ui.entity.DeckUiModel
 import com.example.data.profile.domain.entity.OwnerProfileInfo
 import com.example.data.profile.domain.repository.OwnerProfileRepository
 import com.example.network.api.ApiService
-import com.example.preferences.AuthRequestWrapper
+import com.example.preferences.auth.util.AuthRequestWrapper
 import java.io.File
 import javax.inject.Inject
 

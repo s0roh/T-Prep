@@ -17,4 +17,5 @@
     <string name="general_statistics">Общая статистика</string>
     <string name="training_completed">Тренировок завершено</string>
     <string name="percentage_of_correct_answers">Процент правильных ответов</string>
+    <string name="open_favourite_decks">Открыть избранные колоды</string>
 </resources>

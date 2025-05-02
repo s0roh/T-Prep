@@ -5,8 +5,8 @@ import android.net.Uri
 import android.util.Log
 import com.example.data.profile.domain.repository.ProfileRepository
 import com.example.network.api.ApiService
-import com.example.preferences.AuthPreferences
-import com.example.preferences.AuthRequestWrapper
+import com.example.preferences.auth.AuthPreferences
+import com.example.preferences.auth.util.AuthRequestWrapper
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody

@@ -1,6 +1,6 @@
 package com.example.feature.profile.domain
 
-import com.example.preferences.AuthPreferences
+import com.example.preferences.auth.AuthPreferences
 import javax.inject.Inject
 
 internal class ClearTokensUseCase @Inject constructor(

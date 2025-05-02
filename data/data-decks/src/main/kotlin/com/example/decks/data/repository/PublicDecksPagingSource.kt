@@ -6,7 +6,7 @@ import androidx.paging.PagingState
 import com.example.decks.data.mapper.toEntity
 import com.example.common.ui.entity.DeckUiModel
 import com.example.network.api.ApiService
-import com.example.preferences.AuthRequestWrapper
+import com.example.preferences.auth.util.AuthRequestWrapper
 
 internal class PublicDecksPagingSource(
     private val apiService: ApiService,

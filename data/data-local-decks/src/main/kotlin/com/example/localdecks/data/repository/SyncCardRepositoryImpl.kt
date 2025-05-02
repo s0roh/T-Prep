@@ -7,7 +7,7 @@ import com.example.localdecks.data.mapper.toDTO
 import com.example.localdecks.domain.entity.CardRequest
 import com.example.localdecks.domain.repository.SyncCardRepository
 import com.example.network.api.ApiService
-import com.example.preferences.AuthRequestWrapper
+import com.example.preferences.auth.util.AuthRequestWrapper
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody

@@ -12,7 +12,7 @@ import com.example.data.reminder.domain.repository.ReminderScheduler
 import com.example.database.TPrepDatabase
 import com.example.database.models.Source
 import com.example.network.api.ApiService
-import com.example.preferences.AuthRequestWrapper
+import com.example.preferences.auth.util.AuthRequestWrapper
 import javax.inject.Inject
 
 class ReminderSchedulerImpl @Inject constructor(

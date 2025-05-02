@@ -14,7 +14,7 @@ import com.example.localdecks.data.mapper.toEntity
 import com.example.localdecks.data.mapper.toUiModel
 import com.example.localdecks.domain.repository.LocalDeckRepository
 import com.example.localdecks.domain.repository.SyncHelper
-import com.example.preferences.AuthPreferences
+import com.example.preferences.auth.AuthPreferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

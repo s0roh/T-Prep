@@ -102,11 +102,11 @@ fun MainScreen(navController: NavHostController) {
             authScreenContent = {
                 AuthScreen(
                     onSuccessAuthListener = {
-                        navigationState.navigateFromLogin(Screen.PublicDecks)
+                        navigationState.navigateFromLogin(Screen.PublicDecks())
                     }
                 )
             },
-            publicDecksScreenContent = {
+            publicDecksScreenContent = {isShowingLikedDecks ->
                 PublicDecksScreen(
                     paddingValues = paddingValues,
                     onDeckClickListener = { deckId ->
@@ -128,7 +128,8 @@ fun MainScreen(navController: NavHostController) {
                                 source = source
                             )
                         )
-                    }
+                    },
+                    isShowingLikedDecks = isShowingLikedDecks
                 )
             },
             historyScreenContent = {
@@ -145,16 +146,21 @@ fun MainScreen(navController: NavHostController) {
                 )
             },
             settingsScreenContent = {
-                SettingsScreen(onBackClick = { navigationState.navHostController.popBackStack() })
+                SettingsScreen(
+                    onBackClick = { navigationState.navHostController.popBackStack() },
+                    onLogoutClick = { navigationState.navigateLogout(Screen.Auth) }
+                )
             },
             profileScreenContent = {
                 ProfileScreen(
                     paddingValues = paddingValues,
-                    onLogoutClick = {
-                        navigationState.navigateLogout(Screen.Auth)
-                    },
                     onSettingsClick = {
                         navigationState.navigateWithSaveState(Screen.Settings)
+                    },
+                    onFavouriteDecksClick = {
+                        navigationState.navigateLogout(
+                            Screen.PublicDecks(isShowingLikedDecks = true)
+                        )
                     }
                 )
             },

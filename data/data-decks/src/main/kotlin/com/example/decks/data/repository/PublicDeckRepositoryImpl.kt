@@ -10,7 +10,7 @@ import com.example.database.models.Source
 import com.example.decks.data.mapper.toEntity
 import com.example.decks.domain.repository.PublicDeckRepository
 import com.example.network.api.ApiService
-import com.example.preferences.AuthRequestWrapper
+import com.example.preferences.auth.util.AuthRequestWrapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject

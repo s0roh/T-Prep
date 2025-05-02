@@ -157,7 +157,7 @@ private fun TrainingResultsContent(
                 )
             }
         }
-        if (state.correctPercentage > 50 && !cameFromHistoryScreen) {
+        if (state.correctPercentage >= 70 && !cameFromHistoryScreen) {
             KonfettiView(
                 modifier = Modifier.fillMaxSize(),
                 parties = listOf(

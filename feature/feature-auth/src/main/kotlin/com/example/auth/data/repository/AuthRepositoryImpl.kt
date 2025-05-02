@@ -6,7 +6,7 @@ import com.example.auth.mapper.toLoginRequestDto
 import com.example.auth.mapper.toSignupRequestDto
 import com.example.network.api.ApiService
 import com.example.network.dto.user.AuthResponseDto
-import com.example.preferences.AuthPreferences
+import com.example.preferences.auth.AuthPreferences
 import retrofit2.Response
 import javax.inject.Inject
 

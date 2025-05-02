@@ -1,4 +1,4 @@
-package com.example.preferences
+package com.example.preferences.auth
 
 import android.content.Context
 import android.content.SharedPreferences

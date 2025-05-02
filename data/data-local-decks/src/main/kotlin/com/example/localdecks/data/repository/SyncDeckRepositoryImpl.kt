@@ -7,7 +7,7 @@ import com.example.localdecks.data.mapper.toDTO
 import com.example.localdecks.domain.entity.DeckRequest
 import com.example.localdecks.domain.repository.SyncDeckRepository
 import com.example.network.api.ApiService
-import com.example.preferences.AuthRequestWrapper
+import com.example.preferences.auth.util.AuthRequestWrapper
 import javax.inject.Inject
 
 class SyncDeckRepositoryImpl @Inject constructor(

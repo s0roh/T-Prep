@@ -12,8 +12,8 @@ import com.example.database.models.HistoryDBO
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
 import com.example.network.api.ApiService
-import com.example.preferences.AuthPreferences
-import com.example.preferences.AuthRequestWrapper
+import com.example.preferences.auth.AuthPreferences
+import com.example.preferences.auth.util.AuthRequestWrapper
 import com.example.training.data.mapper.toDbo
 import com.example.training.data.mapper.toEntity
 import com.example.training.data.util.generatePartialAnswer
