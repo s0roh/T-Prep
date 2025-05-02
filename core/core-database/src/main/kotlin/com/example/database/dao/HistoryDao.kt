@@ -40,6 +40,25 @@ interface HistoryDao {
 """)
     suspend fun getAnswerStatsForSession(trainingSessionId: String): AnswerStatsDBO
 
+    @Query("""
+    SELECT EXISTS (
+        SELECT 1
+        FROM correct_answer
+        WHERE cardId = :cardId AND trainingSessionId = (
+            SELECT trainingSessionId
+            FROM history
+            WHERE cardId = :cardId AND deckId = :deckId AND userId = :userId
+            ORDER BY timestamp DESC
+            LIMIT 1
+        )
+    )
+""")
+    suspend fun wasLastAnswerCorrect(
+        cardId: Int,
+        deckId: String,
+        userId: String
+    ): Boolean
+
     @Query("SELECT * FROM history WHERE deckId = :deckId AND userId = :userId ORDER BY timestamp ASC")
     suspend fun getHistoryForDeck(deckId: String, userId: String): List<HistoryDBO>
 
