@@ -30,11 +30,11 @@ import com.example.localdecks.domain.repository.SyncCardRepository
 import com.example.localdecks.domain.repository.SyncDeckRepository
 import com.example.localdecks.domain.repository.SyncUserDataRepository
 import com.example.network.api.ApiService
-import com.example.preferences.AuthPreferences
-import com.example.preferences.AuthPreferencesImpl
-import com.example.preferences.AuthRequestWrapper
-import com.example.preferences.TooltipPreferences
-import com.example.preferences.TooltipPreferencesImpl
+import com.example.preferences.auth.AuthPreferences
+import com.example.preferences.auth.AuthPreferencesImpl
+import com.example.preferences.auth.util.AuthRequestWrapper
+import com.example.preferences.tooltip.TooltipPreferences
+import com.example.preferences.tooltip.TooltipPreferencesImpl
 import com.example.tprep.app.reminder.AppRouteNavigator
 import com.example.tprep.app.utils.getApiBaseUrl
 import com.example.training.data.repository.TrainingRepositoryImpl

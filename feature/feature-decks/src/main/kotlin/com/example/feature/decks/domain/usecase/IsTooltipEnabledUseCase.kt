@@ -1,7 +1,7 @@
 package com.example.feature.decks.domain.usecase
 
 import com.example.database.models.Source
-import com.example.preferences.TooltipPreferences
+import com.example.preferences.tooltip.TooltipPreferences
 import javax.inject.Inject
 
 internal class IsTooltipEnabledUseCase @Inject constructor(

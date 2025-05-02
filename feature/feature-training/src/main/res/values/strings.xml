@@ -45,4 +45,5 @@
     <string name="true_false_help_description">Нужно определить, верен предложенный ответ на вопрос или нет.</string>
     <string name="input_help_title">Ввод ответа</string>
     <string name="input_help_description">Укажите недостающий фрагмент ответа. Подходит для длинных формулировок.</string>
+    <string name="your_answer_is_wrong">Вы ответили неправильно</string>
 </resources>

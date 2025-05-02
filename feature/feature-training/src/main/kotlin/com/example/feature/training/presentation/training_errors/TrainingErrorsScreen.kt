@@ -291,7 +291,13 @@ private fun ErrorItem(error: TrainingError, pictureUri: Uri?, pictureErrorMessag
                     )
                 }
 
-                TrainingMode.TRUE_FALSE -> {}
+                TrainingMode.TRUE_FALSE -> {
+                    AnswerSection(
+                        title = stringResource(R.string.your_answer),
+                        answer = stringResource(R.string.your_answer_is_wrong),
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                }
                 TrainingMode.FILL_IN_THE_BLANK -> {
                     AnswerSection(
                         title = stringResource(R.string.your_answer),

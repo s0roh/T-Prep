@@ -13,18 +13,17 @@ class NavigationState(
 
     fun <T : Any> navigateTo(route: T) {
         navHostController.navigate(route) {
-            popUpTo(Screen.PublicDecks) {
+            popUpTo(Screen.PublicDecks()) {
                 saveState = true
             }
             launchSingleTop = true
             restoreState = true
-
         }
     }
 
     fun <T : Any> navigateLogout(route: T) {
         navHostController.navigate(route) {
-            popUpTo(Screen.PublicDecks) {
+            popUpTo(Screen.PublicDecks()) {
                 inclusive = true
             }
             launchSingleTop = true
@@ -63,7 +62,7 @@ fun navigateToRoute(route: String?, navController: NavHostController) {
     route?.let {
         fromRoute(it)?.let { screen ->
             navController.navigate(screen) {
-                popUpTo(Screen.PublicDecks)
+                popUpTo(Screen.PublicDecks())
                 launchSingleTop = true
             }
         } ?: Log.e("Navigation", "Unknown route: $it")

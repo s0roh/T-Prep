@@ -9,7 +9,7 @@ sealed class NavigationItem<T>(val nameResId: Int, val icon: Int, val route: T) 
     data object PublicDecks: NavigationItem<Screen.PublicDecks>(
         nameResId = R.string.review,
         icon = R.drawable.ic_public,
-        route = Screen.PublicDecks
+        route = Screen.PublicDecks()
     )
     data object LocalDecks: NavigationItem<Screen.LocalDecks>(
         nameResId = R.string.decks,

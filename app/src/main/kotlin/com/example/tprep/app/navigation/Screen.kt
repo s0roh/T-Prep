@@ -13,7 +13,9 @@ sealed interface Screen {
     data object Profile : Screen
 
     @Serializable
-    data object PublicDecks : Screen
+    data class PublicDecks(
+        val isShowingLikedDecks: Boolean = false,
+    ) : Screen
 
     @Serializable
     data object History : Screen
@@ -62,8 +64,8 @@ sealed interface Screen {
     @Serializable
     data class DeckDetailsStatistic(
         val deckId: String,
-        val deckName: String
-    ): Screen
+        val deckName: String,
+    ) : Screen
 
     @Serializable
     data class Training(
@@ -79,12 +81,12 @@ sealed interface Screen {
 
     @Serializable
     data class TrainingErrors(
-        val trainingSessionId: String
+        val trainingSessionId: String,
     ) : Screen
 
     @Serializable
     data class TrainingModeSettings(
-        val deckId: String
+        val deckId: String,
     ) : Screen
 
     @Serializable

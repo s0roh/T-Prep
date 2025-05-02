@@ -11,13 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.common.ui.AppElevatedButton
 import com.example.common.ui.LoadingState
 import com.example.feature.profile.R
 import com.example.feature.profile.presentation.components.CropImageContract
@@ -46,8 +43,8 @@ import com.example.feature.profile.presentation.util.launchCrop
 @Composable
 fun ProfileScreen(
     paddingValues: PaddingValues,
-    onLogoutClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onFavouriteDecksClick: () -> Unit,
 ) {
     val viewModel: ProfileViewModel = hiltViewModel()
     val context = LocalContext.current
@@ -117,12 +114,9 @@ fun ProfileScreen(
                 ProfileScreenContent(
                     paddingValues = innerPadding,
                     state = currentState,
-                    onLogoutClick = {
-                        viewModel.logout()
-                        onLogoutClick()
-                    },
                     onDeleteProfileImage = { viewModel.deleteProfileImage() },
-                    onChangeImageClick = { showDialog = true }
+                    onChangeImageClick = { showDialog = true },
+                    onFavouriteDecksClick = onFavouriteDecksClick
                 )
             }
 
@@ -135,9 +129,9 @@ fun ProfileScreen(
 private fun ProfileScreenContent(
     paddingValues: PaddingValues,
     state: ProfileScreenState.Success,
-    onLogoutClick: () -> Unit,
     onDeleteProfileImage: () -> Unit,
     onChangeImageClick: () -> Unit,
+    onFavouriteDecksClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -156,25 +150,14 @@ private fun ProfileScreenContent(
 
         StatisticsSection(state = state)
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(41.dp))
 
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                containerColor = MaterialTheme.colorScheme.primary
-            ),
-            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-            onClick = { onLogoutClick() }
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                contentDescription = stringResource(R.string.logout),
-                modifier = Modifier.size(ButtonDefaults.IconSize)
-            )
-            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-            Text(text = stringResource(R.string.exit))
-        }
+        AppElevatedButton(
+            title = stringResource(R.string.open_favourite_decks),
+            iconResId = R.drawable.ic_heart,
+            onClick = onFavouriteDecksClick,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

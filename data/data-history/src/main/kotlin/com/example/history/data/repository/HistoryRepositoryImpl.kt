@@ -7,7 +7,7 @@ import com.example.history.domain.entity.TrainingHistory
 import com.example.history.domain.entity.TrainingHistoryItem
 import com.example.history.domain.entity.TrainingModeStats
 import com.example.history.domain.repository.HistoryRepository
-import com.example.preferences.AuthPreferences
+import com.example.preferences.auth.AuthPreferences
 import javax.inject.Inject
 
 class HistoryRepositoryImpl @Inject internal constructor(

@@ -31,8 +31,10 @@ fun AppBottomNavigation(navigationState: NavigationState) {
 
     NavigationBar {
         navigationItems.forEach { item ->
-            val isSelected = navBackStackEntry?.destination?.hierarchy?.any {
-                it.route == item.route::class.qualifiedName
+            val isSelected = navBackStackEntry?.destination?.hierarchy?.any { destination ->
+                val route = destination.route ?: return@any false
+                val targetClassName = item.route::class.qualifiedName ?: return@any false
+                route.contains(targetClassName)
             } == true
 
             NavigationBarItem(

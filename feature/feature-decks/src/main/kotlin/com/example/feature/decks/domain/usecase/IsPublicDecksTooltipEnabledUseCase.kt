@@ -1,6 +1,6 @@
 package com.example.feature.decks.domain.usecase
 
-import com.example.preferences.TooltipPreferences
+import com.example.preferences.tooltip.TooltipPreferences
 import javax.inject.Inject
 
 internal class IsPublicDecksTooltipEnabledUseCase @Inject constructor(

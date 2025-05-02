@@ -7,6 +7,10 @@ android {
 }
 
 dependencies {
+    implementation(projects.coreNetwork)
+
+    implementation(libs.retrofit.core)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
