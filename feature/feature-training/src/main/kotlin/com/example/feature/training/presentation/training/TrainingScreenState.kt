@@ -12,10 +12,9 @@ sealed interface TrainingScreenState {
     data class Success(
         val cards: List<TrainingCard>,
         val currentCardIndex: Int = 0,
-        val currentCardPictureUri: Uri? = null,
-        val nextCardPictureUri: Uri? = null,
         val correctAnswers: Int = 0,
-        val selectedAnswer: String? = null
+        val selectedAnswer: String? = null,
+        val preloadedCardPictures: Map<Int, Uri> = emptyMap()
     ) : TrainingScreenState
 
     data class Finished(

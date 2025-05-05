@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.feature.profile.domain.DeleteUserProfileImageUseCase
 import com.example.feature.profile.domain.GetTrainingStatsUseCase
 import com.example.feature.profile.domain.GetUserInfoUseCase
+import com.example.feature.profile.domain.GetUserProfileImageUseCase
 import com.example.feature.profile.domain.SaveUserProfileImageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -25,6 +26,7 @@ internal class ProfileViewModel @Inject constructor(
     private val saveUserProfileImageUseCase: SaveUserProfileImageUseCase,
     private val deleteUserProfileImageUseCase: DeleteUserProfileImageUseCase,
     private val getTrainingStatsUseCase: GetTrainingStatsUseCase,
+    private val getUserProfileImageUseCase: GetUserProfileImageUseCase
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<ProfileScreenState>(ProfileScreenState.Loading)
@@ -44,17 +46,21 @@ internal class ProfileViewModel @Inject constructor(
 
     private fun loadProfile() {
         viewModelScope.launch(exceptionHandler) {
+            val (totalTrainings, averageAccuracy) = getTrainingStatsUseCase()
             val profileInfo = getUserInfoUseCase()
 
-            val (totalTrainings, averageAccuracy) = getTrainingStatsUseCase()
-
-            screenState.value = ProfileScreenState.Success(
+            val baseState = ProfileScreenState.Success(
                 userName = profileInfo.profileName,
                 userEmail = profileInfo.profileEmail,
-                profileImageUri = profileInfo.profileImage,
+                profileImageUri = null,
                 totalTrainings = totalTrainings,
                 averageAccuracy = averageAccuracy
             )
+            screenState.value = baseState
+
+            val profileImage = getUserProfileImageUseCase()
+
+            screenState.value = baseState.copy(profileImageUri = profileImage)
         }
     }
 

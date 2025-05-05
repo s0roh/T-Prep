@@ -59,7 +59,10 @@ class ReminderSchedulerImpl @Inject constructor(
         deckId: String,
         source: Source,
     ): List<Reminder> {
+        val now = System.currentTimeMillis()
+
         return database.trainingReminderDao.getRemindersForDeck(deckId = deckId, source = source)
+            .filter { it.reminderTime > now }
             .map { it.toEntity() }
     }
 

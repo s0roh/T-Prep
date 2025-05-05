@@ -52,7 +52,7 @@ class TrainingRepositoryImpl @Inject constructor(
                 ?: throw IllegalStateException("User ID not found in preferences")
 
             // Получение статистики по каждой карте
-            val cardsWithSortingData = cards.map { card ->
+            val cardsWithPriority = cards.map { card ->
                 val answerStats = database.historyDao.getAnswerStatsForCard(
                     cardId = card.id,
                     deckId = deckId,
@@ -68,19 +68,19 @@ class TrainingRepositoryImpl @Inject constructor(
                 val coefficient =
                     if (isNew) DEFAULT_COEFFICIENT else calculateCoefficientFromHistory(answerStats)
 
-                val isStable = !isNew && lastAnswerCorrect && coefficient >= 2.0
-                val randomKey = if (isStable) Random.nextDouble() else null
+                val priority = when {
+                    isNew -> NEW_CARD_PRIORITY
+                    !lastAnswerCorrect -> EXISTING_CARD_PRIORITY
+                    coefficient < STABLE_CARD_COEFFICIENT_THRESHOLD -> coefficient
+                    else -> Random.nextDouble() + STABLE_CARD_COEFFICIENT_THRESHOLD
+                }
 
-                Triple(card, isNew, Pair(coefficient, randomKey))
+                Pair(card, priority)
             }
 
-            // Сортировка карт по приоритету и коэффициенту
-            val sortedCards = cardsWithSortingData
-                .sortedWith(
-                    compareBy(
-                        { if (it.second) NEW_CARD_PRIORITY else EXISTING_CARD_PRIORITY },
-                        { it.third.second ?: it.third.first }
-                    ))
+            // Сортировка карт по приоритету
+            val sortedCards = cardsWithPriority
+                .sortedBy { it.second }
                 .map { it.first }
 
             // Применение выбранного режима тренировки к каждой карте
@@ -262,7 +262,7 @@ class TrainingRepositoryImpl @Inject constructor(
                         }
 
                         else -> {
-                           null
+                            null
                         }
                     }
                 }
@@ -358,11 +358,12 @@ class TrainingRepositoryImpl @Inject constructor(
 
     companion object {
 
-        private const val NEW_CARD_PRIORITY = 0
-        private const val EXISTING_CARD_PRIORITY = 1
+        private const val NEW_CARD_PRIORITY = 0.0
+        private const val EXISTING_CARD_PRIORITY = 1.0
         private const val DEFAULT_COEFFICIENT = 2.5
         private const val MIN_COEFFICIENT = 1.3
         private const val MAX_COEFFICIENT = 2.5
+        private const val STABLE_CARD_COEFFICIENT_THRESHOLD = 2.0
         private const val COEFFICIENT_INCREMENT = 0.1
         private const val COEFFICIENT_DECREMENT = -0.2
         private const val WRONG_ANSWERS_COUNT = 3

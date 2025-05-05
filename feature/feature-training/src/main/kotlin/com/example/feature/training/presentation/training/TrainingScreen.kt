@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -164,7 +166,6 @@ fun TrainingScreen(
     }
 }
 
-
 @SuppressLint("MissingPermission")
 @Composable
 private fun TrainingCardsContent(
@@ -223,7 +224,21 @@ private fun TrainingCardsContent(
                 label = "CardTransition"
             ) { card ->
                 Column {
-                    currentState.currentCardPictureUri?.let { uri ->
+                    val currentCardUri =
+                        currentState.preloadedCardPictures[currentState.currentCardIndex]
+
+                    if (!currentCard.attachment.isNullOrBlank() && currentCardUri == null) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    currentCardUri?.let { uri ->
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(uri)

@@ -154,6 +154,7 @@ private fun ProfileScreenContent(
 
         AppElevatedButton(
             title = stringResource(R.string.open_favourite_decks),
+            shouldShowIcon = true,
             iconResId = R.drawable.ic_heart,
             onClick = onFavouriteDecksClick,
             modifier = Modifier.fillMaxWidth()

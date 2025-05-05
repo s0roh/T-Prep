@@ -19,6 +19,7 @@ import com.example.feature.training.domain.RecordTrainingUseCase
 import com.example.training.domain.entity.TrainingCard
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -48,6 +49,8 @@ internal class TrainingViewModel @Inject constructor(
         screenState.value = TrainingScreenState.Error(message.toString())
     }
 
+    private val _preloadRequestFlow = MutableSharedFlow<Int>(extraBufferCapacity = 10)
+
     private var currentDeckId: String = ""
     private lateinit var currentSource: Source
     private lateinit var currentDeck: Deck
@@ -64,19 +67,40 @@ internal class TrainingViewModel @Inject constructor(
             screenState.value = TrainingScreenState.Loading
 
             val cards = loadCardsForTraining(source)
-            val currentCard = cards.firstOrNull()
-            val nextCard = cards.getOrNull(1)
-
-            val currentUri = getCardUriIfExists(currentCard)
-            val nextUri = getCardUriIfExists(nextCard)
+            val preloadedUris = preloadCardPictures(cards, startIndex = 0)
 
             screenState.value = TrainingScreenState.Success(
                 cards = cards,
-                currentCardPictureUri = currentUri,
-                nextCardPictureUri = nextUri
+                preloadedCardPictures = preloadedUris
             )
         }
+
+        startPreloadListener()
     }
+
+    private fun startPreloadListener() {
+        viewModelScope.launch(exceptionHandler) {
+            _preloadRequestFlow.collect { index ->
+                delay(5000)
+                val currentState =
+                    screenState.value as? TrainingScreenState.Success ?: return@collect
+
+                if (index >= currentState.cards.size || currentState.preloadedCardPictures.containsKey(
+                        index
+                    )
+                ) return@collect
+
+                val uri = getCardUriIfExists(currentState.cards[index]) ?: return@collect
+
+                val updated = currentState.preloadedCardPictures.toMutableMap().apply {
+                    this[index] = uri
+                }
+
+                screenState.value = currentState.copy(preloadedCardPictures = updated)
+            }
+        }
+    }
+
 
     private suspend fun loadCardsForTraining(source: Source): List<TrainingCard> {
         currentDeck = when (source) {
@@ -101,6 +125,24 @@ internal class TrainingViewModel @Inject constructor(
             cards = currentDeck.cards,
             modes = trainingModes
         )
+    }
+
+    private suspend fun preloadCardPictures(
+        cards: List<TrainingCard>,
+        startIndex: Int,
+    ): Map<Int, Uri> {
+        val result = mutableMapOf<Int, Uri>()
+        val endIndex = (startIndex + 3).coerceAtMost(cards.size)
+
+        for (index in startIndex until endIndex) {
+            val card = cards[index]
+            val uri = getCardUriIfExists(card)
+            if (uri != null) {
+                result[index] = uri
+            }
+        }
+
+        return result
     }
 
     fun checkFillInTheBlankAnswer(
@@ -166,26 +208,18 @@ internal class TrainingViewModel @Inject constructor(
         val currentState = screenState.value as? TrainingScreenState.Success ?: return
         val nextIndex = currentState.currentCardIndex + 1
 
-        if (nextIndex < currentState.cards.size) {
-            loadNextCard(currentState, nextIndex)
-        } else {
+        if (nextIndex >= currentState.cards.size) {
             finishTraining()
+            return
         }
-    }
 
-    private fun loadNextCard(currentState: TrainingScreenState.Success, nextIndex: Int) {
-        val newCurrentUri = currentState.nextCardPictureUri
-        val nextNextCard = currentState.cards.getOrNull(nextIndex + 1)
+        screenState.value = currentState.copy(
+            currentCardIndex = nextIndex,
+            correctAnswers = correctAnswersCount
+        )
 
-        viewModelScope.launch(exceptionHandler) {
-            val newNextUri = getCardUriIfExists(nextNextCard)
-
-            screenState.value = currentState.copy(
-                currentCardIndex = nextIndex,
-                correctAnswers = correctAnswersCount,
-                currentCardPictureUri = newCurrentUri,
-                nextCardPictureUri = newNextUri,
-            )
+        ((nextIndex + 1)..(nextIndex + 5).coerceAtMost(currentState.cards.lastIndex)).forEach {
+            _preloadRequestFlow.tryEmit(it)
         }
     }
 

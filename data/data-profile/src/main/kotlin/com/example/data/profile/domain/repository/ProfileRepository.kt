@@ -27,4 +27,11 @@ interface ProfileRepository {
      * @throws IllegalStateException в случае ошибки получения информации.
      */
     suspend fun getUserInfo(): ProfileInfo
+
+    /**
+     * Загружает изображение профиля текущего пользователя.
+     *
+     * @return [Uri] URI изображения профиля пользователя или `null`, если изображение отсутствует.
+     */
+    suspend fun getUserProfileImage(): Uri?
 }
