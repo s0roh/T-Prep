@@ -1,5 +1,6 @@
 plugins {
     id("android-feature-lib-convention")
+    id("android-feature-test-lib-convention")
 }
 
 android {
@@ -7,8 +8,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":data-history"))
-    implementation(project(":data-decks"))
-    implementation(project(":core-common"))
-    implementation(project(":core-database"))
+    implementation(projects.dataHistory)
+    implementation(projects.dataDecks)
+    implementation(projects.coreCommon)
+    implementation(projects.coreDatabase)
 }

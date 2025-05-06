@@ -1,5 +1,6 @@
 plugins {
     id("android-feature-lib-convention")
+    id("android-feature-test-lib-convention")
 }
 
 android {
@@ -7,12 +8,12 @@ android {
 }
 
 dependencies {
-    implementation(project(":data-history"))
-    implementation(project(":data-profile"))
-    implementation(project(":data-decks"))
-    implementation(project(":core-preferences"))
-    implementation(project(":core-common"))
-    implementation(project(":core-database"))
+    implementation(projects.dataHistory)
+    implementation(projects.dataProfile)
+    implementation(projects.dataDecks)
+    implementation(projects.corePreferences)
+    implementation(projects.coreCommon)
+    implementation(projects.coreDatabase)
 
     implementation(libs.android.image.cropper)
     implementation(libs.coil.compose)

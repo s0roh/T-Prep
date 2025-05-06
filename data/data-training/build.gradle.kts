@@ -7,10 +7,10 @@ android {
 }
 
 dependencies {
-    implementation(project(":core-database"))
-    implementation(project(":core-common"))
-    implementation(project(":core-preferences"))
-    implementation(project(":core-network"))
+    implementation(projects.coreDatabase)
+    implementation(projects.coreCommon)
+    implementation(projects.corePreferences)
+    implementation(projects.coreNetwork)
 
     implementation(libs.retrofit.core)
 

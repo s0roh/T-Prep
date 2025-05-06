@@ -19,7 +19,10 @@ import com.example.feature.training.domain.RecordTrainingUseCase
 import com.example.training.domain.entity.TrainingCard
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -49,7 +52,12 @@ internal class TrainingViewModel @Inject constructor(
         screenState.value = TrainingScreenState.Error(message.toString())
     }
 
-    private val _preloadRequestFlow = MutableSharedFlow<Int>(extraBufferCapacity = 10)
+    private val _preloadRequestFlow = MutableSharedFlow<Int>(
+        extraBufferCapacity = 10,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+
+    private val preloadScope = CoroutineScope(Dispatchers.IO + exceptionHandler)
 
     private var currentDeckId: String = ""
     private lateinit var currentSource: Source
@@ -79,15 +87,13 @@ internal class TrainingViewModel @Inject constructor(
     }
 
     private fun startPreloadListener() {
-        viewModelScope.launch(exceptionHandler) {
+        preloadScope.launch {
             _preloadRequestFlow.collect { index ->
-                delay(5000)
                 val currentState =
                     screenState.value as? TrainingScreenState.Success ?: return@collect
 
-                if (index >= currentState.cards.size || currentState.preloadedCardPictures.containsKey(
-                        index
-                    )
+                if (index >= currentState.cards.size ||
+                    currentState.preloadedCardPictures.containsKey(index)
                 ) return@collect
 
                 val uri = getCardUriIfExists(currentState.cards[index]) ?: return@collect
@@ -205,21 +211,24 @@ internal class TrainingViewModel @Inject constructor(
     }
 
     fun moveToNextCardOrFinish() {
-        val currentState = screenState.value as? TrainingScreenState.Success ?: return
-        val nextIndex = currentState.currentCardIndex + 1
+        viewModelScope.launch(exceptionHandler) {
+            val currentState = screenState.value as? TrainingScreenState.Success ?: return@launch
+            val nextIndex = currentState.currentCardIndex + 1
 
-        if (nextIndex >= currentState.cards.size) {
-            finishTraining()
-            return
-        }
+            if (nextIndex >= currentState.cards.size) {
+                finishTraining()
+                return@launch
+            }
 
-        screenState.value = currentState.copy(
-            currentCardIndex = nextIndex,
-            correctAnswers = correctAnswersCount
-        )
-
-        ((nextIndex + 1)..(nextIndex + 5).coerceAtMost(currentState.cards.lastIndex)).forEach {
-            _preloadRequestFlow.tryEmit(it)
+            screenState.value = currentState.copy(
+                currentCardIndex = nextIndex,
+                correctAnswers = correctAnswersCount
+            )
+            launch {
+                ((nextIndex + 1)..(nextIndex + 5).coerceAtMost(currentState.cards.lastIndex)).forEach {
+                    _preloadRequestFlow.emit(it)
+                }
+            }
         }
     }
 
@@ -265,5 +274,10 @@ internal class TrainingViewModel @Inject constructor(
                 uiEvent.emit(TrainingUiEvent.VibrateIncorrectAnswer)
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        preloadScope.cancel()
     }
 }

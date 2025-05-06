@@ -14,13 +14,13 @@ sealed interface TrainingScreenState {
         val currentCardIndex: Int = 0,
         val correctAnswers: Int = 0,
         val selectedAnswer: String? = null,
-        val preloadedCardPictures: Map<Int, Uri> = emptyMap()
+        val preloadedCardPictures: Map<Int, Uri> = emptyMap(),
     ) : TrainingScreenState
 
     data class Finished(
         val totalCardsCompleted: Int,
         val correctAnswers: Int,
-        val trainingSessionId: String
+        val trainingSessionId: String,
     ) : TrainingScreenState
 
     data class Error(val message: String) : TrainingScreenState

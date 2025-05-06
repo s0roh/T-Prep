@@ -1,5 +1,6 @@
 plugins {
     id("android-feature-lib-convention")
+    id("android-feature-test-lib-convention")
 }
 
 android {
@@ -7,12 +8,12 @@ android {
 }
 
 dependencies {
-    implementation(project(":core-common"))
-    implementation(project(":core-database"))
-    implementation(project(":data-training"))
-    implementation(project(":data-decks"))
-    implementation(project(":data-local-decks"))
-    implementation(project(":data-profile"))
+    implementation(projects.coreCommon)
+    implementation(projects.coreDatabase)
+    implementation(projects.dataTraining)
+    implementation(projects.dataDecks)
+    implementation(projects.dataLocalDecks)
+    implementation(projects.dataProfile)
 
     implementation (libs.androidx.foundation)
     implementation(libs.konfetti.compose)

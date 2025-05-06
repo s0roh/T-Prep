@@ -1,5 +1,6 @@
 plugins {
     id("android-feature-lib-convention")
+    id("android-feature-test-lib-convention")
 }
 
 android {
@@ -7,7 +8,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":data-reminder"))
-    implementation(project(":core-database"))
-    implementation(project(":core-common"))
+    implementation(projects.dataReminder)
+    implementation(projects.coreDatabase)
+    implementation(projects.coreCommon)
 }
