@@ -23,7 +23,7 @@ class ProfileRepositoryImpl @Inject constructor(
     private val authRequestWrapper: AuthRequestWrapper,
 ) : ProfileRepository {
 
-    private suspend fun getUserProfileImage(): Uri? {
+    override suspend fun getUserProfileImage(): Uri? {
         return try {
             authRequestWrapper.executeWithAuth { token ->
                 val response = apiService.getUserPicture(authHeader = token)
@@ -124,13 +124,11 @@ class ProfileRepositoryImpl @Inject constructor(
     override suspend fun getUserInfo(): ProfileInfo {
         val cachedName = preferences.getUserName()
         val cachedEmail = preferences.getUserEmail()
-        val profileImage = getUserProfileImage()
 
         return if (!cachedName.isNullOrEmpty() && !cachedEmail.isNullOrEmpty()) {
             ProfileInfo(
                 profileName = cachedName,
-                profileEmail = cachedEmail,
-                profileImage = profileImage
+                profileEmail = cachedEmail
             )
         } else {
             authRequestWrapper.executeWithAuth { token ->
@@ -149,8 +147,7 @@ class ProfileRepositoryImpl @Inject constructor(
 
                             return@executeWithAuth ProfileInfo(
                                 profileName = userName,
-                                profileEmail = userEmail,
-                                profileImage = profileImage
+                                profileEmail = userEmail
                             )
                         }
                     }

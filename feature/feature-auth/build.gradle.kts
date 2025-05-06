@@ -7,9 +7,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":core-network"))
-    implementation(project(":core-preferences"))
-    implementation(project(":data-local-decks"))
+    implementation(projects.coreNetwork)
+    implementation(projects.corePreferences)
+    implementation(projects.dataLocalDecks)
 
     implementation(libs.retrofit.core)
 }

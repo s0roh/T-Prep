@@ -7,9 +7,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":core-database"))
-    implementation(project(":core-preferences"))
-    implementation(project(":core-network"))
+    implementation(projects.coreDatabase)
+    implementation(projects.corePreferences)
+    implementation(projects.coreNetwork)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

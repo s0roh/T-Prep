@@ -7,9 +7,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":core-network"))
-    implementation(project(":core-common"))
-    implementation(project(":core-preferences"))
+    implementation(projects.coreNetwork)
+    implementation(projects.coreCommon)
+    implementation(projects.corePreferences)
 
     implementation(libs.retrofit.core)
     implementation(libs.coil.compose)

@@ -4,7 +4,7 @@ import com.example.data.profile.domain.entity.OwnerProfileInfo
 import com.example.data.profile.domain.repository.OwnerProfileRepository
 import javax.inject.Inject
 
-class LoadOwnerProfileInfoUseCase @Inject constructor(
+internal class LoadOwnerProfileInfoUseCase @Inject constructor(
     private val repository: OwnerProfileRepository,
 ) {
 

@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -47,8 +49,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import coil3.request.CachePolicy
-import coil3.request.ImageRequest
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.ErrorState
 import com.example.common.ui.LoadingState
@@ -68,6 +68,7 @@ import com.example.feature.training.presentation.components.UserInputWithHighlig
 import com.example.feature.training.presentation.util.launchShakeAnimation
 import com.example.training.domain.entity.TrainingCard
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
@@ -164,7 +165,6 @@ fun TrainingScreen(
     }
 }
 
-
 @SuppressLint("MissingPermission")
 @Composable
 private fun TrainingCardsContent(
@@ -195,10 +195,11 @@ private fun TrainingCardsContent(
         isAnswered = false
         selectedAnswer = null
         userInput = ""
-        isButtonEnabled = true
         isCorrect = false
         shakeOffset.snapTo(0f)
         scrollState.scrollTo(0)
+        delay(500)
+        isButtonEnabled = true
     }
 
     Column(
@@ -223,13 +224,23 @@ private fun TrainingCardsContent(
                 label = "CardTransition"
             ) { card ->
                 Column {
-                    currentState.currentCardPictureUri?.let { uri ->
+                    val currentCardUri =
+                        currentState.preloadedCardPictures[currentState.currentCardIndex]
+
+                    if (!currentCard.attachment.isNullOrBlank() && currentCardUri == null) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    currentCardUri?.let { uri ->
                         AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(uri)
-                                .memoryCachePolicy(CachePolicy.DISABLED)
-                                .diskCachePolicy(CachePolicy.DISABLED)
-                                .build(),
+                            model = uri,
                             contentDescription = stringResource(R.string.image_of_card),
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -325,9 +336,6 @@ private fun TrainingCardsContent(
             isButtonEnabled = isButtonEnabled,
             onNextCard = {
                 isButtonEnabled = false
-                isAnswered = false
-                selectedAnswer = null
-                userInput = ""
                 onNextCard()
             },
             onSkip = {

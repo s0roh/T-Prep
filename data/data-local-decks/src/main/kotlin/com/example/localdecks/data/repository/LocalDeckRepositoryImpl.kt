@@ -94,11 +94,6 @@ class LocalDeckRepositoryImpl @Inject constructor(
                 } else {
                     database.cardDao.updateCard(card.copy(isDeleted = true))
                 }
-                syncHelper.markAsDeleted(
-                    deckId = deckId,
-                    entityType = EntityType.CARD,
-                    cardId = card.id
-                )
             }
             database.trainingModesHistoryDao.deleteTrainingModes(deckId)
             if (existingDeck.serverDeckId == null) {

@@ -7,13 +7,13 @@ android {
 }
 
 dependencies {
-    implementation(project(":data-decks"))
-    implementation(project(":data-history"))
-    implementation(project(":data-training"))
-    implementation(project(":data-local-decks"))
-    implementation(project(":core-common"))
-    implementation(project(":core-database"))
-    implementation(project(":core-preferences"))
+    implementation(projects.dataDecks)
+    implementation(projects.dataHistory)
+    implementation(projects.dataTraining)
+    implementation(projects.dataLocalDecks)
+    implementation(projects.coreCommon)
+    implementation(projects.coreDatabase)
+    implementation(projects.corePreferences)
 
     implementation (libs.compose.charts)
     implementation(libs.coil.compose)

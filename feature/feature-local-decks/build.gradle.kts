@@ -1,5 +1,6 @@
 plugins {
     id("android-feature-lib-convention")
+    id("android-feature-test-lib-convention")
 }
 
 android {
@@ -7,8 +8,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":core-common"))
-    implementation(project(":data-local-decks"))
+    implementation(projects.coreCommon)
+    implementation(projects.dataLocalDecks)
 
     implementation(libs.android.image.cropper)
     implementation(libs.coil.compose)

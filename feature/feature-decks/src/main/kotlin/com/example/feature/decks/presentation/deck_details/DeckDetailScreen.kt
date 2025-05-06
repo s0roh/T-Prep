@@ -46,6 +46,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -56,15 +57,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import coil3.request.CachePolicy
-import coil3.request.ImageRequest
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
 import com.example.common.ui.AppButton
@@ -77,6 +75,8 @@ import com.example.common.util.getCardWordForm
 import com.example.common.util.getFormattedTime
 import com.example.database.models.Source
 import com.example.feature.decks.R
+import com.example.feature.decks.presentation.util.imageUriCacheSaver
+import com.example.feature.decks.presentation.util.rememberSaveableWithMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -285,6 +285,10 @@ private fun DeckDetailContent(
 
     val listState = rememberLazyListState()
     var expandedCardId = rememberSaveable { mutableStateOf<Int?>(null) }
+    val imageUriCache = rememberSaveableWithMap(
+        initialValue = { mutableStateMapOf<Int, Uri?>() },
+        saver = imageUriCacheSaver
+    )
 
     if (isBottomSheetOpen) {
         CardListBottomSheet(
@@ -298,7 +302,8 @@ private fun DeckDetailContent(
             onDeleteCard = onDeleteCard,
             onAddCardClick = onAddCardClick,
             onGetCardPicture = onGetCardPicture,
-            onDismiss = { isBottomSheetOpen = false }
+            onDismiss = { isBottomSheetOpen = false },
+            imageUriCache = imageUriCache
         )
     }
 
@@ -323,6 +328,7 @@ private fun CardListBottomSheet(
     onAddCardClick: () -> Unit,
     onGetCardPicture: (cardId: Int, attachment: String?, onResult: (Uri?) -> Unit) -> Unit,
     onDismiss: () -> Unit,
+    imageUriCache: MutableMap<Int, Uri?>,
 ) {
     ModalBottomSheet(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -366,6 +372,8 @@ private fun CardListBottomSheet(
                             onEditCard = onEditCard,
                             onDeleteCard = onDeleteCard,
                             onGetCardPicture = onGetCardPicture,
+                            imageUri = imageUriCache[card.id],
+                            onImageLoaded = { uri -> imageUriCache[card.id] = uri },
                             modifier = Modifier.animateItem()
                         )
                     }
@@ -404,20 +412,20 @@ private fun ExpandableCardItem(
     onEditCard: (deckId: String, cardId: Int) -> Unit,
     onDeleteCard: (Card) -> Unit,
     onGetCardPicture: (cardId: Int, attachment: String?, onResult: (Uri?) -> Unit) -> Unit,
+    imageUri: Uri?,
+    onImageLoaded: (Uri?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     val isExpanded = expandedCardId.value == card.id
-    val imageUri = remember { mutableStateOf<Uri?>(null) }
 
     LaunchedEffect(isExpanded) {
-        if (isExpanded && card.attachment != null) {
-            imageUri.value = null
+        if (isExpanded && card.attachment != null && imageUri == null) {
             onGetCardPicture(card.id, card.attachment) { uri ->
-                imageUri.value = uri
+                onImageLoaded(uri)
             }
         }
     }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -478,7 +486,7 @@ private fun ExpandableCardItem(
             AnimatedVisibility(visible = isExpanded) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
                     when {
-                        !card.attachment.isNullOrBlank() && imageUri.value == null -> {
+                        !card.attachment.isNullOrBlank() && imageUri == null -> {
                             Box(
                                 modifier = Modifier
                                     .width(144.dp)
@@ -489,13 +497,9 @@ private fun ExpandableCardItem(
                             }
                         }
 
-                        imageUri.value != null -> {
+                        imageUri != null -> {
                             AsyncImage(
-                                model = ImageRequest.Builder(context)
-                                    .data(imageUri.value)
-                                    .memoryCachePolicy(CachePolicy.DISABLED)
-                                    .diskCachePolicy(CachePolicy.DISABLED)
-                                    .build(),
+                                model = imageUri,
                                 contentDescription = stringResource(R.string.image_of_card),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
