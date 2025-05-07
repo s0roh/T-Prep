@@ -11,11 +11,12 @@ import com.example.network.dto.collection.history.HistoryItemDto
 import com.example.network.dto.collection.history.HistoryItemsDto
 import com.example.network.dto.global.AutoRemindersDto
 import com.example.network.dto.global.CardDto
+import com.example.network.dto.global.MetricsDto
 import com.example.network.dto.global.PublicDecksDto
-import com.example.network.dto.user.RefreshRequestDto
-import com.example.network.dto.user.SignupRequestDto
 import com.example.network.dto.user.AuthResponseDto
 import com.example.network.dto.user.LoginRequestDto
+import com.example.network.dto.user.RefreshRequestDto
+import com.example.network.dto.user.SignupRequestDto
 import com.example.network.dto.user.UserInfoDto
 import com.example.network.dto.user.UserPictureResponseDto
 import kotlinx.serialization.json.Json
@@ -128,7 +129,7 @@ interface ApiService {
     suspend fun getCardPicture(
         @Path("id") deckId: String,
         @Path("cardID") cardId: Int,
-        @Query("object_name") objectName : String,
+        @Query("object_name") objectName: String,
         @Header("Authorization") authHeader: String? = null,
     ): Response<ResponseBody>
 
@@ -145,7 +146,7 @@ interface ApiService {
     suspend fun deleteCardPicture(
         @Path("id") deckId: String,
         @Path("cardID") cardId: Int,
-        @Query("object_name") objectName : String,
+        @Query("object_name") objectName: String,
         @Header("Authorization") authHeader: String? = null,
     ): Response<ResponseMessageDto>
 
@@ -192,6 +193,12 @@ interface ApiService {
         @Query("preferred_time") preferredTime: Int,
         @Header("Authorization") authHeader: String? = null,
     ): AutoRemindersDto
+
+    @POST("global/addMetrics")
+    suspend fun addMetrics(
+        @Body metricsDto: MetricsDto,
+        @Header("Authorization") authHeader: String? = null,
+    ): Response<Unit>
 }
 
 fun ApiService(

@@ -10,6 +10,7 @@ android {
 dependencies {
     implementation(projects.coreCommon)
     implementation(projects.coreDatabase)
+    implementation(projects.corePreferences)
     implementation(projects.dataTraining)
     implementation(projects.dataDecks)
     implementation(projects.dataLocalDecks)

@@ -10,6 +10,7 @@ import com.example.feature.profile.domain.DeleteUserProfileImageUseCase
 import com.example.feature.profile.domain.GetTrainingStatsUseCase
 import com.example.feature.profile.domain.GetUserInfoUseCase
 import com.example.feature.profile.domain.GetUserProfileImageUseCase
+import com.example.feature.profile.domain.IncrementFavouriteProfileButtonMetricUseCase
 import com.example.feature.profile.domain.SaveUserProfileImageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -26,7 +27,8 @@ internal class ProfileViewModel @Inject constructor(
     private val saveUserProfileImageUseCase: SaveUserProfileImageUseCase,
     private val deleteUserProfileImageUseCase: DeleteUserProfileImageUseCase,
     private val getTrainingStatsUseCase: GetTrainingStatsUseCase,
-    private val getUserProfileImageUseCase: GetUserProfileImageUseCase
+    private val getUserProfileImageUseCase: GetUserProfileImageUseCase,
+    private val incrementFavouriteProfileButtonMetricUseCase: IncrementFavouriteProfileButtonMetricUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<ProfileScreenState>(ProfileScreenState.Loading)
@@ -92,5 +94,9 @@ internal class ProfileViewModel @Inject constructor(
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
         }
         return Uri.fromFile(file)
+    }
+
+    fun onFavouriteDecksClick() {
+        incrementFavouriteProfileButtonMetricUseCase()
     }
 }
