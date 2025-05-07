@@ -19,15 +19,21 @@ fun AppElevatedButton(
     title: String,
     shouldShowIcon: Boolean = false,
     iconResId: Int? = null,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     ElevatedButton(
         modifier = modifier,
         onClick = onClick,
         shape = MaterialTheme.shapes.medium,
+        enabled = enabled,
         elevation = ButtonDefaults.elevatedButtonElevation(
             defaultElevation = 2.dp,
-            pressedElevation = 1.dp
+            pressedElevation = 1.dp,
+            disabledElevation = 2.dp
+        ),
+        colors = ButtonDefaults.elevatedButtonColors(
+            disabledContainerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         if (shouldShowIcon && iconResId != null) {

@@ -6,11 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.common.domain.entity.Deck
 import com.example.database.models.Source
 import com.example.database.models.TrainingMode
+import com.example.feature.training.domain.AddTrainingsTimeMetricUseCase
 import com.example.feature.training.domain.CheckFillInTheBlankAnswerUseCase
 import com.example.feature.training.domain.GetCardPictureUseCase
 import com.example.feature.training.domain.GetDeckByIdLocalUseCase
 import com.example.feature.training.domain.GetDeckByIdNetworkUseCase
 import com.example.feature.training.domain.GetTrainingModesUseCase
+import com.example.feature.training.domain.IncrementTrainingsCountMetricUseCase
 import com.example.feature.training.domain.IsSoundEnabledUseCase
 import com.example.feature.training.domain.IsVibrationEnabledUseCase
 import com.example.feature.training.domain.PrepareTrainingCardsUseCase
@@ -19,13 +21,12 @@ import com.example.feature.training.domain.RecordTrainingUseCase
 import com.example.training.domain.entity.TrainingCard
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,6 +41,8 @@ internal class TrainingViewModel @Inject constructor(
     private val getCardPictureUseCase: GetCardPictureUseCase,
     private val isVibrationEnabledUseCase: IsVibrationEnabledUseCase,
     private val isSoundEnabledUseCase: IsSoundEnabledUseCase,
+    private val incrementTrainingsCountMetricUseCase: IncrementTrainingsCountMetricUseCase,
+    private val addTrainingsTimeMetricUseCase: AddTrainingsTimeMetricUseCase,
 ) : ViewModel() {
 
     var screenState = MutableStateFlow<TrainingScreenState>(TrainingScreenState.Initial)
@@ -57,8 +60,7 @@ internal class TrainingViewModel @Inject constructor(
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
-    private val preloadScope = CoroutineScope(Dispatchers.IO + exceptionHandler)
-
+    private var trainingStartTime: Long = 0
     private var currentDeckId: String = ""
     private lateinit var currentSource: Source
     private lateinit var currentDeck: Deck
@@ -67,6 +69,7 @@ internal class TrainingViewModel @Inject constructor(
     private lateinit var trainingSessionId: String
 
     fun loadTraining(deckId: String, source: Source) {
+        trainingStartTime = System.currentTimeMillis()
         currentDeckId = deckId
         currentSource = source
         trainingSessionId = generateTrainingSessionId(currentDeckId)
@@ -87,7 +90,7 @@ internal class TrainingViewModel @Inject constructor(
     }
 
     private fun startPreloadListener() {
-        preloadScope.launch {
+        viewModelScope.launch {
             _preloadRequestFlow.collect { index ->
                 val currentState =
                     screenState.value as? TrainingScreenState.Success ?: return@collect
@@ -96,7 +99,9 @@ internal class TrainingViewModel @Inject constructor(
                     currentState.preloadedCardPictures.containsKey(index)
                 ) return@collect
 
-                val uri = getCardUriIfExists(currentState.cards[index]) ?: return@collect
+                val uri = withContext(Dispatchers.IO) {
+                    getCardUriIfExists(currentState.cards[index])
+                } ?: return@collect
 
                 val updated = currentState.preloadedCardPictures.toMutableMap().apply {
                     this[index] = uri
@@ -106,7 +111,6 @@ internal class TrainingViewModel @Inject constructor(
             }
         }
     }
-
 
     private suspend fun loadCardsForTraining(source: Source): List<TrainingCard> {
         currentDeck = when (source) {
@@ -233,7 +237,7 @@ internal class TrainingViewModel @Inject constructor(
     }
 
     private fun finishTraining() {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             screenState.value = TrainingScreenState.Finished(
                 totalCardsCompleted = cardsCompleted,
                 correctAnswers = correctAnswersCount,
@@ -244,6 +248,10 @@ internal class TrainingViewModel @Inject constructor(
                 val currentState = screenState.value
                 if (currentState is TrainingScreenState.Finished && currentState.totalCardsCompleted != 0) {
                     uiEvent.emit(TrainingUiEvent.PlayFinishSound)
+                    val totalTrainingTimeSeconds =
+                        ((System.currentTimeMillis() - trainingStartTime) / 1000).toInt()
+                    addTrainingsTimeMetricUseCase(totalTrainingTimeSeconds)
+                    incrementTrainingsCountMetricUseCase()
                 }
             }
         }
@@ -274,10 +282,5 @@ internal class TrainingViewModel @Inject constructor(
                 uiEvent.emit(TrainingUiEvent.VibrateIncorrectAnswer)
             }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        preloadScope.cancel()
     }
 }

@@ -116,7 +116,10 @@ fun ProfileScreen(
                     state = currentState,
                     onDeleteProfileImage = { viewModel.deleteProfileImage() },
                     onChangeImageClick = { showDialog = true },
-                    onFavouriteDecksClick = onFavouriteDecksClick
+                    onFavouriteDecksClick = {
+                        viewModel.onFavouriteDecksClick()
+                        onFavouriteDecksClick()
+                    }
                 )
             }
 
@@ -133,6 +136,8 @@ private fun ProfileScreenContent(
     onChangeImageClick: () -> Unit,
     onFavouriteDecksClick: () -> Unit,
 ) {
+    val alreadyClicked = remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .padding(horizontal = 25.dp, vertical = 20.dp)
@@ -156,7 +161,13 @@ private fun ProfileScreenContent(
             title = stringResource(R.string.open_favourite_decks),
             shouldShowIcon = true,
             iconResId = R.drawable.ic_heart,
-            onClick = onFavouriteDecksClick,
+            onClick = {
+                if (!alreadyClicked.value) {
+                    alreadyClicked.value = true
+                    onFavouriteDecksClick()
+                }
+            },
+            enabled = !alreadyClicked.value,
             modifier = Modifier.fillMaxWidth()
         )
     }

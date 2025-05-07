@@ -16,6 +16,7 @@ import com.example.localdecks.domain.usecase.SyncDeleteCardUseCase
 import com.example.localdecks.domain.usecase.SyncDeleteDeckUseCase
 import com.example.localdecks.domain.usecase.SyncUpdateCardUseCase
 import com.example.localdecks.domain.usecase.SyncUpdateDeckUseCase
+import com.example.localdecks.domain.usecase.SyncUserMetricsUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -34,9 +35,13 @@ class SyncWorker @AssistedInject constructor(
     private val syncUpdateCardUseCase: SyncUpdateCardUseCase,
     private val syncDeleteCardUseCase: SyncDeleteCardUseCase,
     private val syncUserDataUseCase: SyncUserDataUseCase,
+    private val syncUserMetricsUseCase: SyncUserMetricsUseCase,
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+
+        val shouldSyncMetrics = inputData.getBoolean(SHOULD_SYNC_USER_METRICS_KEY, false)
+
         return try {
             Log.d("SyncWorker", "Запущена синхронизация данных")
             delay(500L)
@@ -59,6 +64,9 @@ class SyncWorker @AssistedInject constructor(
             }
 
             syncUserDataUseCase()
+
+            if (shouldSyncMetrics) syncUserMetricsUseCase()
+
             Log.d("SyncWorker", "Синхронизация завершена успешно")
             Result.success()
         } catch (e: Exception) {
@@ -105,5 +113,10 @@ class SyncWorker @AssistedInject constructor(
                 syncDeleteCardUseCase(metadata)
             }
         }
+    }
+
+    companion object {
+
+        const val SHOULD_SYNC_USER_METRICS_KEY = "should_sync_user_metrics"
     }
 }

@@ -1,4 +1,4 @@
-package com.example.tprep.app.reminder
+package com.example.tprep.app.utils.reminder
 
 import android.content.Context
 import android.content.Intent

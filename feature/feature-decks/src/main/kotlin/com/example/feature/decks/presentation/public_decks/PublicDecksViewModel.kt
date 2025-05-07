@@ -11,6 +11,7 @@ import com.example.database.models.Source
 import com.example.feature.decks.domain.entity.PublicDeckFilters
 import com.example.feature.decks.domain.usecase.GetDeckByIdFromNetworkUseCase
 import com.example.feature.decks.domain.usecase.GetPublicDecksUseCase
+import com.example.feature.decks.domain.usecase.IncrementFavouriteFilterButtonMetricUseCase
 import com.example.feature.decks.domain.usecase.IsPublicDecksTooltipEnabledUseCase
 import com.example.feature.decks.domain.usecase.LikeOrUnlikeUseCase
 import com.example.feature.decks.domain.usecase.SearchPublicDecksUseCase
@@ -29,6 +30,7 @@ internal class PublicDecksViewModel @Inject constructor(
     private val likeOrUnlikeUseCase: LikeOrUnlikeUseCase,
     private val searchPublicDecksUseCase: SearchPublicDecksUseCase,
     private val getDeckByIdFromNetworkUseCase: GetDeckByIdFromNetworkUseCase,
+    private val incrementFavouriteFilterButtonMetricUseCase: IncrementFavouriteFilterButtonMetricUseCase,
     isPublicDecksTooltipEnabledUseCase: IsPublicDecksTooltipEnabledUseCase,
     setPublicDecksTooltipShownUseCase: SetPublicDecksTooltipShownUseCase,
 ) : ViewModel() {
@@ -70,6 +72,10 @@ internal class PublicDecksViewModel @Inject constructor(
     fun updateCategory(category: DeckCategory) {
         screenState.value = screenState.value.copy(category = category)
         filtersFlow.update { it.copy(category = category.value) }
+
+        if (category == DeckCategory.LIKED) {
+            incrementFavouriteFilterButtonMetricUseCase()
+        }
     }
 
     suspend fun getDeckById(deckId: String): Pair<Deck, Source> {

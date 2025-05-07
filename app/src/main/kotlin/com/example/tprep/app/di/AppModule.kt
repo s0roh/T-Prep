@@ -26,16 +26,20 @@ import com.example.localdecks.domain.repository.LocalDeckRepository
 import com.example.localdecks.domain.repository.SyncHelper
 import com.example.localdecks.data.repository.SyncHelperImpl
 import com.example.localdecks.data.repository.SyncUserDataRepositoryImpl
+import com.example.localdecks.data.repository.SyncUserMetricsRepositoryImpl
 import com.example.localdecks.domain.repository.SyncCardRepository
 import com.example.localdecks.domain.repository.SyncDeckRepository
 import com.example.localdecks.domain.repository.SyncUserDataRepository
+import com.example.localdecks.domain.repository.SyncUserMetricsRepository
 import com.example.network.api.ApiService
 import com.example.preferences.auth.AuthPreferences
 import com.example.preferences.auth.AuthPreferencesImpl
 import com.example.preferences.auth.util.AuthRequestWrapper
+import com.example.preferences.metrics.MetricsPreferences
+import com.example.preferences.metrics.MetricsPreferencesImpl
 import com.example.preferences.tooltip.TooltipPreferences
 import com.example.preferences.tooltip.TooltipPreferencesImpl
-import com.example.tprep.app.reminder.AppRouteNavigator
+import com.example.tprep.app.utils.reminder.AppRouteNavigator
 import com.example.tprep.app.utils.getApiBaseUrl
 import com.example.training.data.repository.TrainingRepositoryImpl
 import com.example.training.domain.repository.TrainingRepository
@@ -77,6 +81,11 @@ interface AppModule {
     @Singleton
     @Suppress("unused")
     fun bindSyncDeckRepository(syncDeckRepositoryImpl: SyncDeckRepositoryImpl): SyncDeckRepository
+
+    @Binds
+    @Singleton
+    @Suppress("unused")
+    fun bindSyncUserMetricsRepository(syncUserMetricsRepositoryImpl: SyncUserMetricsRepositoryImpl): SyncUserMetricsRepository
 
     @Binds
     @Singleton
@@ -136,6 +145,12 @@ interface AppModule {
         @Singleton
         fun provideTooltipPreferences(@ApplicationContext context: Context): TooltipPreferences {
             return TooltipPreferencesImpl(context)
+        }
+
+        @Provides
+        @Singleton
+        fun provideMetricsPreferences(@ApplicationContext context: Context): MetricsPreferences {
+            return MetricsPreferencesImpl(context)
         }
 
         @Provides
