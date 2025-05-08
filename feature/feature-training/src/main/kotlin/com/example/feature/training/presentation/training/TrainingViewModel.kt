@@ -22,6 +22,7 @@ import com.example.training.domain.entity.TrainingCard
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,7 +69,10 @@ internal class TrainingViewModel @Inject constructor(
     private var cardsCompleted = 0
     private lateinit var trainingSessionId: String
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun loadTraining(deckId: String, source: Source) {
+        _preloadRequestFlow.resetReplayCache()
+
         trainingStartTime = System.currentTimeMillis()
         currentDeckId = deckId
         currentSource = source

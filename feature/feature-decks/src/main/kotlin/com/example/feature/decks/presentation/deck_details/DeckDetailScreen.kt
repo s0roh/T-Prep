@@ -57,12 +57,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
 import com.example.common.domain.entity.Card
 import com.example.common.domain.entity.Deck
 import com.example.common.ui.AppButton
@@ -499,7 +503,11 @@ private fun ExpandableCardItem(
 
                         imageUri != null -> {
                             AsyncImage(
-                                model = imageUri,
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(imageUri)
+                                    .memoryCachePolicy(CachePolicy.DISABLED)
+                                    .diskCachePolicy(CachePolicy.DISABLED)
+                                    .build(),
                                 contentDescription = stringResource(R.string.image_of_card),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
@@ -559,6 +567,8 @@ private fun DeckTitle(deck: Deck) {
             fontSize = 32.sp,
             color = MaterialTheme.colorScheme.onSurface,
         ),
+        maxLines = 4,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier.fillMaxWidth(),
         textAlign = TextAlign.Center
     )

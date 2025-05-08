@@ -90,7 +90,7 @@ fun PublicDecksScreen(
 
     LaunchedEffect(Unit) {
         val initialCategory = if (isShowingLikedDecks) DeckCategory.LIKED else DeckCategory.ALL
-        viewModel.updateCategory(initialCategory)
+        viewModel.updateCategoryWithoutMetricIncrement(initialCategory)
     }
 
     val query = rememberSaveable { mutableStateOf("") }

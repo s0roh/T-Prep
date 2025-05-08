@@ -146,8 +146,8 @@ internal class AddEditCardViewModel @Inject constructor(
 
             val card = Card(
                 id = currentCardId ?: 0,
-                question = currentState.question.trim(),
-                answer = currentState.answer.trim(),
+                question = normalizeSpaces(currentState.question),
+                answer = normalizeSpaces(currentState.answer),
                 wrongAnswers = currentState.wrongAnswerList.filter { it.isNotBlank() }
                     .map { it.trim() },
                 attachment = currentState.attachment,
@@ -188,5 +188,9 @@ internal class AddEditCardViewModel @Inject constructor(
         viewModelScope.launch(exceptionHandler) {
             screenState.value = screenState.value.copy(cardPictureUri = null)
         }
+    }
+
+    private fun normalizeSpaces(text: String): String {
+        return text.replace(Regex("\\s+"), " ").trim()
     }
 }
