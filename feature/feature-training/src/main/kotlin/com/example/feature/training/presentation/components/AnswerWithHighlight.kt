@@ -19,34 +19,33 @@ internal fun AnswerWithHighlight(answer: String, missingWords: List<String>, sta
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(bottom = 8.dp)
     )
-    // Строим аннотированную строку, подсвечивая только пропущенные слова
+
+    // Разбиваем ответ на отдельные слова (игнорируя пробелы)
+    val words = answer.split("\\s+".toRegex()).filter { it.isNotBlank() }
+
+    // Проверяем, что startIndex и missingWords корректны
+    require(startIndex >= 0 && startIndex + missingWords.size <= words.size) {
+        "Invalid startIndex ($startIndex) or missingWords size (${missingWords.size}). " +
+                "Expected: startIndex >= 0 and startIndex + missingWords.size (${startIndex + missingWords.size}) " +
+                "<= words.size (${words.size}). " +
+                "Actual words: ${words.size}, requested highlight range: $startIndex..${startIndex + missingWords.size - 1}"
+    }
+
     val annotatedAnswer = buildAnnotatedString {
-        val answerText = answer
-        var currentIndex = 0 // Индекс для отслеживания позиции в строке ответа
-        var currentStartIndex = startIndex // Начальный индекс для пропусков
+        words.forEachIndexed { index, word ->
+            // Добавляем пробел перед словом, кроме первого
+            if (index > 0) {
+                append(" ")
+            }
 
-        // Перебираем все пропущенные слова
-        for (missingWord in missingWords) {
-            // Ищем первое вхождение пропущенного слова начиная с текущей позиции
-            var startIndex = answerText.indexOf(missingWord, currentStartIndex)
-
-            // Если нашли пропущенное слово, добавляем все текст до этого слова
-            if (startIndex != -1) {
-                append(answerText.substring(currentIndex, startIndex))
-
-                // Подсвечиваем найденное пропущенное слово
+            if (index >= startIndex && index < startIndex + missingWords.size) {
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                    append(missingWord)
+                    append(word)
                 }
-
-                // Обновляем текущий индекс, чтобы продолжить поиск с места после пропущенного слова
-                currentIndex = startIndex + missingWord.length
-                currentStartIndex = currentIndex
+            } else {
+                append(word)
             }
         }
-
-        // Добавляем оставшуюся часть текста, которая не была подсвечена
-        append(answerText.substring(currentIndex))
     }
 
     Text(

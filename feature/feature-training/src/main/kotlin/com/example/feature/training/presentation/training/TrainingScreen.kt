@@ -49,6 +49,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
 import com.example.common.ui.CenteredTopAppBar
 import com.example.common.ui.ErrorState
 import com.example.common.ui.LoadingState
@@ -240,7 +242,11 @@ private fun TrainingCardsContent(
 
                     currentCardUri?.let { uri ->
                         AsyncImage(
-                            model = uri,
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(uri)
+                                .memoryCachePolicy(CachePolicy.DISABLED)
+                                .diskCachePolicy(CachePolicy.DISABLED)
+                                .build(),
                             contentDescription = stringResource(R.string.image_of_card),
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -482,6 +488,7 @@ private fun FillInTheBlankContent(
     }
 
     LaunchedEffect(Unit) {
+        delay(100)
         focusRequester.requestFocus()
     }
 }
