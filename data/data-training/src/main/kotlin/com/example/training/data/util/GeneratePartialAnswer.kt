@@ -19,7 +19,7 @@ internal fun generatePartialAnswer(answer: String): Triple<String, List<String>,
     val words = answer.split(" ")
 
     // Если количество слов в ответе меньше минимального для пропусков, возвращаем пустую строку и пустой список
-    if (words.size <= MIN_WORDS_FOR_BLANK) return Triple("", words, -1)
+    if (words.size <= MIN_WORDS_FOR_BLANK) return Triple("", words, 0)
 
     // Рассчитываем максимальное количество пропущенных слов (ограничение по проценту)
     val maxMissingWordsCount = (words.size * MAX_BLANK_PERCENT / 100).coerceIn(1, MAX_MISSING_WORDS)

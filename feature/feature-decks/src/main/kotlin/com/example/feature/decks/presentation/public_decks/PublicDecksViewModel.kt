@@ -78,6 +78,11 @@ internal class PublicDecksViewModel @Inject constructor(
         }
     }
 
+    fun updateCategoryWithoutMetricIncrement(category: DeckCategory) {
+        screenState.value = screenState.value.copy(category = category)
+        filtersFlow.update { it.copy(category = category.value) }
+    }
+
     suspend fun getDeckById(deckId: String): Pair<Deck, Source> {
         return getDeckByIdFromNetworkUseCase(deckId)
     }
