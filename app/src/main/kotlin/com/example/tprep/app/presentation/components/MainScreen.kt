@@ -106,7 +106,7 @@ fun MainScreen(navController: NavHostController) {
                     }
                 )
             },
-            publicDecksScreenContent = {isShowingLikedDecks ->
+            publicDecksScreenContent = { isShowingLikedDecks ->
                 PublicDecksScreen(
                     paddingValues = paddingValues,
                     onDeckClickListener = { deckId ->

@@ -82,10 +82,14 @@ fun AuthScreen(
         AuthScreenContent(
             screenState = screenState,
             onLoginClick = { login, password ->
-                viewModel.onLoginClick(login, password)
+                viewModel.onLoginClick(login.trim(), password.trim())
             },
             onSignupClick = { username, email, password ->
-                viewModel.onSignupClick(email = email, password = password, name = username)
+                viewModel.onSignupClick(
+                    email = email.trim(),
+                    password = password.trim(),
+                    name = username.trim()
+                )
             }
         )
     }

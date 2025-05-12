@@ -200,7 +200,7 @@ private fun TrainingCardsContent(
         isCorrect = false
         shakeOffset.snapTo(0f)
         scrollState.scrollTo(0)
-        delay(500)
+        delay(1000)
         isButtonEnabled = true
     }
 
@@ -272,20 +272,22 @@ private fun TrainingCardsContent(
                             coroutineScope = coroutineScope,
                             shakeOffset = shakeOffset,
                             onAnswerSelected = { answer ->
-                                selectedAnswer = answer
-                                isAnswered = true
+                                if (!isAnswered) {
+                                    isAnswered = true
+                                    selectedAnswer = answer
 
-                                val correct = answer == card.answer
-                                viewModel.playFeedback(correct)
+                                    val correct = answer == card.answer
+                                    viewModel.playFeedback(correct)
 
-                                onAnswer(
-                                    answer == card.answer,
-                                    card.question,
-                                    card.answer,
-                                    null,
-                                    answer,
-                                    TrainingMode.MULTIPLE_CHOICE
-                                )
+                                    onAnswer(
+                                        answer == card.answer,
+                                        card.question,
+                                        card.answer,
+                                        null,
+                                        answer,
+                                        TrainingMode.MULTIPLE_CHOICE
+                                    )
+                                }
                             }
                         )
 
@@ -314,8 +316,8 @@ private fun TrainingCardsContent(
                 shakeOffset = shakeOffset,
                 onAnswerSelected = { answer ->
                     if (!isAnswered) {
-                        selectedAnswer = answer
                         isAnswered = true
+                        selectedAnswer = answer
 
                         val correct = answer == correctAnswer
                         viewModel.playFeedback(correct)
@@ -345,13 +347,15 @@ private fun TrainingCardsContent(
                 onNextCard()
             },
             onSkip = {
-                isAnswered = true
-                onSkip(
-                    currentCard.question,
-                    currentCard.answer,
-                    currentCard.missingWords.joinToString(" "),
-                    currentCard.trainingMode!!
-                )
+                if (!isAnswered) {
+                    isAnswered = true
+                    onSkip(
+                        currentCard.question,
+                        currentCard.answer,
+                        currentCard.missingWords.joinToString(" "),
+                        currentCard.trainingMode!!
+                    )
+                }
             },
             onSubmit = {
                 if (currentCard.trainingMode == TrainingMode.FILL_IN_THE_BLANK && userInput.isNotBlank()) {
@@ -359,17 +363,19 @@ private fun TrainingCardsContent(
                         userInput = userInput,
                         correctWords = currentCard.missingWords
                     ) { result ->
-                        isCorrect = result
-                        isAnswered = true
-                        viewModel.playFeedback(result)
-                        onAnswer(
-                            isCorrect,
-                            currentCard.question,
-                            currentCard.answer,
-                            currentCard.missingWords.joinToString(" "),
-                            userInput,
-                            TrainingMode.FILL_IN_THE_BLANK
-                        )
+                        if (!isAnswered) {
+                            isCorrect = result
+                            isAnswered = true
+                            viewModel.playFeedback(result)
+                            onAnswer(
+                                isCorrect,
+                                currentCard.question,
+                                currentCard.answer,
+                                currentCard.missingWords.joinToString(" "),
+                                userInput,
+                                TrainingMode.FILL_IN_THE_BLANK
+                            )
+                        }
                     }
                 }
             },

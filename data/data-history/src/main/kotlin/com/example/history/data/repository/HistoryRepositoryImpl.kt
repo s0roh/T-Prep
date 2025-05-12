@@ -63,7 +63,7 @@ class HistoryRepositoryImpl @Inject internal constructor(
                 if (cardsCount == 0) return@mapNotNull null
 
                 val correctAnswers = trainings.count { it.isCorrect }
-                (correctAnswers.toDouble() / cardsCount) * 100
+                ((correctAnswers.toDouble() / cardsCount) * 100).coerceAtMost(100.0)
             }
     }
 
