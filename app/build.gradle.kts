@@ -1,3 +1,4 @@
+import com.getkeepsafe.dexcount.OutputFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
@@ -15,11 +16,8 @@ android {
     namespace = "com.example.tprep.app"
     defaultConfig {
         applicationId = "com.example.tprep"
-        versionCode = 1
-        versionName = "1.0.0"
-    }
-    compileOptions{
-        isCoreLibraryDesugaringEnabled = true
+        versionCode = 2
+        versionName = "1.0.1"
     }
 
     val keystoreProperties = Properties()
@@ -47,11 +45,17 @@ android {
             )
         }
     }
+
+    dexcount {
+        format.set(OutputFormat.LIST)
+        includeClasses.set(true)
+        includeFieldCount.set(true)
+        includeTotalMethodCount.set(true)
+        runOnEachPackage.set(true)
+    }
 }
 
 dependencies {
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
-
     implementation(projects.featureDecks)
     implementation(projects.featureAuth)
     implementation(projects.featureTraining)

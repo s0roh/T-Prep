@@ -15,6 +15,7 @@ import com.example.localdecks.data.mapper.toUiModel
 import com.example.localdecks.domain.repository.LocalDeckRepository
 import com.example.localdecks.domain.repository.SyncHelper
 import com.example.preferences.auth.AuthPreferences
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -26,7 +27,7 @@ import java.io.File
 import javax.inject.Inject
 
 class LocalDeckRepositoryImpl @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val database: TPrepDatabase,
     private val syncHelper: SyncHelper,
     private val preferences: AuthPreferences,

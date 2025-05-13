@@ -8,8 +8,7 @@ fun BaseExtension.baseModuleConfig() {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
-            consumerProguardFiles("consumer-rules.pro")
+           consumerProguardFiles("consumer-rules.pro")
         }
     }
     compileOptions {
