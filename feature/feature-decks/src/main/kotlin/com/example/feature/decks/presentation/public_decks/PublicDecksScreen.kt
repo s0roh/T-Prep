@@ -88,7 +88,7 @@ fun PublicDecksScreen(
     val viewModel: PublicDecksViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isShowingLikedDecks) {
         val initialCategory = if (isShowingLikedDecks) DeckCategory.LIKED else DeckCategory.ALL
         viewModel.updateCategoryWithoutMetricIncrement(initialCategory)
     }

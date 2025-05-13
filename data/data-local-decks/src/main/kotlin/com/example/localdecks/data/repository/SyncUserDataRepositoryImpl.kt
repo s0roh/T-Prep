@@ -18,13 +18,14 @@ import com.example.network.dto.collection.history.HistoryItemDto
 import com.example.network.dto.global.CardDto
 import com.example.preferences.auth.AuthPreferences
 import com.example.preferences.auth.util.AuthRequestWrapper
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import retrofit2.Response
 import java.io.File
 import javax.inject.Inject
 
 class SyncUserDataRepositoryImpl @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val database: TPrepDatabase,
     private val apiService: ApiService,
     private val authRequestWrapper: AuthRequestWrapper,
