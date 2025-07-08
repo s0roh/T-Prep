@@ -1,4 +1,4 @@
-# Android приложение T-Prep  [<img src="https://github.com/user-attachments/assets/e1ebdfe2-547d-47b6-93c2-5655a804f36e" width="50" alt="Logo"/>](https://github.com/your-repo)
+# Android приложение T-Prep  <img src="https://github.com/user-attachments/assets/e1ebdfe2-547d-47b6-93c2-5655a804f36e" width="50" alt="Logo"/>
 
 Backend приложения находится в [другом репозитории](https://github.com/mmms914/tprep-server)
 
